@@ -1,2 +1,2 @@
-# Tiro_Parab-lico
+# Tiro_Parabolico
 Un simulador sobre tiro parabolico
