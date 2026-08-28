@@ -22,10 +22,12 @@ interface Proyectil {
     }
 }
 
-class PelotaGoma(override var posicion: Vector2D) : Proyectil {
+class PelotaGoma(
+    override var posicion: Vector2D,
+    override val masa: Double,
+    override val coeficienteRestitucion: Double
+) : Proyectil {
     override var velocidad = Vector2D(0.0, 0.0)
-    override val masa = 0.5
-    override val coeficienteRestitucion = 0.8
 }
 
 // 3. Ambiente
@@ -63,30 +65,56 @@ val Proyectil.y get() = posicion.y
 
 // 5. Clase principal (App)
 class App {
+    private fun leerDouble(mensaje: String, valorDefecto: Double): Double {
+        while (true) {
+            print("$mensaje (valor por defecto: $valorDefecto): ")
+            val entrada = readlnOrNull()?.trim()
+            if (entrada.isNullOrEmpty()) {
+                println("  Usando valor por defecto: $valorDefecto")
+                return valorDefecto
+            }
+            val valor = entrada.toDoubleOrNull()
+            if (valor != null && valor > 0) return valor
+            println("  Error: '$entrada' no es un número válido. Intenta de nuevo.")
+        }
+    }
+
     fun iniciar() {
         println("=== SIMULADOR DE TIRO PARABÓLICO ===")
-        
-        print("Velocidad inicial (m/s): ")
-        val v0 = readlnOrNull()?.toDoubleOrNull() ?: 20.0
-        print("Ángulo de lanzamiento (grados): ")
-        val angulo = readlnOrNull()?.toDoubleOrNull() ?: 45.0
+        println()
 
-        val ambiente = Tierra()
-        val motor = MotorFisico(ambiente)
-        val pelota = PelotaGoma(Vector2D(0.0, 599.0))
+        do {
+            println("--- Nueva simulación ---")
+            val v0 = leerDouble("Velocidad inicial (m/s)", 20.0)
+            val angulo = leerDouble("Ángulo de lanzamiento (grados)", 45.0)
+            val posX = leerDouble("Posición inicial X", 0.0)
+            val posY = leerDouble("Posición inicial Y", 599.0)
+            val masa = leerDouble("Masa de la pelota (kg)", 0.5)
+            val coeficiente = leerDouble("Coeficiente de restitución", 0.8)
 
-        val rad = Math.toRadians(angulo)
-        pelota.velocidad = Vector2D(cos(rad) * v0, -sin(rad) * v0)
+            val ambiente = Tierra()
+            val motor = MotorFisico(ambiente)
+            val pelota = PelotaGoma(Vector2D(posX, posY), masa, coeficiente)
 
-        println("\nIniciando simulación...")
-        var tiempo = 0.0
-        repeat(30) {
-            motor.simularPaso(pelota, 0.1)
-            tiempo += 0.1
-            println("Tiempo: ${"%.1f".format(tiempo)}s | Pos: (${"%.2f".format(pelota.x)}, ${"%.2f".format(pelota.y)})")
-            
-            if (pelota.y >= 599 && abs(pelota.velocidad.y) < 0.1) return@repeat
-        }
+            val rad = Math.toRadians(angulo)
+            pelota.velocidad = Vector2D(cos(rad) * v0, -sin(rad) * v0)
+
+            println("\n--- Resultados ---")
+            println("V0: ${"%.2f".format(v0)} m/s | Ángulo: ${"%.1f".format(angulo)}° | Masa: ${"%.2f".format(masa)} kg")
+            println()
+            var tiempo = 0.0
+            repeat(30) {
+                motor.simularPaso(pelota, 0.1)
+                tiempo += 0.1
+                println("  t=${"%.1f".format(tiempo)}s  x=${"%.2f".format(pelota.x)}  y=${"%.2f".format(pelota.y)}")
+                if (pelota.y >= 599 && abs(pelota.velocidad.y) < 0.1) return@repeat
+            }
+            println()
+
+            print("¿Ejecutar otra simulación? (s/n): ")
+        } while (readlnOrNull()?.trim()?.lowercase() == "s")
+
+        println("\nFin del programa.")
     }
 }
 
