@@ -5,8 +5,11 @@ import javafx.scene.paint.Color
 import javafx.scene.text.Font
 import org.example.modelo.Pared
 import org.example.modelo.Proyectil
-import org.example.modelo.EstadoSimulacion
 import org.example.modelo.Vector2D
+import kotlin.math.ceil
+import kotlin.math.floor
+import kotlin.math.max
+import kotlin.math.sin
 
 class CanvasRenderer(
     private val gc: GraphicsContext,
@@ -21,9 +24,6 @@ class CanvasRenderer(
     private val colorCespedClaro = Color.web("#7fd07f")
     private val colorMeta = Color.web("#e74c3c")
     private val colorLinea = Color.web("#ff6b35")
-    private val colorPared = Color.web("#8e9aaf")
-    private val colorParedBorde = Color.web("#34495e")
-    private val colorParedTemporal = Color.web("#f1c40f")
     private val colorTexto = Color.WHITE
     private val sueloY: Double get() = alto - 50.0
 
@@ -131,26 +131,72 @@ class CanvasRenderer(
         val inicio = pared.inicio - offsetCamara
         val fin = pared.fin - offsetCamara
 
-        gc.stroke = colorParedBorde
+        gc.stroke = mezclar(colorDe(pared.tipo.colorBorde), COLOR_DANO, pared.danio * 0.6)
         gc.lineWidth = pared.grosor + 2.0
         gc.setLineDashes()
         gc.strokeLine(inicio.x, inicio.y, fin.x, fin.y)
 
-        gc.stroke = colorPared
+        gc.stroke = mezclar(colorDe(pared.tipo.color), COLOR_DANO, pared.danio * 0.5)
         gc.lineWidth = pared.grosor
         gc.strokeLine(inicio.x, inicio.y, fin.x, fin.y)
+
+        dibujarGrietas(pared, inicio, fin)
     }
 
-    override fun dibujarParedTemporal(inicio: Vector2D, fin: Vector2D, grosor: Double) {
-        val inicioPantalla = inicio - offsetCamara
-        val finPantalla = fin - offsetCamara
+    /** Grietas estables: la semilla sale de la pared, asi que no parpadean. */
+    private fun dibujarGrietas(pared: Pared, inicio: Vector2D, fin: Vector2D) {
+        if (pared.danio <= UMBRAL_GRIETAS) return
 
-        gc.stroke = colorParedTemporal
-        gc.lineWidth = grosor
+        val largo = pared.longitud
+        if (largo <= 0.0) return
+
+        val direccion = (fin - inicio) / largo
+        val perpendicular = Vector2D(-direccion.y, direccion.x)
+        val medio = pared.grosor / 2.0
+        val semilla = semillaDe(pared)
+
+        gc.stroke = COLOR_GRIETA
+        gc.lineWidth = max(1.0, pared.grosor * 0.16)
+        gc.setLineDashes()
+
+        val numero = ceil(pared.danio * GRIETAS_MAXIMAS).toInt()
+        for (i in 1..numero) {
+            val t = 0.12 + 0.76 * fraccion(semilla + i * 0.41)
+            val centro = inicio + direccion * (largo * t)
+            val desvio = (fraccion(semilla + i * 0.77) - 0.5) * pared.grosor * 1.4
+            gc.strokeLine(
+                centro.x - perpendicular.x * medio,
+                centro.y - perpendicular.y * medio,
+                centro.x + perpendicular.x * medio + direccion.x * desvio,
+                centro.y + perpendicular.y * medio + direccion.y * desvio
+            )
+        }
+    }
+
+    override fun dibujarParedTemporal(pared: Pared) {
+        val inicioPantalla = pared.inicio - offsetCamara
+        val finPantalla = pared.fin - offsetCamara
+
+        gc.stroke = colorDe(pared.tipo.color)
+        gc.lineWidth = pared.grosor
         gc.setLineDashes(10.0, 6.0)
         gc.strokeLine(inicioPantalla.x, inicioPantalla.y, finPantalla.x, finPantalla.y)
         gc.setLineDashes()
     }
+
+    private fun colorDe(valor: Int): Color =
+        Color.rgb((valor shr 16) and 0xFF, (valor shr 8) and 0xFF, valor and 0xFF)
+
+    private fun mezclar(base: Color, destino: Color, cantidad: Double): Color = Color.color(
+        base.red + (destino.red - base.red) * cantidad,
+        base.green + (destino.green - base.green) * cantidad,
+        base.blue + (destino.blue - base.blue) * cantidad
+    )
+
+    private fun fraccion(valor: Double): Double = valor - floor(valor)
+
+    private fun semillaDe(pared: Pared): Double =
+        fraccion(sin(pared.inicio.x * 12.9898 + pared.inicio.y * 78.233 + pared.fin.y * 37.719) * 43758.5453)
 
     override fun dibujarPantallaInicio(nombrePelota: String?) {
         gc.fill = Color.color(0.0, 0.0, 0.0, 0.85)
@@ -171,7 +217,7 @@ class CanvasRenderer(
         gc.fill = Color.color(1.0, 1.0, 1.0, 0.8)
         gc.font = Font.font("Monospace", 15.0)
         gc.fillText("Arrastra con el mouse para apuntar y soltar para lanzar", ancho / 2.0 - 290.0, alto / 2.0 + 100.0)
-        gc.fillText("Crea paredes y haz rebotar la pelota", ancho / 2.0 - 230.0, alto / 2.0 + 125.0)
+        gc.fillText("Crea paredes (tipo con W) y haz rebotar la pelota", ancho / 2.0 - 250.0, alto / 2.0 + 125.0)
         gc.fillText("Pulsa B para cambiar de pelota", ancho / 2.0 - 180.0, alto / 2.0 + 150.0)
         if (nombrePelota != null) {
             gc.fill = Color.web("#d4e157")
@@ -234,84 +280,17 @@ class CanvasRenderer(
         gc.fillText(texto, x, y)
     }
 
-    override fun dibujarRectangulo(x: Double, y: Double, ancho: Double, alto: Double, color: String) {
-        gc.fill = Color.web(color)
-        gc.fillRect(x, y, ancho, alto)
-    }
-
-    override fun dibujarUI(
-        estado: EstadoSimulacion,
-        velocidad: Vector2D?,
-        posicion: Vector2D?,
-        angulo: Double?,
-        distanciaRecorrida: Double?,
-        cantidadParedes: Int,
-        modoParedes: Boolean,
-        nombrePelota: String?,
-        colisionPelota: String?
-    ) {
+    override fun dibujarPanel(lineas: List<String>) {
         gc.fill = Color.color(0.0, 0.0, 0.0, 0.6)
-        gc.fillRoundRect(10.0, 10.0, 270.0, 185.0, 10.0, 10.0)
+        gc.fillRoundRect(10.0, 10.0, 290.0, 24.0 + lineas.size * 18.0, 10.0, 10.0)
 
         gc.fill = colorTexto
         gc.font = Font.font("Monospace", 14.0)
-
-        val lineas = mutableListOf<String>()
-        lineas.add("Estado: ${estado.name}")
-        if (nombrePelota != null) {
-            lineas.add("Pelota: $nombrePelota")
-        }
-        if (colisionPelota != null) {
-            lineas.add("Colision: $colisionPelota")
-        }
-        lineas.add("Paredes: $cantidadParedes")
-        if (modoParedes) {
-            lineas.add("Modo pared: arrastra para dibujar")
-        } else {
-            lineas.add("Boton: crear pared")
-        }
-
-        when (estado) {
-            EstadoSimulacion.ARROJANDO -> {
-                if (velocidad != null) {
-                    lineas.add("Arrastra para lanzar")
-                    if (angulo != null) {
-                        lineas.add("Angulo: ${"%.1f".format(angulo)}°")
-                        lineas.add("Fuerza: ${"%.1f".format(velocidad.magnitud)}")
-                    }
-                }
-            }
-            EstadoSimulacion.EN_VUELO -> {
-                if (velocidad != null && posicion != null) {
-                    lineas.add("Vel: ${"%.2f".format(velocidad.magnitud)} px/s")
-                    lineas.add("Pos: (${posicion.x.toInt()}, ${posicion.y.toInt()})")
-                }
-            }
-            EstadoSimulacion.EN_SUELO -> {
-                if (distanciaRecorrida != null) {
-                    lineas.add("Distancia: ${"%.2f".format(distanciaRecorrida)} px")
-                }
-                lineas.add("Click para reiniciar")
-            }
-            EstadoSimulacion.INACTIVO -> {
-                lineas.add("Click en el suelo para")
-                lineas.add("colocar la pelota")
-            }
-            EstadoSimulacion.PANTALLA_INICIO -> {
-                lineas.add("Haz click para comenzar")
-            }
-        }
 
         var yTexto = 30.0
         for (linea in lineas) {
             gc.fillText(linea, 20.0, yTexto)
             yTexto += 18.0
-        }
-    }
-
-    override fun dibujarImagen(imagen: Any, x: Double, y: Double, ancho: Double, alto: Double) {
-        if (imagen is javafx.scene.image.Image) {
-            gc.drawImage(imagen, x, y, ancho, alto)
         }
     }
 
@@ -321,12 +300,13 @@ class CanvasRenderer(
         }
     }
 
-    override fun presentar() {
-        // JavaFX Canvas renderiza en vivo
-    }
-
     companion object {
         /** Margen extra que se genera a los lados para no cortar el decorado. */
         private const val MARGEN_VISIBILIDAD = 120.0
+
+        private val COLOR_DANO = Color.web("#4a4a4a")
+        private val COLOR_GRIETA = Color.web("#2b2b2b")
+        private const val UMBRAL_GRIETAS = 0.05
+        private const val GRIETAS_MAXIMAS = 5.0
     }
 }

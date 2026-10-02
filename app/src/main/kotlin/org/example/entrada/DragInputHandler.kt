@@ -8,8 +8,8 @@ class DragInputHandler : InputHandler {
     private var _posicionInicial: Vector2D? = null
     private var _posicionActual: Vector2D? = null
 
-    val posicionInicial: Vector2D? get() = _posicionInicial
-    val posicionActual: Vector2D? get() = _posicionActual
+    override val posicionInicial: Vector2D? get() = _posicionInicial
+    override val posicionActual: Vector2D? get() = _posicionActual
 
     override val estaArrastrando: Boolean
         get() = _posicionInicial != null && _posicionActual != null

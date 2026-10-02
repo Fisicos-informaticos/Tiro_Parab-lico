@@ -7,6 +7,7 @@ import org.example.grafico.GeneradorEntorno
 import org.example.modelo.Pared
 import org.example.modelo.Pelota
 import org.example.modelo.TipoPelota
+import org.example.modelo.TipoPared
 import org.example.modelo.Vector2D
 import org.example.modelo.colision.FormaCapsula
 import org.example.modelo.colision.FormaCaja
@@ -85,7 +86,7 @@ class AppTest {
 
     @Test
     fun colisionRapidaNoAtraviesaPared() {
-        val pared = Pared(Vector2D(100.0, 100.0), Vector2D(100.0, 300.0))
+        val pared = Pared(Vector2D(100.0, 100.0), Vector2D(100.0, 300.0), TipoPared.ACERO)
         val pelota = Pelota(Vector2D(0.0, 200.0), TipoPelota.GOMA, FormaCirculo(10.0), 1.0, 0.8)
         pelota.velocidad = Vector2D(1000.0, 0.0)
         val motor = MotorFisico(Tierra(gravedad = Vector2D(0.0, 0.0)), listOf(pared))
@@ -251,7 +252,7 @@ class AppTest {
 
     @Test
     fun ningunaPelotaAtraviesaLaPared() {
-        val pared = Pared(Vector2D(300.0, -500.0), Vector2D(300.0, 2000.0))
+        val pared = Pared(Vector2D(300.0, -500.0), Vector2D(300.0, 2000.0), TipoPared.ACERO)
         for (tipo in TipoPelota.entries) {
             val motor = MotorFisico(
                 Tierra(1000.0, 650.0, Vector2D(0.0, 0.0)),
@@ -375,6 +376,104 @@ class AppTest {
         for (i in 0 until anchos.size - 1) {
             val separacion = anchos[i + 1].first - anchos[i].first
             assertTrue(separacion > 100.0, "Nubes amontonadas en x=${anchos[i].first}")
+        }
+    }
+
+    @Test
+    fun elCatalogoDeParedesEsCoherente() {
+        for (tipo in TipoPared.entries) {
+            assertTrue(tipo.grosor > 0.0, "${tipo.nombre}: grosor")
+            assertTrue(tipo.resistencia > 0.0, "${tipo.nombre}: resistencia")
+            assertTrue(tipo.pelotasQueLaRompen.size <= TipoPelota.entries.size)
+            assertEquals(
+                tipo.pelotasQueLaRompen.isEmpty(),
+                tipo.indestructible,
+                "${tipo.nombre}: coherencia entre indestructible y sus pelotas"
+            )
+        }
+    }
+
+    @Test
+    fun laBolicheRompeMaderaYElAceroNoSeRompeNunca() {
+        val madera = Pared(Vector2D(0.0, 0.0), Vector2D(0.0, 200.0), TipoPared.MADERA)
+        val energiaBoliche = 0.5 * TipoPelota.BOLICHE.masa * 600.0 * 600.0
+        assertTrue(madera.registrarImpacto(energiaBoliche, TipoPelota.BOLICHE))
+
+        val acero = Pared(Vector2D(0.0, 0.0), Vector2D(0.0, 200.0), TipoPared.ACERO)
+        repeat(50) {
+            assertTrue(!acero.registrarImpacto(energiaBoliche * 100, TipoPelota.BOLICHE))
+        }
+    }
+
+    @Test
+    fun unaPelotaQueNoRompeElMaterialNoLeHaceDano() {
+        val ladrillo = Pared(Vector2D(0.0, 0.0), Vector2D(0.0, 200.0), TipoPared.LADRILLO)
+        val energiaBoliche = 0.5 * TipoPelota.BOLICHE.masa * 600.0 * 600.0
+
+        assertTrue(!ladrillo.registrarImpacto(energiaBoliche, TipoPelota.TENIS))
+        assertEquals(0.0, ladrillo.danio)
+        assertTrue(!TipoPared.LADRILLO.registraDanio(TipoPelota.TENIS))
+        assertTrue(TipoPared.LADRILLO.registraDanio(TipoPelota.BOLICHE))
+    }
+
+    @Test
+    fun losGolpesSuavesVanGastandoLaParedHastaRomperla() {
+        val pared = Pared(Vector2D(0.0, 0.0), Vector2D(0.0, 200.0), TipoPared.MADERA)
+        val energia = TipoPared.MADERA.resistencia / 4.0
+
+        assertTrue(!pared.registrarImpacto(energia, TipoPelota.GOMA))
+        assertEquals(0.25, pared.danio, 1e-9)
+        assertTrue(!pared.registrarImpacto(energia, TipoPelota.GOMA))
+        assertTrue(!pared.registrarImpacto(energia, TipoPelota.GOMA))
+        assertTrue(pared.registrarImpacto(energia, TipoPelota.GOMA))
+        assertEquals(1.0, pared.danio, 1e-9)
+    }
+
+    @Test
+    fun unaParedRotaDesapareceYLaPelotaLaAtraviesa() {
+        val pared = Pared(Vector2D(300.0, 0.0), Vector2D(300.0, 400.0), TipoPared.CARTON)
+        val motor = MotorFisico(
+            Tierra(1000.0, 650.0, Vector2D(0.0, 0.0)),
+            listOf(pared)
+        )
+        val pelota = Pelota(Vector2D(200.0, 200.0), TipoPelota.GOMA)
+        pelota.velocidad = Vector2D(600.0, 0.0)
+
+        var rotas = 0
+        repeat(60) { rotas += motor.simularPaso(pelota, 1.0 / 60.0).size }
+
+        assertEquals(1, rotas, "El carton deberia romperse una sola vez")
+        assertTrue(motor.obtenerParedes().isEmpty(), "La pared rota debe desaparecer")
+        assertTrue(pelota.posicion.x > 300.0, "La pelota sigue su camino al romperse el carton")
+    }
+
+    @Test
+    fun elAceroRebotaLaPelotaYSeQuedaEnPie() {
+        val pared = Pared(Vector2D(300.0, 0.0), Vector2D(300.0, 400.0), TipoPared.ACERO)
+        val motor = MotorFisico(
+            Tierra(1000.0, 650.0, Vector2D(0.0, 0.0)),
+            listOf(pared)
+        )
+        val pelota = Pelota(Vector2D(200.0, 200.0), TipoPelota.GOMA)
+        pelota.velocidad = Vector2D(900.0, 0.0)
+
+        repeat(30) { motor.simularPaso(pelota, 1.0 / 60.0) }
+
+        assertEquals(listOf(pared), motor.obtenerParedes())
+        assertTrue(pared.danio == 0.0, "El acero no se dania")
+        assertTrue(pelota.velocidad.x < 0.0, "La pelota rebota contra el acero")
+    }
+
+    @Test
+    fun unMaterialIndestructibleNoAdmiteNingunaPelotaQueLoRompa() {
+        for (tipoPared in TipoPared.entries) {
+            if (!tipoPared.indestructible) continue
+            for (tipoPelota in TipoPelota.entries) {
+                assertTrue(
+                    !tipoPared.registraDanio(tipoPelota),
+                    "${tipoPelota.nombre} no deberia romper ${tipoPared.nombre}"
+                )
+            }
         }
     }
 

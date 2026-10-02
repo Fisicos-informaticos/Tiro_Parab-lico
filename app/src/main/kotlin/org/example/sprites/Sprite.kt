@@ -1,5 +1,6 @@
 package org.example.sprites
 
+import org.example.grafico.ContextoDibujo
 import org.example.modelo.Vector2D
 
 interface Sprite {
@@ -9,5 +10,5 @@ interface Sprite {
     var posicion: Vector2D
     var visible: Boolean
 
-    fun dibujar(renderer: org.example.grafico.Renderer)
+    fun dibujar(contexto: ContextoDibujo)
 }

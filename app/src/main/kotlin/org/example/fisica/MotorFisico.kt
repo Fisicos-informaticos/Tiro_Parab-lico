@@ -29,8 +29,9 @@ class MotorFisico(
 
     fun obtenerParedes(): List<Pared> = listaParedes.toList()
 
-    fun simularPaso(proyectil: Proyectil, deltaTime: Double) {
-        if (deltaTime <= 0.0) return
+    /** Avanza el proyectil y devuelve las paredes que ha roto en este paso. */
+    fun simularPaso(proyectil: Proyectil, deltaTime: Double): List<Pared> {
+        if (deltaTime <= 0.0) return emptyList()
 
         val fuerzaTotal = ambiente.gravedad * proyectil.masa + fuerzaArrastre(proyectil)
         val velocidadTrasFuerza = proyectil.velocidad + fuerzaTotal * deltaTime
@@ -40,11 +41,13 @@ class MotorFisico(
             .coerceIn(1, MAXIMOS_SUBPASOS)
         val deltaSubpaso = deltaTime / cantidadSubpasos
 
+        val paredesRotas = mutableListOf<Pared>()
         repeat(cantidadSubpasos) {
             proyectil.aplicarFuerza(fuerzaTotal, deltaSubpaso)
             avanzarOrientacion(proyectil, deltaSubpaso)
-            resolverColisiones(proyectil, deltaSubpaso)
+            paredesRotas += resolverColisiones(proyectil, deltaSubpaso)
         }
+        return paredesRotas
     }
 
     /** Freno del aire: proporcional al cuadrado de la rapidez y opuesto al movimiento. */
@@ -68,31 +71,47 @@ class MotorFisico(
         p.angulo += Transformaciones.diferenciaAngular(objetivo, p.angulo) * tasa
     }
 
-    private fun resolverColisiones(p: Proyectil, deltaTime: Double) {
+    private fun resolverColisiones(p: Proyectil, deltaTime: Double): List<Pared> {
         val dtRozamiento = deltaTime / ITERACIONES_RESOLUCION
+        val paredesRotas = mutableListOf<Pared>()
         repeat(ITERACIONES_RESOLUCION) {
-            for (pared in listaParedes) {
-                resolverColisionPared(p, pared)
+            for (pared in listaParedes.toList()) {
+                if (!resolverColisionPared(p, pared)) continue
+
+                listaParedes.removeAll { it === pared }
+                paredesRotas.add(pared)
             }
             resolverColisionSuelo(p, dtRozamiento)
             resolverColisionTecho(p, dtRozamiento)
         }
+        return paredesRotas
     }
 
-    private fun resolverColisionPared(p: Proyectil, pared: Pared) {
+    /** Devuelve true si el golpe deja la pared rota: entonces no hay rebote. */
+    private fun resolverColisionPared(p: Proyectil, pared: Pared): Boolean {
         val puntoMasCercano = pared.puntoMasCercano(p.posicion)
         val delta = p.posicion - puntoMasCercano
         val distancia = delta.magnitud
-        if (distancia > pared.grosor / 2.0 + p.forma.radioEnvoltura + CORRECCION_POSICION) return
+        if (distancia > pared.grosor / 2.0 + p.forma.radioEnvoltura + CORRECCION_POSICION) return false
 
         val normal =
             if (distancia > EPSILON) delta.normalizado else normalDeRespaldo(p, pared)
         val cara = puntoMasCercano + normal * (pared.grosor / 2.0)
-        val contacto = p.forma.contactoPlano(cara, p.posicion, p.angulo, normal) ?: return
+        val contacto = p.forma.contactoPlano(cara, p.posicion, p.angulo, normal) ?: return false
+
+        val velocidadNormal = p.velocidad.x * normal.x + p.velocidad.y * normal.y
+        if (velocidadNormal < 0.0 && pared.registrarImpacto(energiaDeImpacto(p, velocidadNormal), p.tipo)) {
+            return true
+        }
 
         aplicarImpacto(p, contacto)
         separar(p, contacto)
+        return false
     }
+
+    /** Energia que el golpe deposita en el muro: solo cuenta la componente normal. */
+    private fun energiaDeImpacto(p: Proyectil, velocidadNormal: Double): Double =
+        0.5 * p.masa * velocidadNormal * velocidadNormal
 
     private fun resolverColisionSuelo(p: Proyectil, deltaTime: Double) {
         val punto = Vector2D(p.posicion.x, sueloY)

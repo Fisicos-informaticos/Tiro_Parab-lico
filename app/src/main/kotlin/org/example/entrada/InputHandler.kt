@@ -9,6 +9,8 @@ interface InputHandler {
     fun reiniciar()
 
     val estaArrastrando: Boolean
+    val posicionInicial: Vector2D?
+    val posicionActual: Vector2D?
     val vectorLanzamiento: Vector2D?
     val anguloLanzamiento: Double
     val fuerzaLanzamiento: Double

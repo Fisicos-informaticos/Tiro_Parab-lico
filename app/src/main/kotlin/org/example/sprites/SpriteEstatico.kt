@@ -1,6 +1,6 @@
 package org.example.sprites
 
-import org.example.grafico.Renderer
+import org.example.grafico.ContextoDibujo
 import org.example.modelo.Vector2D
 import java.io.File
 
@@ -37,11 +37,11 @@ class SpriteEstatico(
         }
     }
 
-    override fun dibujar(renderer: Renderer) {
+    override fun dibujar(contexto: ContextoDibujo) {
         if (!visible) return
         val data = imagenData ?: return
         val stream = data.inputStream()
         val img = javafx.scene.image.Image(stream)
-        renderer.dibujarImagenMundo(img, posicion.x, posicion.y, ancho, alto)
+        contexto.dibujarImagenMundo(img, posicion.x, posicion.y, ancho, alto)
     }
 }

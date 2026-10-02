@@ -1,82 +1,117 @@
 package org.example
 
-import org.example.fisica.MotorFisico
-import org.example.fisica.Tierra
-import org.example.modelo.Pelota
 import org.example.modelo.TipoPelota
+import org.example.modelo.TipoPared
 import org.example.modelo.Vector2D
-import kotlin.math.abs
+import org.example.simulacion.EstadoSimulacion
+import org.example.simulacion.Simulacion
 import kotlin.math.cos
 import kotlin.math.sin
 
+/**
+ * Segunda presentacion del mismo nucleo: la consola. Sirve para comprobar que
+ * [Simulacion] no depende de ninguna ventana.
+ */
 class App {
-    private fun leerDouble(mensaje: String, valorDefecto: Double): Double {
-        while (true) {
-            print("$mensaje (valor por defecto: $valorDefecto): ")
-            val entrada = readlnOrNull()?.trim()
-            if (entrada.isNullOrEmpty()) {
-                println("  Usando valor por defecto: $valorDefecto")
-                return valorDefecto
-            }
-            val valor = entrada.toDoubleOrNull()
-            if (valor != null && valor > 0) return valor
-            println("  Error: '$entrada' no es un numero valido. Intenta de nuevo.")
-        }
-    }
 
-    private fun elegirPelota(): TipoPelota {
-        println("Tipos de pelota:")
-        TipoPelota.entries.forEachIndexed { i, tipo ->
-            println("  ${i + 1}) ${tipo.nombre} - ${tipo.descripcion}")
-        }
-        print("Pelota (1-${TipoPelota.entries.size}, por defecto ${TipoPelota.POR_DEFECTO.nombre}): ")
-        val entrada = readlnOrNull()?.trim()
-        val indice = entrada?.toIntOrNull()
-        return TipoPelota.entries.getOrNull((indice ?: 1) - 1) ?: TipoPelota.POR_DEFECTO
-    }
+    private val simulacion = Simulacion()
 
     fun iniciar() {
-        println("=== SIMULADOR DE TIRO PARABOLICO ===")
-        println("Pelotas disponibles: ${TipoPelota.entries.joinToString { it.nombre }}")
-        println()
+        println("=== SIMULADOR DE TIRO PARABOLICO (consola) ===")
 
         do {
-            println("--- Nueva simulacion ---")
-            val v0 = leerDouble("Velocidad inicial (m/s)", 20.0)
+            mostrarEstado()
+            println("\n--- Nueva simulacion ---")
+            simulacion.reiniciar()
+
+            val tipoPelota = elegir("Pelota", TipoPelota.entries, { it.nombre })
+            simulacion.seleccionarPelota(tipoPelota)
+            val tipoPared = elegir("Pared", TipoPared.entries, { it.nombre })
+            simulacion.seleccionarTipoPared(tipoPared)
+
             val angulo = leerDouble("Angulo de lanzamiento (grados)", 45.0)
-            val posX = leerDouble("Posicion inicial X", 0.0)
-            val posY = leerDouble("Posicion inicial Y", 599.0)
-            val tipo = elegirPelota()
-            val masa = leerDouble("Masa de la pelota (kg)", tipo.masa)
-            val coeficiente = leerDouble("Coeficiente de restitucion", tipo.coeficienteRestitucion)
+            val fuerza = leerDouble("Fuerza (0-${Simulacion.MAX_FUERZA.toInt()})", 220.0)
 
-            val ambiente = Tierra()
-            val motor = MotorFisico(ambiente)
-            val pelota = Pelota(Vector2D(posX, posY), tipo, tipo.crearForma(), masa, coeficiente)
-
-            val rad = Math.toRadians(angulo)
-            pelota.velocidad = Vector2D(cos(rad) * v0, -sin(rad) * v0)
-
-            println("\n--- Resultados ---")
-            println("Pelota: ${tipo.nombre} (colision ${tipo.crearForma().tipo.etiqueta})")
-            println("V0: ${"%.2f".format(v0)} m/s | Angulo: ${"%.1f".format(angulo)}° | Masa: ${"%.2f".format(masa)} kg")
-            println()
-            var tiempo = 0.0
-            repeat(30) {
-                motor.simularPaso(pelota, 0.1)
-                tiempo += 0.1
-                println("  t=${"%.1f".format(tiempo)}s  x=${"%.2f".format(pelota.posicion.x)}  y=${"%.2f".format(pelota.posicion.y)}")
-                if (pelota.posicion.y >= 599 && abs(pelota.velocidad.y) < 0.1) return@repeat
-            }
-            println()
-
-            print("Ejecutar otra simulacion? (s/n): ")
-        } while (readlnOrNull()?.trim()?.lowercase() == "s")
+            lanzar(angulo, fuerza)
+            repetirTiros()
+        } while (preguntar("Ejecutar otra simulacion? (s/n): "))
 
         println("\nFin del programa.")
     }
+
+    /**
+     * Lanza hacia arriba a la derecha con el angulo (sobre la horizontal) y la
+     * fuerza pedidos. El vector de tiro es el contrario al arrastre, asi que
+     * aqui se arrastra hacia abajo a la izquierda.
+     */
+    private fun lanzar(anguloGrados: Double, fuerza: Double) {
+        val origen = simulacion.pelota.posicion - simulacion.offsetCamara
+        val rad = Math.toRadians(anguloGrados)
+        val destino = origen + Vector2D(-cos(rad) * fuerza, sin(rad) * fuerza)
+
+        simulacion.pulsar(origen)
+        simulacion.arrastrar(destino)
+        simulacion.soltar(destino)
+    }
+
+    private fun repetirTiros() {
+        val pasos = (1.0 / Simulacion.DT_FISICA).toInt()
+        var impresos = 0
+        while (simulacion.estado is EstadoSimulacion.EnVuelo) {
+            simulacion.actualizar(Simulacion.DT_FISICA)
+            if (impresos++ % pasos == 0) mostrarVuelo()
+        }
+        mostrarResumen()
+    }
+
+    private fun mostrarVuelo() {
+        val pelota = simulacion.pelota
+        println(
+            "  t=${"%.1f".format(simulacion.tiempoVuelo)}s  " +
+                "x=${"%.1f".format(pelota.posicion.x)}  y=${"%.1f".format(pelota.posicion.y)}  " +
+                "v=${"%.1f".format(pelota.velocidad.magnitud)}"
+        )
+    }
+
+    private fun mostrarResumen() {
+        println("\n--- Resultados ---")
+        println("Pelota: ${simulacion.tipoPelota.nombre} (${simulacion.etiquetaColision()})")
+        println("Pared: ${simulacion.tipoPared.nombre} · la rompe: ${rompe()}")
+        println("Distancia: ${"%.1f".format(simulacion.distanciaRecorrida)} px")
+        println("Tiempo: ${"%.2f".format(simulacion.tiempoVuelo)} s")
+        println("Paredes colocadas: ${simulacion.paredes.size} · rotas: ${simulacion.paredesDestruidas}")
+    }
+
+    private fun mostrarEstado() {
+        println()
+        println("Estado: ${simulacion.estado.nombre}")
+    }
+
+    private fun rompe(): String =
+        if (simulacion.rompeParedSeleccionada()) "si" else "no"
+
+    private fun <T> elegir(que: String, opciones: List<T>, texto: (T) -> String): T {
+        println("$que disponibles:")
+        opciones.forEachIndexed { indice, opcion ->
+            println("  ${indice + 1}) ${texto(opcion)}")
+        }
+        print("$que (1-${opciones.size}): ")
+        val indice = readlnOrNull()?.trim()?.toIntOrNull() ?: 1
+        return opciones.getOrNull(indice - 1) ?: opciones.first()
+    }
+
+    private fun leerDouble(mensaje: String, valorDefecto: Double): Double {
+        print("$mensaje (valor por defecto: $valorDefecto): ")
+        val entrada = readlnOrNull()?.trim()
+        return entrada?.toDoubleOrNull() ?: valorDefecto
+    }
+
+    private fun preguntar(mensaje: String): Boolean {
+        print(mensaje)
+        return readlnOrNull()?.trim()?.lowercase() == "s"
+    }
 }
 
-fun main() {
+private fun main() {
     App().iniciar()
 }

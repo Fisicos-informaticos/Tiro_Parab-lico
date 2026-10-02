@@ -1,6 +1,6 @@
 package org.example.sprites
 
-import org.example.grafico.Renderer
+import org.example.grafico.ContextoDibujo
 import org.example.modelo.Vector2D
 
 class SpriteManager {
@@ -30,9 +30,9 @@ class SpriteManager {
         return sprite
     }
 
-    fun dibujarTodos(renderer: Renderer) {
+    fun dibujarTodos(contexto: ContextoDibujo) {
         for (sprite in sprites) {
-            sprite.dibujar(renderer)
+            sprite.dibujar(contexto)
         }
     }
 
