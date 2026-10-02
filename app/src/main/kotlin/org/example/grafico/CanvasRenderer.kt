@@ -17,9 +17,10 @@ class CanvasRenderer(
     private val colorSuelo = Color.web("#4a7c3f")
     private val colorCielo = Color.web("#87CEEB")
     private val colorCesped = Color.web("#5cb85c")
+    private val colorCespedOscuro = Color.web("#3f9142")
+    private val colorCespedClaro = Color.web("#7fd07f")
     private val colorMeta = Color.web("#e74c3c")
     private val colorLinea = Color.web("#ff6b35")
-    private val colorPelota = Color.web("#e74c3c")
     private val colorPared = Color.web("#8e9aaf")
     private val colorParedBorde = Color.web("#34495e")
     private val colorParedTemporal = Color.web("#f1c40f")
@@ -33,87 +34,97 @@ class CanvasRenderer(
         gc.fillRect(0.0, 0.0, ancho, alto)
     }
 
-    private fun seudoAleatorio(semilla: Double): Double {
-        val t = Math.sin(semilla * 12.9898 + 78.233) * 43758.5453
-        return t - Math.floor(t)
-    }
-
     override fun dibujarEntorno() {
-        val ox = offsetCamara.x
-        val oy = offsetCamara.y
-
-        val ySuelo = sueloY - oy
+        val ySuelo = sueloY - offsetCamara.y
         if (ySuelo < alto) {
             gc.fill = colorSuelo
-            gc.fillRect(0.0, Math.max(ySuelo, 0.0), ancho, alto - Math.max(ySuelo, 0.0))
+            val desde = Math.max(ySuelo, 0.0)
+            gc.fillRect(0.0, desde, ancho, alto - desde)
         }
 
-        val yCesped = sueloY - 4.0 - oy
-        val inicioCesped = ((Math.floor((0.0 - ox) / 30.0) - 1.0) * 30.0).toInt()
-        val finCesped = ((Math.ceil((ancho - ox) / 30.0) + 1.0) * 30.0).toInt()
-        gc.fill = colorCesped
-        for (i in inicioCesped..finCesped step 30) {
-            gc.fillOval(i.toDouble(), yCesped, 9.0, 13.0)
-            gc.fillOval(i.toDouble() + 15.0, yCesped + 3.0, 7.0, 11.0)
-        }
+        val margen = MARGEN_VISIBILIDAD
+        val desde = -offsetCamara.x - margen
+        val hasta = ancho - offsetCamara.x + margen
 
-        val lapsoArbol = 170.0
-        var idxArbol = Math.floor((0.0 - ox) / lapsoArbol).toInt() - 1
-        while (idxArbol * lapsoArbol < (ancho - ox) + lapsoArbol) {
-            val s = idxArbol.toDouble()
-            val r = seudoAleatorio(s)
-            if (r > 0.22) {
-                val xArbol = s * lapsoArbol + r * 120.0
-                val escala = 0.75 + seudoAleatorio(s + 7.0) * 0.65
-                dibujarArbol(xArbol, sueloY, escala)
+        dibujarPasto(desde, hasta, ySuelo)
+        dibujarArboles(desde, hasta)
+        dibujarNubes(desde, hasta)
+        dibujarMetas(desde, hasta, ySuelo)
+    }
+
+    /** Briznas cada GeneradorEntorno.ANCHO_BRIZNA: el cesped no se interrumpe. */
+    private fun dibujarPasto(desde: Double, hasta: Double, yBase: Double) {
+        if (yBase > alto + 30.0) return
+
+        for (brizna in GeneradorEntorno.pasto(desde, hasta)) {
+            gc.fill = when {
+                brizna.brillo < 0.4 -> colorCespedOscuro
+                brizna.brillo > 0.78 -> colorCespedClaro
+                else -> colorCesped
             }
-            idxArbol++
-        }
-
-        val lapsoNube = 250.0
-        var idxNube = Math.floor((0.0 - ox) / lapsoNube).toInt() - 1
-        while (idxNube * lapsoNube < (ancho - ox) + lapsoNube) {
-            val s = idxNube.toDouble()
-            val r = seudoAleatorio(s + 3.0)
-            val xNube = s * lapsoNube + r * 150.0
-            val yNube = 30.0 + (((s.toLong() % 3) + 1) * 35) + seudoAleatorio(s + 9.0) * 25.0
-            dibujarNube(xNube, yNube, 0.55 + seudoAleatorio(s + 11.0) * 0.3)
-            idxNube++
-        }
-
-        val lapsoMeta = 900.0
-        var idxMeta = Math.floor((0.0 - ox) / lapsoMeta).toInt() - 1
-        while (idxMeta * lapsoMeta < (ancho - ox) + lapsoMeta) {
-            val xMeta = idxMeta.toDouble() * lapsoMeta + 300.0 - ox
-            val yMeta = sueloY - 80.0 - oy
-            gc.fill = colorMeta
-            gc.fillRect(xMeta, yMeta, 8.0, 35.0)
-            gc.stroke = colorMeta
-            gc.lineWidth = 3.0
-            gc.strokeRect(xMeta + 5.0, yMeta - 15.0, 20.0, 15.0)
-            idxMeta++
+            gc.fillOval(brizna.x, yBase - brizna.alto, brizna.ancho, brizna.alto + 3.0)
         }
     }
 
-    private fun dibujarArbol(xMundo: Double, sueloMundo: Double, escala: Double) {
+    private fun dibujarArboles(desde: Double, hasta: Double) {
+        if (sueloY - offsetCamara.y > alto + 220.0) return
+
+        for (arbol in GeneradorEntorno.arboles(desde, hasta)) {
+            dibujarArbol(arbol.x, sueloY, arbol.escala, arbol.claro)
+        }
+    }
+
+    private fun dibujarNubes(desde: Double, hasta: Double) {
+        for (nube in GeneradorEntorno.nubes(desde, hasta)) {
+            dibujarNube(nube.x, nube.y, nube.escala, nube.opacidad)
+        }
+    }
+
+    /** La meta se repite cada celda y siempre apoya en el suelo. */
+    private fun dibujarMetas(desde: Double, hasta: Double, ySuelo: Double) {
+        if (ySuelo > alto + 110.0) return
+
+        for (meta in GeneradorEntorno.metas(desde, hasta)) {
+            val yPoste = ySuelo - 78.0
+            gc.stroke = colorMeta
+            gc.lineWidth = 4.0
+            gc.setLineDashes()
+            gc.strokeLine(meta.x, yPoste, meta.x, ySuelo)
+
+            gc.fill = colorMeta
+            gc.fillRect(meta.x + 2.0, yPoste - 4.0, 30.0, 17.0)
+            gc.lineWidth = 2.0
+            gc.strokeRect(meta.x + 2.0, yPoste - 4.0, 30.0, 17.0)
+        }
+    }
+
+    private fun dibujarArbol(xMundo: Double, sueloMundo: Double, escala: Double, clara: Boolean) {
         val x = xMundo - offsetCamara.x
         val yBase = sueloMundo - offsetCamara.y
         val tronco = 45.0 * escala
-        gc.fill = Color.web("#8B4513")
-        gc.fillRect(x - 4.0 * escala, yBase - tronco, 8.0 * escala, tronco)
-        gc.fill = Color.web("#2e7d32")
-        gc.fillOval(x - 26.0 * escala, yBase - tronco - 26.0 * escala, 52.0 * escala, 38.0 * escala)
-        gc.fill = Color.web("#388e3c")
-        gc.fillOval(x - 14.0 * escala, yBase - tronco - 34.0 * escala, 34.0 * escala, 28.0 * escala)
+        val copa = if (clara) 58.0 * escala else 48.0 * escala
+
+        gc.fill = Color.web("#7B4A21")
+        gc.fillRect(x - 4.5 * escala, yBase - tronco, 9.0 * escala, tronco + 2.0)
+
+        gc.fill = Color.web("#1b5e20")
+        gc.fillOval(x - copa / 2.0, yBase - tronco - copa * 0.52, copa, copa * 0.78)
+        gc.fill = if (clara) Color.web("#43a047") else Color.web("#2e7d32")
+        gc.fillOval(x - copa * 0.33, yBase - tronco - copa * 0.68, copa * 0.64, copa * 0.54)
+        gc.fill = Color.web("#66bb6a")
+        gc.fillOval(x - copa * 0.28, yBase - tronco - copa * 0.74, copa * 0.4, copa * 0.3)
     }
 
-    private fun dibujarNube(xMundo: Double, yMundo: Double, opacidad: Double) {
+    private fun dibujarNube(xMundo: Double, yMundo: Double, escala: Double, opacidad: Double) {
         val x = xMundo - offsetCamara.x
         val y = yMundo - offsetCamara.y
+        val ancho = 92.0 * escala
+        val alto = 30.0 * escala
+
         gc.fill = Color.color(1.0, 1.0, 1.0, opacidad)
-        gc.fillOval(x, y, 90.0, 30.0)
-        gc.fillOval(x + 25.0, y - 15.0, 65.0, 35.0)
-        gc.fillOval(x - 12.0, y + 4.0, 55.0, 26.0)
+        gc.fillOval(x, y, ancho, alto)
+        gc.fillOval(x + ancho * 0.28, y - alto * 0.5, ancho * 0.7, alto * 1.16)
+        gc.fillOval(x - ancho * 0.14, y + alto * 0.14, ancho * 0.6, alto * 0.86)
     }
 
     override fun dibujarPared(pared: Pared) {
@@ -141,7 +152,7 @@ class CanvasRenderer(
         gc.setLineDashes()
     }
 
-    override fun dibujarPantallaInicio() {
+    override fun dibujarPantallaInicio(nombrePelota: String?) {
         gc.fill = Color.color(0.0, 0.0, 0.0, 0.85)
         gc.fillRect(0.0, 0.0, ancho, alto)
 
@@ -161,32 +172,20 @@ class CanvasRenderer(
         gc.font = Font.font("Monospace", 15.0)
         gc.fillText("Arrastra con el mouse para apuntar y soltar para lanzar", ancho / 2.0 - 290.0, alto / 2.0 + 100.0)
         gc.fillText("Crea paredes y haz rebotar la pelota", ancho / 2.0 - 230.0, alto / 2.0 + 125.0)
+        gc.fillText("Pulsa B para cambiar de pelota", ancho / 2.0 - 180.0, alto / 2.0 + 150.0)
+        if (nombrePelota != null) {
+            gc.fill = Color.web("#d4e157")
+            gc.fillText("Pelota actual: $nombrePelota", ancho / 2.0 - 175.0, alto / 2.0 + 180.0)
+        }
     }
 
     override fun dibujarProyectil(proyectil: Proyectil) {
-        val x = proyectil.posicion.x - offsetCamara.x
-        val y = proyectil.posicion.y - offsetCamara.y
-        val gradiente = javafx.scene.paint.RadialGradient(
-            0.0, 0.0, x, y,
-            proyectil.radio, true, javafx.scene.paint.CycleMethod.NO_CYCLE,
-            javafx.scene.paint.Stop(0.0, Color.web("#ff6b6b")),
-            javafx.scene.paint.Stop(0.5, colorPelota),
-            javafx.scene.paint.Stop(1.0, Color.web("#c0392b"))
-        )
-        gc.fill = gradiente
-        gc.fillOval(
-            x - proyectil.radio,
-            y - proyectil.radio,
-            proyectil.radio * 2,
-            proyectil.radio * 2
-        )
-
-        gc.fill = Color.color(1.0, 1.0, 1.0, 0.4)
-        gc.fillOval(
-            x - proyectil.radio * 0.4,
-            y - proyectil.radio * 0.4,
-            proyectil.radio * 0.6,
-            proyectil.radio * 0.6
+        DibujoPelota.dibujar(
+            gc,
+            proyectil.tipo,
+            proyectil.forma,
+            proyectil.angulo,
+            proyectil.posicion - offsetCamara
         )
     }
 
@@ -247,16 +246,24 @@ class CanvasRenderer(
         angulo: Double?,
         distanciaRecorrida: Double?,
         cantidadParedes: Int,
-        modoParedes: Boolean
+        modoParedes: Boolean,
+        nombrePelota: String?,
+        colisionPelota: String?
     ) {
         gc.fill = Color.color(0.0, 0.0, 0.0, 0.6)
-        gc.fillRoundRect(10.0, 10.0, 270.0, 145.0, 10.0, 10.0)
+        gc.fillRoundRect(10.0, 10.0, 270.0, 185.0, 10.0, 10.0)
 
         gc.fill = colorTexto
         gc.font = Font.font("Monospace", 14.0)
 
         val lineas = mutableListOf<String>()
         lineas.add("Estado: ${estado.name}")
+        if (nombrePelota != null) {
+            lineas.add("Pelota: $nombrePelota")
+        }
+        if (colisionPelota != null) {
+            lineas.add("Colision: $colisionPelota")
+        }
         lineas.add("Paredes: $cantidadParedes")
         if (modoParedes) {
             lineas.add("Modo pared: arrastra para dibujar")
@@ -316,5 +323,10 @@ class CanvasRenderer(
 
     override fun presentar() {
         // JavaFX Canvas renderiza en vivo
+    }
+
+    companion object {
+        /** Margen extra que se genera a los lados para no cortar el decorado. */
+        private const val MARGEN_VISIBILIDAD = 120.0
     }
 }

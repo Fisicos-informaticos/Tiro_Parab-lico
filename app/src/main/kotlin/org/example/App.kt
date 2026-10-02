@@ -2,7 +2,8 @@ package org.example
 
 import org.example.fisica.MotorFisico
 import org.example.fisica.Tierra
-import org.example.modelo.PelotaGoma
+import org.example.modelo.Pelota
+import org.example.modelo.TipoPelota
 import org.example.modelo.Vector2D
 import kotlin.math.abs
 import kotlin.math.cos
@@ -23,8 +24,20 @@ class App {
         }
     }
 
+    private fun elegirPelota(): TipoPelota {
+        println("Tipos de pelota:")
+        TipoPelota.entries.forEachIndexed { i, tipo ->
+            println("  ${i + 1}) ${tipo.nombre} - ${tipo.descripcion}")
+        }
+        print("Pelota (1-${TipoPelota.entries.size}, por defecto ${TipoPelota.POR_DEFECTO.nombre}): ")
+        val entrada = readlnOrNull()?.trim()
+        val indice = entrada?.toIntOrNull()
+        return TipoPelota.entries.getOrNull((indice ?: 1) - 1) ?: TipoPelota.POR_DEFECTO
+    }
+
     fun iniciar() {
         println("=== SIMULADOR DE TIRO PARABOLICO ===")
+        println("Pelotas disponibles: ${TipoPelota.entries.joinToString { it.nombre }}")
         println()
 
         do {
@@ -33,17 +46,19 @@ class App {
             val angulo = leerDouble("Angulo de lanzamiento (grados)", 45.0)
             val posX = leerDouble("Posicion inicial X", 0.0)
             val posY = leerDouble("Posicion inicial Y", 599.0)
-            val masa = leerDouble("Masa de la pelota (kg)", 0.5)
-            val coeficiente = leerDouble("Coeficiente de restitucion", 0.8)
+            val tipo = elegirPelota()
+            val masa = leerDouble("Masa de la pelota (kg)", tipo.masa)
+            val coeficiente = leerDouble("Coeficiente de restitucion", tipo.coeficienteRestitucion)
 
             val ambiente = Tierra()
             val motor = MotorFisico(ambiente)
-            val pelota = PelotaGoma(Vector2D(posX, posY), masa, coeficiente)
+            val pelota = Pelota(Vector2D(posX, posY), tipo, tipo.crearForma(), masa, coeficiente)
 
             val rad = Math.toRadians(angulo)
             pelota.velocidad = Vector2D(cos(rad) * v0, -sin(rad) * v0)
 
             println("\n--- Resultados ---")
+            println("Pelota: ${tipo.nombre} (colision ${tipo.crearForma().tipo.etiqueta})")
             println("V0: ${"%.2f".format(v0)} m/s | Angulo: ${"%.1f".format(angulo)}° | Masa: ${"%.2f".format(masa)} kg")
             println()
             var tiempo = 0.0

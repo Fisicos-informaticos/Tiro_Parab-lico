@@ -12,7 +12,7 @@ interface Renderer {
 
     fun limpiar()
     fun dibujarEntorno()
-    fun dibujarPantallaInicio()
+    fun dibujarPantallaInicio(nombrePelota: String? = null)
     fun dibujarPared(pared: Pared)
     fun dibujarParedTemporal(inicio: Vector2D, fin: Vector2D, grosor: Double)
     fun dibujarProyectil(proyectil: Proyectil)
@@ -32,6 +32,8 @@ interface Renderer {
         angulo: Double?,
         distanciaRecorrida: Double?,
         cantidadParedes: Int = 0,
-        modoParedes: Boolean = false
+        modoParedes: Boolean = false,
+        nombrePelota: String? = null,
+        colisionPelota: String? = null
     )
 }
