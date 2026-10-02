@@ -1,124 +1,117 @@
 package org.example
 
-import kotlin.math.* // Los imports SIEMPRE van arriba
+import org.example.modelo.TipoPelota
+import org.example.modelo.TipoPared
+import org.example.modelo.Vector2D
+import org.example.simulacion.EstadoSimulacion
+import org.example.simulacion.Simulacion
+import kotlin.math.cos
+import kotlin.math.sin
 
-// 1. Modelos de datos
-data class Vector2D(val x: Double, val y: Double) {
-    operator fun plus(other: Vector2D) = Vector2D(x + other.x, y + other.y)
-    operator fun times(scalar: Double) = Vector2D(x * scalar, y * scalar)
-}
-
-// 2. Abstracciones
-interface Proyectil {
-    var posicion: Vector2D
-    var velocidad: Vector2D
-    val masa: Double
-    val coeficienteRestitucion: Double
-    
-    fun aplicarFuerza(fuerza: Vector2D, deltaTime: Double) {
-        val aceleracion = fuerza * (1.0 / masa)
-        velocidad += aceleracion * deltaTime
-        posicion += velocidad * deltaTime
-    }
-}
-
-class PelotaGoma(
-    override var posicion: Vector2D,
-    override val masa: Double,
-    override val coeficienteRestitucion: Double
-) : Proyectil {
-    override var velocidad = Vector2D(0.0, 0.0)
-}
-
-// 3. Ambiente
-interface Ambiente {
-    val gravedad: Vector2D
-    val densidadAire: Double
-}
-
-class Tierra : Ambiente {
-    override val gravedad = Vector2D(0.0, 9.81)
-    override val densidadAire = 1.225
-}
-
-// 4. Motor Físico
-class MotorFisico(private val ambiente: Ambiente) {
-    fun simularPaso(proyectil: Proyectil, deltaTime: Double) {
-        val fuerzaGravedad = ambiente.gravedad * proyectil.masa
-        proyectil.aplicarFuerza(fuerzaGravedad, deltaTime)
-        
-        // Simular el suelo a Y = 600
-        if (proyectil.posicion.y >= 600) {
-            resolverColisionSuelo(proyectil)
-        }
-    }
-
-    private fun resolverColisionSuelo(p: Proyectil) {
-        p.velocidad = Vector2D(p.velocidad.x, -p.velocidad.y * p.coeficienteRestitucion)
-        p.posicion = Vector2D(p.posicion.x, 599.0)
-    }
-}
-
-// Extensiones para facilitar acceso
-val Proyectil.x get() = posicion.x
-val Proyectil.y get() = posicion.y
-
-// 5. Clase principal (App)
+/**
+ * Segunda presentacion del mismo nucleo: la consola. Sirve para comprobar que
+ * [Simulacion] no depende de ninguna ventana.
+ */
 class App {
-    private fun leerDouble(mensaje: String, valorDefecto: Double): Double {
-        while (true) {
-            print("$mensaje (valor por defecto: $valorDefecto): ")
-            val entrada = readlnOrNull()?.trim()
-            if (entrada.isNullOrEmpty()) {
-                println("  Usando valor por defecto: $valorDefecto")
-                return valorDefecto
-            }
-            val valor = entrada.toDoubleOrNull()
-            if (valor != null && valor > 0) return valor
-            println("  Error: '$entrada' no es un número válido. Intenta de nuevo.")
-        }
-    }
+
+    private val simulacion = Simulacion()
 
     fun iniciar() {
-        println("=== SIMULADOR DE TIRO PARABÓLICO ===")
-        println()
+        println("=== SIMULADOR DE TIRO PARABOLICO (consola) ===")
 
         do {
-            println("--- Nueva simulación ---")
-            val v0 = leerDouble("Velocidad inicial (m/s)", 20.0)
-            val angulo = leerDouble("Ángulo de lanzamiento (grados)", 45.0)
-            val posX = leerDouble("Posición inicial X", 0.0)
-            val posY = leerDouble("Posición inicial Y", 599.0)
-            val masa = leerDouble("Masa de la pelota (kg)", 0.5)
-            val coeficiente = leerDouble("Coeficiente de restitución", 0.8)
+            mostrarEstado()
+            println("\n--- Nueva simulacion ---")
+            simulacion.reiniciar()
 
-            val ambiente = Tierra()
-            val motor = MotorFisico(ambiente)
-            val pelota = PelotaGoma(Vector2D(posX, posY), masa, coeficiente)
+            val tipoPelota = elegir("Pelota", TipoPelota.entries, { it.nombre })
+            simulacion.seleccionarPelota(tipoPelota)
+            val tipoPared = elegir("Pared", TipoPared.entries, { it.nombre })
+            simulacion.seleccionarTipoPared(tipoPared)
 
-            val rad = Math.toRadians(angulo)
-            pelota.velocidad = Vector2D(cos(rad) * v0, -sin(rad) * v0)
+            val angulo = leerDouble("Angulo de lanzamiento (grados)", 45.0)
+            val fuerza = leerDouble("Fuerza (0-${Simulacion.MAX_FUERZA.toInt()})", 220.0)
 
-            println("\n--- Resultados ---")
-            println("V0: ${"%.2f".format(v0)} m/s | Ángulo: ${"%.1f".format(angulo)}° | Masa: ${"%.2f".format(masa)} kg")
-            println()
-            var tiempo = 0.0
-            repeat(30) {
-                motor.simularPaso(pelota, 0.1)
-                tiempo += 0.1
-                println("  t=${"%.1f".format(tiempo)}s  x=${"%.2f".format(pelota.x)}  y=${"%.2f".format(pelota.y)}")
-                if (pelota.y >= 599 && abs(pelota.velocidad.y) < 0.1) return@repeat
-            }
-            println()
-
-            print("¿Ejecutar otra simulación? (s/n): ")
-        } while (readlnOrNull()?.trim()?.lowercase() == "s")
+            lanzar(angulo, fuerza)
+            repetirTiros()
+        } while (preguntar("Ejecutar otra simulacion? (s/n): "))
 
         println("\nFin del programa.")
     }
+
+    /**
+     * Lanza hacia arriba a la derecha con el angulo (sobre la horizontal) y la
+     * fuerza pedidos. El vector de tiro es el contrario al arrastre, asi que
+     * aqui se arrastra hacia abajo a la izquierda.
+     */
+    private fun lanzar(anguloGrados: Double, fuerza: Double) {
+        val origen = simulacion.pelota.posicion - simulacion.offsetCamara
+        val rad = Math.toRadians(anguloGrados)
+        val destino = origen + Vector2D(-cos(rad) * fuerza, sin(rad) * fuerza)
+
+        simulacion.pulsar(origen)
+        simulacion.arrastrar(destino)
+        simulacion.soltar(destino)
+    }
+
+    private fun repetirTiros() {
+        val pasos = (1.0 / Simulacion.DT_FISICA).toInt()
+        var impresos = 0
+        while (simulacion.estado is EstadoSimulacion.EnVuelo) {
+            simulacion.actualizar(Simulacion.DT_FISICA)
+            if (impresos++ % pasos == 0) mostrarVuelo()
+        }
+        mostrarResumen()
+    }
+
+    private fun mostrarVuelo() {
+        val pelota = simulacion.pelota
+        println(
+            "  t=${"%.1f".format(simulacion.tiempoVuelo)}s  " +
+                "x=${"%.1f".format(pelota.posicion.x)}  y=${"%.1f".format(pelota.posicion.y)}  " +
+                "v=${"%.1f".format(pelota.velocidad.magnitud)}"
+        )
+    }
+
+    private fun mostrarResumen() {
+        println("\n--- Resultados ---")
+        println("Pelota: ${simulacion.tipoPelota.nombre} (${simulacion.etiquetaColision()})")
+        println("Pared: ${simulacion.tipoPared.nombre} · la rompe: ${rompe()}")
+        println("Distancia: ${"%.1f".format(simulacion.distanciaRecorrida)} px")
+        println("Tiempo: ${"%.2f".format(simulacion.tiempoVuelo)} s")
+        println("Paredes colocadas: ${simulacion.paredes.size} · rotas: ${simulacion.paredesDestruidas}")
+    }
+
+    private fun mostrarEstado() {
+        println()
+        println("Estado: ${simulacion.estado.nombre}")
+    }
+
+    private fun rompe(): String =
+        if (simulacion.rompeParedSeleccionada()) "si" else "no"
+
+    private fun <T> elegir(que: String, opciones: List<T>, texto: (T) -> String): T {
+        println("$que disponibles:")
+        opciones.forEachIndexed { indice, opcion ->
+            println("  ${indice + 1}) ${texto(opcion)}")
+        }
+        print("$que (1-${opciones.size}): ")
+        val indice = readlnOrNull()?.trim()?.toIntOrNull() ?: 1
+        return opciones.getOrNull(indice - 1) ?: opciones.first()
+    }
+
+    private fun leerDouble(mensaje: String, valorDefecto: Double): Double {
+        print("$mensaje (valor por defecto: $valorDefecto): ")
+        val entrada = readlnOrNull()?.trim()
+        return entrada?.toDoubleOrNull() ?: valorDefecto
+    }
+
+    private fun preguntar(mensaje: String): Boolean {
+        print(mensaje)
+        return readlnOrNull()?.trim()?.lowercase() == "s"
+    }
 }
 
-// El punto de entrada debe llamar a la clase o ejecutar el código
-fun main() {
+private fun main() {
     App().iniciar()
 }
