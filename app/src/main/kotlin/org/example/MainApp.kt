@@ -76,6 +76,8 @@ class MainApp : Application() {
     private lateinit var botonPared: Button
     private lateinit var botonTipoPared: Button
     private lateinit var botonLimpiarParedes: Button
+    private lateinit var botonSuperficie: Button
+    private lateinit var botonLimpiarSuperficies: Button
     private lateinit var botonPelotas: Button
     private lateinit var botonPausa: Button
     private lateinit var etiquetaPelota: Label
@@ -144,6 +146,8 @@ class MainApp : Application() {
         botonPared = Button("Anadir pared")
         botonTipoPared = Button("Pared: ${simulacion.tipoPared.nombre}")
         botonLimpiarParedes = Button("Limpiar paredes")
+        botonSuperficie = Button("Superficie lanzamiento")
+        botonLimpiarSuperficies = Button("Limpiar superficies")
         botonPelotas = Button("Pelotas")
         botonPausa = Button("Pausa")
         etiquetaPelota = Label("Pelota: ${simulacion.tipoPelota.nombre}")
@@ -156,13 +160,17 @@ class MainApp : Application() {
         botonPared.setOnAction { conAccion { simulacion.alternarModoParedes() } }
         botonTipoPared.setOnAction { alternarMenuParedes() }
         botonLimpiarParedes.setOnAction { conAccion { simulacion.limpiarParedes() } }
+        botonSuperficie.setOnAction { conAccion { simulacion.alternarModoSuperficies() } }
+        botonLimpiarSuperficies.setOnAction { conAccion { simulacion.limpiarSuperficiesLanzamiento() } }
         botonPelotas.setOnAction { alternarMenuPelotas() }
         botonPausa.setOnAction { alternarPausa() }
         comboGravedad.setOnAction { conAccion { simulacion.aplicarGravedad(comboGravedad.value) } }
 
         return VBox(
             8.0,
-            botonPared, botonTipoPared, botonLimpiarParedes, botonPelotas, botonPausa,
+            botonPared, botonTipoPared, botonLimpiarParedes,
+            botonSuperficie, botonLimpiarSuperficies,
+            botonPelotas, botonPausa,
             etiquetaPelota, etiquetaGravedad, comboGravedad, Label("Arrastra en el mundo para dibujar")
         )
     }
@@ -492,6 +500,9 @@ class MainApp : Application() {
             if (menuParedesAbierto) "Cerrar paredes" else "Pared: ${simulacion.tipoPared.nombre}"
         botonTipoPared.isDisable = interaccionBloqueada || enVuelo
         botonLimpiarParedes.isDisable = interaccionBloqueada || enVuelo || simulacion.paredes.isEmpty()
+        botonSuperficie.text = if (simulacion.modoSuperficies) "Cancelar superficie" else "Superficie lanzamiento"
+        botonSuperficie.isDisable = interaccionBloqueada || enVuelo
+        botonLimpiarSuperficies.isDisable = interaccionBloqueada || enVuelo || simulacion.superficiesLanzamientoLista.isEmpty()
         botonPelotas.text = if (menuPelotasAbierto) "Cerrar pelotas" else "Pelotas"
         botonPelotas.isDisable = interaccionBloqueada || enVuelo
         botonPausa.text = if (simulacion.pausado) "Continuar" else "Pausa"

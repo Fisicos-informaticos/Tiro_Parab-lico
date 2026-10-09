@@ -4,6 +4,7 @@ import org.example.modelo.Vector2D
 import org.example.simulacion.EstadoSimulacion
 import org.example.simulacion.Simulacion
 import org.example.sprites.SpriteManager
+import javafx.scene.paint.Color
 
 /**
  * Traduce una [Simulacion] a pixeles. Es el unico sitio donde se decide que se ve
@@ -24,6 +25,9 @@ class PresentadorJuego(
 
         for (pared in simulacion.paredes) {
             renderer.dibujarPared(pared)
+        }
+        for (pared in simulacion.superficiesLanzamientoLista) {
+            (renderer as? CanvasRenderer)?.dibujarPared(pared, Color.DODGERBLUE, 3.0)
         }
         simulacion.paredTemporal?.let { renderer.dibujarParedTemporal(it) }
 

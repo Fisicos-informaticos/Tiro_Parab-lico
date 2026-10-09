@@ -127,16 +127,21 @@ class CanvasRenderer(
         gc.fillOval(x - ancho * 0.14, y + alto * 0.14, ancho * 0.6, alto * 0.86)
     }
 
-    override fun dibujarPared(pared: Pared) {
+    override fun dibujarPared(pared: Pared) = dibujarPared(pared, null, null)
+
+    fun dibujarPared(pared: Pared, colorOverride: javafx.scene.paint.Color?, grosorExtra: Double?) {
         val inicio = pared.inicio - offsetCamara
         val fin = pared.fin - offsetCamara
 
-        gc.stroke = mezclar(colorDe(pared.tipo.colorBorde), COLOR_DANO, pared.danio * 0.6)
-        gc.lineWidth = pared.grosor + 2.0
+        val colorBase = colorOverride ?: colorDe(pared.tipo.color)
+        val colorBordeBase = colorOverride ?: colorDe(pared.tipo.colorBorde)
+
+        gc.stroke = mezclar(colorBordeBase, COLOR_DANO, pared.danio * 0.6)
+        gc.lineWidth = pared.grosor + (grosorExtra ?: 2.0)
         gc.setLineDashes()
         gc.strokeLine(inicio.x, inicio.y, fin.x, fin.y)
 
-        gc.stroke = mezclar(colorDe(pared.tipo.color), COLOR_DANO, pared.danio * 0.5)
+        gc.stroke = mezclar(colorBase, COLOR_DANO, pared.danio * 0.5)
         gc.lineWidth = pared.grosor
         gc.strokeLine(inicio.x, inicio.y, fin.x, fin.y)
 

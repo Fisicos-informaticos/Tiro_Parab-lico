@@ -23,6 +23,10 @@ class MotorFisico(
 
     fun removerPared(pared: Pared): Boolean = listaParedes.remove(pared)
 
+    fun quitarPared(pared: Pared) {
+        listaParedes.remove(pared)
+    }
+
     fun limpiarParedes() {
         listaParedes.clear()
     }
