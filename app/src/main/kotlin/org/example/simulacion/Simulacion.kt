@@ -56,6 +56,8 @@ class Simulacion(
         )
 
         private const val TIEMPO_MAXIMO_VUELO = 30.0
+        /** Resto de tiempo por debajo del cual ya no se da un paso mas. */
+        private const val PASO_MINIMO = 1e-9
         private const val VELOCIDAD_CAMARA = 6.0
         private const val ANCHOR_CAMARA = 0.4
         private const val ALTURA_CAMARA = 0.45
@@ -93,6 +95,12 @@ class Simulacion(
         private set
     var distanciaRecorrida: Double = 0.0
         private set
+    /** Altura maxima alcanzada sobre el suelo en el tiro actual, en px. */
+    var alturaMaxima: Double = 0.0
+        private set
+    /** Distancia horizontal maxima alcanzada desde el lanzamiento, en px. */
+    var distanciaX: Double = 0.0
+        private set
     var paredesDestruidas: Int = 0
         private set
 
@@ -103,6 +111,9 @@ class Simulacion(
     val superficiesLanzamientoLista: List<Pared> get() = superficiesLanzamiento.toList()
     val efectos: List<EfectoRotura> get() = listaEfectos.toList()
     val sueloY: Double get() = motor.sueloY
+
+    /** Gravedad activa en pixeles/segundo^2: la misma que empuja al proyectil. */
+    val gravedad: Vector2D get() = Vector2D(0.0, Tierra.GRAVEDAD_PIXELES * factorGravedad)
 
     private var motor: MotorFisico = MotorFisico(crearTierra())
     val creadorParedes: CreadorParedes = ConstructorParedes(motor, TipoPared.POR_DEFECTO)
@@ -115,6 +126,9 @@ class Simulacion(
     private var posicionOrigen: Vector2D = posicionInicial()
     private val superficiesLanzamiento = mutableListOf<Pared>()
     private val listaEfectos = mutableListOf<EfectoRotura>()
+
+    /** Interesados en enterarse de que el tiro ha terminado (patron Observer). */
+    private val observadoresFin = mutableListOf<ObservadorFinSimulacion>()
 
     init {
         tipoPared = TipoPared.POR_DEFECTO
@@ -307,6 +321,8 @@ class Simulacion(
         entrada.reiniciar()
         tiempoVuelo = 0.0
         distanciaRecorrida = 0.0
+        alturaMaxima = 0.0
+        distanciaX = 0.0
         cambiarA(EstadoSimulacion.Inactivo)
     }
 
@@ -322,6 +338,37 @@ class Simulacion(
         paredesDestruidas = 0
         listaEfectos.clear()
         superficiesLanzamiento.clear()
+    }
+
+    /** Regresa a la pantalla de bienvenida, como si se abriese el juego de nuevo. */
+    fun volverAlMenu() {
+        nuevaPartida()
+        cambiarA(EstadoSimulacion.PantallaInicio)
+    }
+
+    // ---- Fin de tiro (patron Observer) ---------------------------------------------
+
+    /** Registra a quien quiera enterarse de que el tiro ha terminado. */
+    fun agregarObservadorFinSimulacion(observador: ObservadorFinSimulacion) {
+        if (!observadoresFin.contains(observador)) observadoresFin.add(observador)
+    }
+
+    fun quitarObservadorFinSimulacion(observador: ObservadorFinSimulacion) {
+        observadoresFin.remove(observador)
+    }
+
+    /** Instantanea con los resultados del tiro terminado. */
+    fun resultadoFinal(): ResultadoSimulacion = ResultadoSimulacion(
+        tiempoTotal = tiempoVuelo,
+        distanciaX = distanciaX,
+        alturaMaxima = alturaMaxima
+    )
+
+    private fun notificarFinSimulacion() {
+        val resultado = resultadoFinal()
+        for (observador in observadoresFin.toList()) {
+            observador.alTerminarSimulacion(resultado)
+        }
     }
 
     // ---- Datos para el HUD ----------------------------------------------------------
@@ -402,26 +449,46 @@ class Simulacion(
 
         tiempoVuelo = 0.0
         distanciaRecorrida = 0.0
+        alturaMaxima = alturaActual()
+        distanciaX = 0.0
         cambiarA(EstadoSimulacion.EnVuelo)
         entrada.reiniciar()
     }
 
     internal fun avanzarVuelo(deltaTime: Double) {
-        val pasos = (deltaTime / DT_FISICA).toInt().coerceAtLeast(1)
-        repeat(pasos) {
+        var restante = deltaTime
+        while (restante > PASO_MINIMO) {
+            val paso = min(restante, DT_FISICA)
             val antes = pelota.posicion
-            registrarRoturas(motor.simularPaso(pelota, DT_FISICA))
+            registrarRoturas(motor.simularPaso(pelota, paso))
             distanciaRecorrida += pelota.posicion.distanciaA(antes)
-        }
-        tiempoVuelo += deltaTime
+            tiempoVuelo += paso
+            registrarMetricas()
+            restante -= paso
 
-        if (motor.estaEnReposo(pelota) || tiempoVuelo > TIEMPO_MAXIMO_VUELO) {
-            modoParedes = false
-            herramientaCreacionParedes.estaActiva = false
-            cancelarDibujoPared()
-            entrada.reiniciar()
-            cambiarA(EstadoSimulacion.EnSuelo)
+            // El reloj se detiene en el instante exacto en que la pelota para.
+            if (motor.estaEnReposo(pelota)) {
+                terminarVuelo()
+                return
+            }
         }
+        if (tiempoVuelo >= TIEMPO_MAXIMO_VUELO) terminarVuelo()
+    }
+
+    /** Cierra el vuelo: deja la pelota en reposo y avisa a los observadores. */
+    private fun terminarVuelo() {
+        modoParedes = false
+        herramientaCreacionParedes.estaActiva = false
+        cancelarDibujoPared()
+        entrada.reiniciar()
+        cambiarA(EstadoSimulacion.EnSuelo)
+        notificarFinSimulacion()
+    }
+
+    /** Guarda los maximos que resumen el tiro (altura y alcance horizontal). */
+    private fun registrarMetricas() {
+        alturaMaxima = maxOf(alturaMaxima, alturaActual())
+        distanciaX = maxOf(distanciaX, pelota.posicion.x - posicionOrigen.x)
     }
 
     // ---- Utilidades -----------------------------------------------------------------
@@ -518,8 +585,7 @@ class Simulacion(
         )
     }
 
-    private fun crearTierra() =
-        Tierra(ancho, alto, Vector2D(0.0, Tierra.GRAVEDAD_PIXELES * factorGravedad))
+    private fun crearTierra() = Tierra(ancho, alto, gravedad)
 
     private fun posicionInicial() = Vector2D(50.0, alto - 60.0)
 }
