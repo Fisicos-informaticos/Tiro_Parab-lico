@@ -14,6 +14,10 @@ import org.example.modelo.TipoPared
 import org.example.modelo.Vector2D
 import org.example.modelo.creadores.ConstructorParedes
 import org.example.modelo.creadores.CreadorParedes
+import org.example.modos.CatalogoModos
+import org.example.modos.LecturaModo
+import org.example.modos.ModoSimulacion
+import org.example.modos.Preparacion
 import kotlin.math.exp
 import kotlin.math.min
 import kotlin.math.max
@@ -31,7 +35,6 @@ class Simulacion(
 
     companion object {
         const val DT_FISICA = 1.0 / 60.0
-        const val ESCALA_VELOCIDAD = 3.0
         const val MAX_FUERZA = 500.0
         const val LONGITUD_MINIMA_PARED = 12.0
         const val GRAVEDAD_POR_DEFECTO = "Tierra (1.00 g)"
@@ -52,13 +55,11 @@ class Simulacion(
             "Neptuno (1.14 g)" to 1.137
         )
 
-        private const val MARGEN_COLOCACION = 30.0
         private const val TIEMPO_MAXIMO_VUELO = 30.0
         private const val VELOCIDAD_CAMARA = 6.0
         private const val ANCHOR_CAMARA = 0.4
         private const val ALTURA_CAMARA = 0.45
         private const val PASOS_PREVISUALIZACION = 150
-        private const val FUERZA_MINIMA_APUNTADO = 5.0
         private const val ALTURA_APOYO_PELOTA = 2.0
     }
 
@@ -78,6 +79,10 @@ class Simulacion(
             creadorParedes.seleccionarTipoPared(value)
         }
     var factorGravedad: Double = GRAVEDADES[GRAVEDAD_POR_DEFECTO] ?: 1.0
+        private set
+
+    /** Modo activo: el nucleo y el presentador trabajan contra esta abstraccion. */
+    var modo: ModoSimulacion = CatalogoModos.crear(CatalogoModos.POR_DEFECTO)
         private set
 
     var pelota: Pelota = Pelota(posicionInicial(), tipoPelota)
@@ -259,6 +264,15 @@ class Simulacion(
         if (estado !is EstadoSimulacion.EnVuelo) reiniciar()
     }
 
+    /** Cambia el modo activo y deja la pelota lista para preparar otro tiro. */
+    fun seleccionarModo(nombre: String?) {
+        val nuevo = CatalogoModos.crear(nombre)
+        if (nuevo.nombre == modo.nombre) return
+
+        modo = nuevo
+        if (estado !is EstadoSimulacion.EnVuelo) reiniciar()
+    }
+
     fun agregarPared(pared: Pared) {
         if (estado !is EstadoSimulacion.EnVuelo) motor.agregarPared(pared)
     }
@@ -317,14 +331,24 @@ class Simulacion(
 
     fun etiquetaColision(): String = pelota.forma.tipo.etiqueta
 
+    /** Instantanea del mundo que el modo activo traduce a texto para el panel. */
+    fun lecturaModo(): LecturaModo = LecturaModo(
+        posicion = pelota.posicion,
+        velocidad = pelota.velocidad,
+        distancia = distanciaRecorrida,
+        altura = alturaActual(),
+        tiempo = tiempoVuelo,
+        angulo = entrada.anguloLanzamiento,
+        fuerza = entrada.fuerzaLanzamiento
+    )
+
     /** Simula el tiro que se esta apuntando para dibujar su trayectoria. */
     fun previsualizarTrayectoria(): List<Vector2D> {
         if (estado !is EstadoSimulacion.Arrojando) return emptyList()
 
-        val vector = entrada.vectorLanzamiento ?: return emptyList()
-        val simulada = Pelota(posicionOrigen, tipoPelota)
-        simulada.velocidad = vector.normalizado *
-            (entrada.fuerzaLanzamiento.coerceAtMost(MAX_FUERZA) * ESCALA_VELOCIDAD)
+        val condicion = modo.condicionDePrevia(entrada, pelota.posicion) ?: return emptyList()
+        val simulada = Pelota(condicion.posicion, tipoPelota)
+        simulada.velocidad = condicion.velocidad
 
         // Copias: previsualizar nunca debe gastar el danio de las paredes de verdad.
         val motorSim = MotorFisico(crearTierra(), motor.obtenerParedes().map { it.copy() })
@@ -345,12 +369,10 @@ class Simulacion(
     }
 
     internal fun colocarPelotaParaLanzar(punto: Vector2D) {
-        val puntoMundo = aMundo(punto)
-        if (puntoMundo.y < sueloY - MARGEN_COLOCACION) return
+        val destino = modo.colocar(preparacionPara(aMundo(punto))) ?: return
 
-        posicionOrigen = Vector2D(puntoMundo.x, 0.0)
-        pelota = Pelota(posicionOrigen, tipoPelota)
-        apoyarPelotaEnElSueloOSuperficie()
+        posicionOrigen = destino
+        pelota = Pelota(destino, tipoPelota)
         entrada.iniciarArrastre(punto)
         cambiarA(EstadoSimulacion.Arrojando)
     }
@@ -358,20 +380,24 @@ class Simulacion(
     internal fun iniciarApuntado(punto: Vector2D) = entrada.iniciarArrastre(punto)
 
     internal fun continuarApuntado(punto: Vector2D) {
-        if (entrada.estaArrastrando) entrada.actualizarArrastre(punto)
+        if (!entrada.estaArrastrando) return
+
+        entrada.actualizarArrastre(punto)
+        val nuevaPosicion = modo.arrastrar(preparacionPara(aMundo(punto))) ?: return
+        posicionOrigen = nuevaPosicion
+        pelota.posicion = nuevaPosicion
     }
 
     internal fun lanzarPelota() {
         if (!entrada.estaArrastrando) return
 
-        val vector = entrada.vectorLanzamiento ?: return
-        if (vector.magnitud < FUERZA_MINIMA_APUNTADO) {
+        val velocidad = modo.velocidadDeSuelta(entrada)
+        if (velocidad == null) {
             entrada.reiniciar()
             return
         }
 
-        val fuerza = entrada.fuerzaLanzamiento.coerceAtMost(MAX_FUERZA)
-        pelota.velocidad = vector.normalizado * (fuerza * ESCALA_VELOCIDAD)
+        pelota.velocidad = velocidad
         pelota.posicion = posicionOrigen
 
         tiempoVuelo = 0.0
@@ -403,13 +429,13 @@ class Simulacion(
     private fun dibujandoPared(): Boolean =
         (modoParedes || modoSuperficies) && estado !is EstadoSimulacion.EnVuelo
 
-    private fun ySuperficieBajo(x: Double): Double? {
+    private fun ySuperficieBajo(x: Double, radio: Double): Double? {
         var mejor: Double? = null
         for (s in superficiesLanzamiento) {
             val x1 = minOf(s.inicio.x, s.fin.x)
             val x2 = maxOf(s.inicio.x, s.fin.x)
-            if (x < x1 - pelota.radio * 0.8) continue
-            if (x > x2 + pelota.radio * 0.8) continue
+            if (x < x1 - radio * 0.8) continue
+            if (x > x2 + radio * 0.8) continue
             val ySup = minOf(s.inicio.y, s.fin.y)
             mejor = when {
                 mejor == null -> ySup
@@ -420,13 +446,32 @@ class Simulacion(
         return mejor
     }
 
+    /** y donde la pelota apoya: suelo o superficie de lanzamiento bajo el punto. */
+    private fun yDeApoyo(x: Double, radio: Double): Double =
+        (ySuperficieBajo(x, radio) ?: sueloY) - radio - ALTURA_APOYO_PELOTA
+
+    /** Vista de solo lectura del mundo que el modo activo necesita para decidir. */
+    private fun preparacionPara(puntoMundo: Vector2D): Preparacion {
+        val radio = pelota.radio
+        val minY = maxOf(motor.techoY, offsetCamara.y) + radio
+        val maxY = maxOf(minY, minOf(motor.sueloY, offsetCamara.y + alto) - radio)
+
+        return Preparacion(
+            punto = puntoMundo,
+            origen = pelota.posicion,
+            apoyoY = yDeApoyo(puntoMundo.x, radio),
+            sueloY = sueloY,
+            minY = minY,
+            maxY = maxY
+        )
+    }
+
+    /** Altura sobre el suelo: cero cuando la pelota apoya. */
+    private fun alturaActual(): Double =
+        (sueloY - pelota.radio - ALTURA_APOYO_PELOTA - pelota.posicion.y).coerceAtLeast(0.0)
+
     private fun apoyarPelotaEnElSueloOSuperficie() {
-        val ySup = ySuperficieBajo(posicionOrigen.x)
-        posicionOrigen = if (ySup != null) {
-            Vector2D(posicionOrigen.x, ySup - pelota.radio - ALTURA_APOYO_PELOTA)
-        } else {
-            Vector2D(posicionOrigen.x, sueloY - pelota.radio - ALTURA_APOYO_PELOTA)
-        }
+        posicionOrigen = Vector2D(posicionOrigen.x, yDeApoyo(posicionOrigen.x, pelota.radio))
         pelota.posicion = posicionOrigen
     }
 
@@ -460,6 +505,10 @@ class Simulacion(
     }
 
     private fun actualizarCamara(deltaTime: Double) {
+        // Mientras se arrastra, el mapa quieto es lo que mantiene sincronizados
+        // el puntero y la pelota (decisivo en caida libre, que la mueve).
+        if (entrada.estaArrastrando) return
+
         val objetivoX = pelota.posicion.x - ancho * ANCHOR_CAMARA
         val objetivoY = pelota.posicion.y - alto * ALTURA_CAMARA
         val factor = 1.0 - exp(-VELOCIDAD_CAMARA * deltaTime)

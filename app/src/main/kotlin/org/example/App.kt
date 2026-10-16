@@ -110,8 +110,12 @@ class App {
         print(mensaje)
         return readlnOrNull()?.trim()?.lowercase() == "s"
     }
-}
 
-private fun main() {
-    App().iniciar()
+    companion object {
+        /** Punto de entrada de la presentacion por consola. */
+        @JvmStatic
+        fun main(args: Array<String>) {
+            App().iniciar()
+        }
+    }
 }

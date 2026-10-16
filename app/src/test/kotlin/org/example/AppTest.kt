@@ -485,6 +485,36 @@ class AppTest {
         }
     }
 
+    @Test
+    fun unaPelotaQuietaSobreUnaParedTerminaElTiro() {
+        val ambiente = Tierra()
+        val pared = Pared(Vector2D(400.0, 500.0), Vector2D(600.0, 500.0), TipoPared.ACERO)
+        val motor = MotorFisico(ambiente, listOf(pared))
+        val pelota = Pelota(Vector2D(500.0, 300.0), TipoPelota.BOLICHE)
+
+        repeat(900) { motor.simularPaso(pelota, 1.0 / 60.0) }
+
+        assertTrue(
+            pelota.posicion.y < ambiente.sueloY - pelota.radio - 5.0,
+            "La pelota tiene que quedar apoyada sobre la pared, no en el suelo"
+        )
+        assertTrue(motor.estaEnReposo(pelota), "Quieta sobre una pared tambien termina el tiro")
+    }
+
+    @Test
+    fun rozarUnaParedVerticalEnElAireNoCuentaComoApoyo() {
+        val ambiente = Tierra()
+        val pared = Pared(Vector2D(600.0, 600.0), Vector2D(600.0, 100.0), TipoPared.ACERO)
+        val motor = MotorFisico(ambiente, listOf(pared))
+        val x = 600.0 - pared.grosor / 2.0 - 10.0
+        val pelota = Pelota(Vector2D(x, 400.0), TipoPelota.GOMA, FormaCirculo(10.0))
+        pelota.velocidad = Vector2D(0.0, -450.0)
+
+        repeat(18) { motor.simularPaso(pelota, 1.0 / 60.0) }
+
+        assertTrue(!motor.estaEnReposo(pelota), "En el aire, rozando la pared, el vuelo continua")
+    }
+
     private fun assertVectorIgual(esperado: Vector2D, real: Vector2D) {
         assertEquals(esperado.x, real.x, 1e-9, "Componente x")
         assertEquals(esperado.y, real.y, 1e-9, "Componente y")

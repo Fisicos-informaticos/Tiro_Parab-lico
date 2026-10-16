@@ -54,27 +54,22 @@ class PresentadorJuego(
     }
 
     private fun dibujarApuntado(simulacion: Simulacion) {
-        val entrada = simulacion.entrada
+        val modo = simulacion.modo
         val origen = simulacion.pelota.posicion - simulacion.offsetCamara
         renderer.dibujarPuntoLanzamiento(origen, simulacion.pelota.radio)
         renderer.dibujarProyectil(simulacion.pelota)
 
-        val inicio = entrada.posicionInicial ?: return
-        val actual = entrada.posicionActual ?: return
-        renderer.dibujarLinea(inicio, actual, "#ffffff", 2.0)
+        if (modo.dibujaVectorDeTiro) dibujarVectorDeTiro(simulacion, origen)
 
-        val vector = entrada.vectorLanzamiento ?: return
-        val fuerza = entrada.fuerzaLanzamiento.coerceAtMost(Simulacion.MAX_FUERZA)
-        val direccion = vector.normalizado
-        renderer.dibujarLineaDireccion(origen, origen + direccion * fuerza)
-        renderer.dibujarTexto(
-            "Angulo: ${"%.1f".format(entrada.anguloLanzamiento)}°",
-            origen.x + 15.0, origen.y - 25.0, 13.0
-        )
-        renderer.dibujarTexto(
-            "Fuerza: ${"%.0f".format(fuerza)}",
-            origen.x + 15.0, origen.y - 8.0, 13.0
-        )
+        val etiquetas = modo.etiquetasDePreparacion(simulacion.lecturaModo())
+        for (indice in etiquetas.indices) {
+            renderer.dibujarTexto(
+                etiquetas[indice],
+                origen.x + 15.0,
+                origen.y - 25.0 + indice * 17.0,
+                13.0
+            )
+        }
 
         val puntos = simulacion.previsualizarTrayectoria()
         if (puntos.size < 2) return
@@ -86,6 +81,18 @@ class PresentadorJuego(
                 1.5
             )
         }
+    }
+
+    /** Linea de arrastre, flecha y etiquetas del vector de tiro. */
+    private fun dibujarVectorDeTiro(simulacion: Simulacion, origen: Vector2D) {
+        val entrada = simulacion.entrada
+        val inicio = entrada.posicionInicial ?: return
+        val actual = entrada.posicionActual ?: return
+        renderer.dibujarLinea(inicio, actual, "#ffffff", 2.0)
+
+        val vector = entrada.vectorLanzamiento ?: return
+        val fuerza = entrada.fuerzaLanzamiento.coerceAtMost(Simulacion.MAX_FUERZA)
+        renderer.dibujarLineaDireccion(origen, origen + vector.normalizado * fuerza)
     }
 
     /** Estela blanca que se apaga en el sitio donde estaba la pared rota. */
@@ -103,6 +110,7 @@ class PresentadorJuego(
 
     private fun lineasPanel(simulacion: Simulacion): List<String> {
         val lineas = mutableListOf("Estado: ${simulacion.estado.nombre}")
+        lineas.add("Modo: ${simulacion.modo.nombre}")
         lineas.add("Pelota: ${simulacion.tipoPelota.nombre}")
         lineas.add("Colision: ${simulacion.etiquetaColision()}")
         lineas.add("Pared: ${simulacion.tipoPared.nombre}")
@@ -121,28 +129,16 @@ class PresentadorJuego(
         return lineas
     }
 
+    /** Las metricas concretas las decide el modo activo; el estado solo ordena. */
     private fun lineasEstado(simulacion: Simulacion): List<String> {
-        val entrada = simulacion.entrada
-        val pelota = simulacion.pelota
+        val lectura = simulacion.lecturaModo()
 
         return when (simulacion.estado) {
             EstadoSimulacion.PantallaInicio -> listOf("Haz click para comenzar")
-            EstadoSimulacion.Inactivo -> listOf("Click en el suelo para", "colocar la pelota")
-            EstadoSimulacion.Arrojando -> listOf(
-                "Arrastra para lanzar",
-                "Angulo: ${"%.1f".format(entrada.anguloLanzamiento)}°",
-                "Fuerza: ${"%.1f".format(entrada.fuerzaLanzamiento)}"
-            )
-            EstadoSimulacion.EnVuelo -> listOf(
-                "Vel: ${"%.2f".format(pelota.velocidad.magnitud)} px/s",
-                "Pos: ${posicion(pelota.posicion)}"
-            )
-            EstadoSimulacion.EnSuelo -> listOf(
-                "Distancia: ${"%.2f".format(simulacion.distanciaRecorrida)} px",
-                "Click para reiniciar"
-            )
+            EstadoSimulacion.Inactivo -> simulacion.modo.lineasDeColocacion(lectura)
+            EstadoSimulacion.Arrojando -> simulacion.modo.lineasDeApuntado(lectura)
+            EstadoSimulacion.EnVuelo -> simulacion.modo.lineasDeVuelo(lectura)
+            EstadoSimulacion.EnSuelo -> simulacion.modo.lineasDeReposo(lectura)
         }
     }
-
-    private fun posicion(punto: Vector2D): String = "(${punto.x.toInt()}, ${punto.y.toInt()})"
 }

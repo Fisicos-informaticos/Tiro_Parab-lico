@@ -171,9 +171,34 @@ class MotorFisico(
         p.posicion = p.posicion + contacto.normal * (contacto.profundidad + CORRECCION_POSICION)
     }
 
-    fun estaEnReposo(proyectil: Proyectil): Boolean {
-        val limiteSuelo = sueloY - proyectil.radio - 2.0
-        return proyectil.posicion.y >= limiteSuelo && proyectil.velocidad.magnitud < 0.5
+    /**
+     * El tiro ha terminado: por debajo del umbral del aire la pelota ya no se
+     * frena sola y nada va a moverla otra vez, porque la apoya una superficie o
+     * porque no hay gravedad. Sin ese apoyo sigue en vuelo aunque su velocidad
+     * sea nula: es el punto mas alto de un lanzamiento vertical.
+     */
+    fun estaEnReposo(proyectil: Proyectil): Boolean =
+        proyectil.velocidad.magnitud < UMBRAL_ARRASTRE && (tieneApoyo(proyectil) || sinGravedad)
+
+    private val sinGravedad: Boolean get() = ambiente.gravedad.magnitud <= EPSILON
+
+    private fun tieneApoyo(proyectil: Proyectil): Boolean {
+        val apoyoSuelo = sueloY - proyectil.radio - TOLERANCIA_APOYO
+        if (proyectil.posicion.y >= apoyoSuelo) return true
+
+        return listaParedes.any { apoyaEnPared(proyectil, it) }
+    }
+
+    /**
+     * Toca la pared y esta por encima de ella: solo entonces la pared empuja
+     * hacia arriba y sostiene a la pelota. Rozar una pared vertical no vale.
+     */
+    private fun apoyaEnPared(proyectil: Proyectil, pared: Pared): Boolean {
+        val delta = proyectil.posicion - pared.puntoMasCercano(proyectil.posicion)
+        if (delta.y > -TOLERANCIA_APOYO) return false
+
+        val alcance = pared.grosor / 2.0 + proyectil.radio + TOLERANCIA_APOYO
+        return delta.magnitud <= alcance
     }
 
     companion object {
@@ -185,6 +210,9 @@ class MotorFisico(
 
         /** Rapidez por debajo de la cual el aire y la orientacion no hacen nada. */
         private const val UMBRAL_ARRASTRE = 1.0
+
+        /** Holgura con la que se acepta que el suelo o una pared apoyan a la pelota. */
+        private const val TOLERANCIA_APOYO = 2.0
 
         /** Constante de orientacion: como de rapido sigue el vuelo a su forma. */
         private const val TASA_ORIENTACION = 4.0
