@@ -25,6 +25,8 @@ interface UIEventListener {
 
     fun reiniciar()
 
+    fun volverAlMenu()
+
     fun seleccionarModo(nombre: String?)
 
     fun aplicarGravedad(nombre: String?)

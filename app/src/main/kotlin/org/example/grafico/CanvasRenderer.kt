@@ -27,6 +27,9 @@ class CanvasRenderer(
     private val colorTexto = Color.WHITE
     private val sueloY: Double get() = alto - 50.0
 
+    /** Los vectores fisicos los pinta una clase dedicada: aqui solo se le delega. */
+    private val vectoresFisica = VectorRenderer(gc)
+
     override var offsetCamara = Vector2D(0.0, 0.0)
 
     override fun limpiar() {
@@ -238,6 +241,10 @@ class CanvasRenderer(
             proyectil.angulo,
             proyectil.posicion - offsetCamara
         )
+    }
+
+    override fun dibujarVectoresFisica(centro: Vector2D, velocidad: Vector2D, gravedad: Vector2D) {
+        vectoresFisica.dibujar(centro, velocidad, gravedad)
     }
 
     override fun dibujarPuntoLanzamiento(posicion: Vector2D, radio: Double) {

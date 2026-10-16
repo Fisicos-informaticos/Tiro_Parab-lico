@@ -42,8 +42,18 @@ class PresentadorJuego(
             EstadoSimulacion.EnSuelo -> renderer.dibujarProyectil(simulacion.pelota)
         }
 
+        dibujarVectoresFisica(simulacion)
         dibujarEfectos(simulacion)
         renderer.dibujarPanel(lineasPanel(simulacion))
+    }
+
+    /** Flechas de velocidad y de gravedad sobre la pelota en su posicion de pantalla. */
+    private fun dibujarVectoresFisica(simulacion: Simulacion) {
+        renderer.dibujarVectoresFisica(
+            simulacion.pelota.posicion - simulacion.offsetCamara,
+            simulacion.pelota.velocidad,
+            simulacion.gravedad
+        )
     }
 
     private fun dibujarPelotaEnReposo(simulacion: Simulacion) {
