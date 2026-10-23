@@ -9,6 +9,7 @@ interface Mundo {
     fun limpiar()
     fun dibujarEntorno()
     fun dibujarPared(pared: Pared)
+    fun dibujarSuperficie(pared: Pared)
     fun dibujarParedTemporal(pared: Pared)
     fun dibujarProyectil(proyectil: Proyectil)
     fun dibujarPuntoLanzamiento(posicion: Vector2D, radio: Double)

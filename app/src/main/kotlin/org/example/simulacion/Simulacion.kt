@@ -2,7 +2,9 @@ package org.example.simulacion
 
 import org.example.entrada.DragInputHandler
 import org.example.entrada.InputHandler
+import org.example.entrada.InputListener
 import org.example.fisica.MotorFisico
+import org.example.fisica.PhysicsEngine
 import org.example.fisica.Tierra
 import org.example.coordenadas.TransformadorCoordenadas
 import org.example.coordenadas.TransformadorCoordenadasSimulacion
@@ -31,7 +33,7 @@ class Simulacion(
     val ancho: Double = 1000.0,
     val alto: Double = 650.0,
     val entrada: InputHandler = DragInputHandler()
-) {
+) : InputListener {
 
     companion object {
         const val DT_FISICA = 1.0 / 60.0
@@ -115,8 +117,8 @@ class Simulacion(
     /** Gravedad activa en pixeles/segundo^2: la misma que empuja al proyectil. */
     val gravedad: Vector2D get() = Vector2D(0.0, Tierra.GRAVEDAD_PIXELES * factorGravedad)
 
-    private var motor: MotorFisico = MotorFisico(crearTierra())
-    val creadorParedes: CreadorParedes = ConstructorParedes(motor, TipoPared.POR_DEFECTO)
+    private val motor: PhysicsEngine = MotorFisico(crearTierra())
+    private val creadorParedes: CreadorParedes = ConstructorParedes(motor, TipoPared.POR_DEFECTO)
     private val transformador: TransformadorCoordenadas = TransformadorCoordenadasSimulacion(this)
     private val herramientaCreacionParedes = HerramientaCreacionParedes(
         transformador,
@@ -138,7 +140,7 @@ class Simulacion(
 
     private fun aMundo(punto: Vector2D): Vector2D = transformador.pantallaAMundo(punto)
 
-    fun pulsar(punto: Vector2D) {
+    override fun pulsar(punto: Vector2D) {
         if (dibujandoPared()) {
             herramientaCreacionParedes.iniciar(punto)
         } else {
@@ -146,7 +148,7 @@ class Simulacion(
         }
     }
 
-    fun arrastrar(punto: Vector2D) {
+    override fun arrastrar(punto: Vector2D) {
         if (dibujandoPared()) {
             herramientaCreacionParedes.actualizar(punto)
         } else {
@@ -154,7 +156,7 @@ class Simulacion(
         }
     }
 
-    fun soltar(punto: Vector2D) {
+    override fun soltar(punto: Vector2D) {
         if (dibujandoPared()) {
             val antes = motor.obtenerParedes().size
             herramientaCreacionParedes.finalizar(punto)
@@ -168,7 +170,7 @@ class Simulacion(
                     }
                 }
                 modoSuperficies = false
-                herramientaCreacionParedes.estaActiva = false
+                herramientaCreacionParedes.desactivar()
             }
         } else {
             estado.alSoltar(this, punto)
@@ -194,7 +196,7 @@ class Simulacion(
         if (pausado) {
             modoParedes = false
             modoSuperficies = false
-            herramientaCreacionParedes.estaActiva = false
+            herramientaCreacionParedes.desactivar()
             cancelarDibujoPared()
             entrada.reiniciar()
         }
@@ -205,7 +207,7 @@ class Simulacion(
 
         modoParedes = !modoParedes
         modoSuperficies = false
-        herramientaCreacionParedes.estaActiva = modoParedes
+        if (modoParedes) herramientaCreacionParedes.activar() else herramientaCreacionParedes.desactivar()
         if (!modoParedes) {
             cancelarDibujoPared()
             return
@@ -226,7 +228,7 @@ class Simulacion(
 
         modoSuperficies = !modoSuperficies
         modoParedes = false
-        herramientaCreacionParedes.estaActiva = modoSuperficies
+        if (modoSuperficies) herramientaCreacionParedes.activar() else herramientaCreacionParedes.desactivar()
         if (!modoSuperficies) {
             cancelarDibujoPared()
             return
@@ -274,7 +276,7 @@ class Simulacion(
         if (factor == factorGravedad) return
 
         factorGravedad = factor
-        motor = MotorFisico(crearTierra(), motor.obtenerParedes())
+        motor.cambiarAmbiente(crearTierra())
         if (estado !is EstadoSimulacion.EnVuelo) reiniciar()
     }
 
@@ -301,7 +303,7 @@ class Simulacion(
         pausado = false
         modoParedes = false
         modoSuperficies = false
-        herramientaCreacionParedes.estaActiva = false
+        herramientaCreacionParedes.desactivar()
         cancelarDibujoPared()
         entrada.reiniciar()
         when (estado) {
@@ -331,7 +333,7 @@ class Simulacion(
         pausado = false
         modoParedes = false
         modoSuperficies = false
-        herramientaCreacionParedes.estaActiva = false
+        herramientaCreacionParedes.desactivar()
         cancelarDibujoPared()
         reiniciar()
         offsetCamara = Vector2D(0.0, 0.0)
@@ -478,7 +480,7 @@ class Simulacion(
     /** Cierra el vuelo: deja la pelota en reposo y avisa a los observadores. */
     private fun terminarVuelo() {
         modoParedes = false
-        herramientaCreacionParedes.estaActiva = false
+        herramientaCreacionParedes.desactivar()
         cancelarDibujoPared()
         entrada.reiniciar()
         cambiarA(EstadoSimulacion.EnSuelo)
@@ -566,8 +568,8 @@ class Simulacion(
         val iterator = listaEfectos.iterator()
         while (iterator.hasNext()) {
             val efecto = iterator.next()
-            efecto.vida -= deltaTime
-            if (efecto.vida <= 0.0) iterator.remove()
+            efecto.avanzar(deltaTime)
+            if (efecto.agotado) iterator.remove()
         }
     }
 
@@ -593,8 +595,17 @@ class Simulacion(
 /** Estela que deja una pared al romperse y que se apaga sola. */
 class EfectoRotura(
     val pared: Pared,
-    var vida: Double
+    vida: Double
 ) {
+    var vida: Double = vida
+        private set
+
     val proporcion: Double
         get() = (vida / Simulacion.DURACION_ROTURA).coerceIn(0.0, 1.0)
+
+    val agotado: Boolean get() = vida <= 0.0
+
+    fun avanzar(deltaTime: Double) {
+        vida = (vida - deltaTime).coerceAtLeast(0.0)
+    }
 }

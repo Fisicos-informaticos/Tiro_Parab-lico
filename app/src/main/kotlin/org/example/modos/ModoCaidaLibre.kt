@@ -8,7 +8,7 @@ import org.example.modelo.Vector2D
  * mueve en el eje Y bajo la gravedad seleccionada. El arrastre no apunta, sino
  * que fija la altura inicial (h0) desde la que se suelta.
  */
-class CaidaLibre : ModoSimulacion {
+open class ModoCaidaLibre : ModoSimulacion {
 
     override val nombre = CatalogoModos.CAIDA_LIBRE
     override val ayuda = "Coloca la pelota y arrastra en vertical"
@@ -28,7 +28,7 @@ class CaidaLibre : ModoSimulacion {
         CondicionPrevia(posicion, Vector2D(0.0, 0.0))
 
     override fun etiquetasDePreparacion(lectura: LecturaModo) = listOf(
-        "h0: ${"%.1f".format(lectura.altura)} px"
+        "h0: ${ModoSimulacion.formatear(lectura.altura, 1)} px"
     )
 
     override fun lineasDeColocacion(lectura: LecturaModo) = listOf(
@@ -38,23 +38,26 @@ class CaidaLibre : ModoSimulacion {
 
     override fun lineasDeApuntado(lectura: LecturaModo) = listOf(
         "Arrastra en vertical",
-        "h0: ${"%.1f".format(lectura.altura)} px",
+        "h0: ${ModoSimulacion.formatear(lectura.altura, 1)} px",
         "Suelta para dejar caer"
     )
 
     override fun lineasDeVuelo(lectura: LecturaModo) = listOf(
-        "h: ${"%.1f".format(lectura.altura)} px",
-        "Vy: ${"%.1f".format(lectura.velocidad.y)} px/s",
-        "t: ${"%.2f".format(lectura.tiempo)} s"
+        "h: ${ModoSimulacion.formatear(lectura.altura, 1)} px",
+        "Vy: ${ModoSimulacion.formatear(lectura.velocidad.y, 1)} px/s",
+        "t: ${ModoSimulacion.formatear(lectura.tiempo, 2)} s"
     )
 
     override fun lineasDeReposo(lectura: LecturaModo) = listOf(
-        "h: ${"%.1f".format(lectura.altura)} px",
-        "Vy: ${"%.1f".format(lectura.velocidad.y)} px/s",
-        "t: ${"%.2f".format(lectura.tiempo)} s",
+        "h: ${ModoSimulacion.formatear(lectura.altura, 1)} px",
+        "Vy: ${ModoSimulacion.formatear(lectura.velocidad.y, 1)} px/s",
+        "t: ${ModoSimulacion.formatear(lectura.tiempo, 2)} s",
         "Click para reiniciar"
     )
 
     private fun alturaValida(preparacion: Preparacion): Double =
         preparacion.punto.y.coerceIn(preparacion.minY, preparacion.maxY)
 }
+
+/** Nombre historico del modo, conservado para no romper a sus consumidores. */
+class CaidaLibre : ModoCaidaLibre()

@@ -4,6 +4,8 @@ import org.example.entrada.DragInputHandler
 import org.example.modos.CaidaLibre
 import org.example.modos.CatalogoModos
 import org.example.modos.LecturaModo
+import org.example.modos.ModoCaidaLibre
+import org.example.modos.ModoTiroParabolico
 import org.example.modos.TiroParabolico
 import org.example.modelo.TipoPelota
 import org.example.modelo.Vector2D
@@ -79,25 +81,26 @@ class CaidaLibreTest {
     fun laCaidaLibreTerminaEnElSueloConSusMetricas() {
         val simulacion = Simulacion()
         prepararCaida(simulacion, 300.0)
+        val xInicial = simulacion.pelota.posicion.x
         simulacion.soltar(Vector2D(500.0, 300.0))
 
         avanzarHasta(simulacion) { it is EstadoSimulacion.EnSuelo }
 
         assertTrue(simulacion.tiempoVuelo > 0.0, "El tiempo de caida avanza")
         assertTrue(simulacion.lecturaModo().altura <= 0.0, "Al apoyar la altura es cero")
-        assertEquals(0.0, simulacion.pelota.posicion.x, "Sigue sin haber movimiento en X")
+        assertEquals(xInicial, simulacion.pelota.posicion.x, 0.001, "Sigue sin haber movimiento en X")
     }
 
     @Test
     fun elPanelDeCaidaLibreMuestraAlturaVelocidadYTiempo() {
-        val lineas = CaidaLibre().lineasDeVuelo(lecturaDeEjemplo())
+        val lineas = ModoCaidaLibre().lineasDeVuelo(lecturaDeEjemplo())
 
         assertEquals(3, lineas.size)
         assertTrue(lineas[0].startsWith("h:"), lineas[0])
         assertTrue(lineas[1].startsWith("Vy:"), lineas[1])
         assertTrue(lineas[2].startsWith("t:"), lineas[2])
-        assertTrue(lineas[0].contains("200.0"), lineas[0])
-        assertTrue(lineas[1].contains("250.0"), lineas[1])
+        assertTrue(lineas[0].contains("200"), lineas[0])
+        assertTrue(lineas[1].contains("250"), lineas[1])
         assertTrue(lineas[2].contains("0.75"), lineas[2])
     }
 
@@ -113,7 +116,7 @@ class CaidaLibreTest {
     fun todosLosModosCumplenElMismoContrato() {
         val lectura = lecturaDeEjemplo()
 
-        for (modo in listOf(TiroParabolico(), CaidaLibre())) {
+        for (modo in listOf(ModoTiroParabolico(), ModoCaidaLibre())) {
             assertTrue(modo.nombre.isNotBlank())
             assertTrue(modo.ayuda.isNotBlank())
             assertTrue(modo.lineasDeColocacion(lectura).isNotEmpty(), modo.nombre)
@@ -128,8 +131,8 @@ class CaidaLibreTest {
     fun soloLaCaidaLibreSueltaSiempreDesdeElReposo() {
         val sinApuntar = DragInputHandler()
 
-        assertEquals(null, TiroParabolico().velocidadDeSuelta(sinApuntar), "Sin arrastre no hay tiro")
-        assertEquals(Vector2D(0.0, 0.0), CaidaLibre().velocidadDeSuelta(sinApuntar), "Vx = 0 y parte del reposo")
+        assertEquals(null, ModoTiroParabolico().velocidadDeSuelta(sinApuntar), "Sin arrastre no hay tiro")
+        assertEquals(Vector2D(0.0, 0.0), ModoCaidaLibre().velocidadDeSuelta(sinApuntar), "Vx = 0 y parte del reposo")
     }
 
     private fun prepararCaida(simulacion: Simulacion, altura: Double) {

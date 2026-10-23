@@ -156,6 +156,14 @@ class MainApp : Application(), UIEventListener {
 
     override fun reiniciar() = reiniciarJuego()
 
+    override fun volverAlMenu() {
+        cerrarTodosLosMenus()
+        cerrarMenuFin()
+        simulacion.volverAlMenu()
+        estadoPrevio = simulacion.estado
+        actualizarControles()
+    }
+
     override fun seleccionarModo(nombre: String?) = conAccion { simulacion.seleccionarModo(nombre) }
 
     override fun aplicarGravedad(nombre: String?) = conAccion { simulacion.aplicarGravedad(nombre) }

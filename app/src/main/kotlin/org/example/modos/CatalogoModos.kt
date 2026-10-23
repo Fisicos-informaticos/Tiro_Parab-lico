@@ -12,8 +12,8 @@ object CatalogoModos {
     const val POR_DEFECTO = TIRO_PARABOLICO
 
     private val fabricas = linkedMapOf<String, () -> ModoSimulacion>(
-        TIRO_PARABOLICO to { TiroParabolico() },
-        CAIDA_LIBRE to { CaidaLibre() }
+        TIRO_PARABOLICO to { ModoTiroParabolico() },
+        CAIDA_LIBRE to { ModoCaidaLibre() }
     )
 
     /** Nombres en el orden en el que los muestra el selector. */

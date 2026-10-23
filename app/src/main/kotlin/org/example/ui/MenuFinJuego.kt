@@ -3,7 +3,7 @@ package org.example.ui
 import javafx.geometry.Insets
 import javafx.geometry.Pos
 import javafx.scene.control.Button
-import chooseButtonLabelSize
+import javafx.scene.control.Label
 import javafx.scene.layout.Region
 import javafx.scene.layout.VBox
 import org.example.simulacion.ObservadorFinSimulacion
@@ -33,9 +33,9 @@ class MenuFinJuego(private val escucha: UIEventListener) : ObservadorFinSimulaci
     override fun alTerminarSimulacion(resultado: ResultadoSimulacion) = mostrar(resultado)
 
     fun mostrar(resultado: ResultadoSimulacion) {
-        etiquetaTiempo.text = "Tiempo total: ${resultado.tiempoTotal.decimales(2)} s"
-        etiquetaDistancia.text = "Distancia en X: ${resultado.distanciaX.decimales(2)} px"
-        etiquetaAltura.text = "Altura máxima: ${resultado.alturaMaxima.decimales(2)} px"
+        etiquetaTiempo.text = "Tiempo total: ${decimales(resultado.tiempoTotal)} s"
+        etiquetaDistancia.text = "Distancia en X: ${decimales(resultado.distanciaX)} px"
+        etiquetaAltura.text = "Altura máxima: ${decimales(resultado.alturaMaxima)} px"
         abierto = true
         raiz.isVisible = true
     }
@@ -71,10 +71,10 @@ class MenuFinJuego(private val escucha: UIEventListener) : ObservadorFinSimulaci
         return menu
     }
 
+    /** Dos decimales fijos para las metricas del resumen. */
+    private fun decimales(valor: Double): String = String.format("%.2f", valor)
+
     companion object {
         private const val ANCHO_BOTON = 220.0
     }
 }
-
-/** Dos decimales fijos para las metricas del resumen. */
-private fun Double.decimales(cifras: Int) = String.format("%.${cifras}f", this)

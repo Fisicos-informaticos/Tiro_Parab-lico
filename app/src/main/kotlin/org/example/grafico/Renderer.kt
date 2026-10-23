@@ -1,7 +1,7 @@
 package org.example.grafico
 
 /**
- * Pantalla completa: reune los tres papeles de dibujo (contexto, mundo y HUD).
- * Existe para quien necesita pintar a la vez, como [PresentadorJuego].
+ * Alias de compatibilidad de [Renderable]. Se conserva para las presentaciones
+ * que ya dependian de este nombre; el codigo nuevo usa la abstraccion base.
  */
-interface Renderer : ContextoDibujo, Mundo, Hud
+interface Renderer : Renderable

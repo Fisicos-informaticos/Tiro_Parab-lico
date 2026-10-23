@@ -132,7 +132,14 @@ class CanvasRenderer(
 
     override fun dibujarPared(pared: Pared) = dibujarPared(pared, null, null)
 
-    fun dibujarPared(pared: Pared, colorOverride: javafx.scene.paint.Color?, grosorExtra: Double?) {
+    override fun dibujarSuperficie(pared: Pared) =
+        dibujarPared(pared, Color.DODGERBLUE, 3.0)
+
+    private fun dibujarPared(
+        pared: Pared,
+        colorOverride: javafx.scene.paint.Color?,
+        grosorExtra: Double?
+    ) {
         val inicio = pared.inicio - offsetCamara
         val fin = pared.fin - offsetCamara
 

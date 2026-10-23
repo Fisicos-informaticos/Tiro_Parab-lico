@@ -4,15 +4,14 @@ import org.example.modelo.Vector2D
 import org.example.simulacion.EstadoSimulacion
 import org.example.simulacion.Simulacion
 import org.example.sprites.SpriteManager
-import javafx.scene.paint.Color
 
 /**
  * Traduce una [Simulacion] a pixeles. Es el unico sitio donde se decide que se ve
  * en cada estado, de modo que anadir un estado solo obliga a tocar este `when`,
- * y el compilador exige tratarlo.
+ * y el compilador exige tratarlo. Depende de [Renderable], no de JavaFX (DIP).
  */
 class PresentadorJuego(
-    private val renderer: Renderer,
+    private val renderer: Renderable,
     val sprites: SpriteManager = SpriteManager()
 ) {
 
@@ -27,7 +26,7 @@ class PresentadorJuego(
             renderer.dibujarPared(pared)
         }
         for (pared in simulacion.superficiesLanzamientoLista) {
-            (renderer as? CanvasRenderer)?.dibujarPared(pared, Color.DODGERBLUE, 3.0)
+            renderer.dibujarSuperficie(pared)
         }
         simulacion.paredTemporal?.let { renderer.dibujarParedTemporal(it) }
 

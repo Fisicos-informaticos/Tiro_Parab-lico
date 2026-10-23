@@ -9,33 +9,38 @@ import kotlin.math.ceil
 import kotlin.math.exp
 
 class MotorFisico(
-    private val ambiente: Ambiente,
+    private var ambiente: Ambiente,
     paredes: List<Pared> = emptyList()
-) {
+) : PhysicsEngine {
     private val listaParedes = paredes.toMutableList()
-    private val detectorReposo = DetectorReposo(ambiente)
+    private var detectorReposo = DetectorReposo(ambiente)
 
-    val sueloY: Double get() = ambiente.sueloY
-    val techoY: Double get() = ambiente.techoY
+    override val sueloY: Double get() = ambiente.sueloY
+    override val techoY: Double get() = ambiente.techoY
 
-    fun agregarPared(pared: Pared) {
+    override fun agregarPared(pared: Pared) {
         listaParedes.add(pared)
     }
 
-    fun removerPared(pared: Pared): Boolean = listaParedes.remove(pared)
+    override fun removerPared(pared: Pared): Boolean = listaParedes.remove(pared)
 
-    fun quitarPared(pared: Pared) {
+    override fun quitarPared(pared: Pared) {
         listaParedes.remove(pared)
     }
 
-    fun limpiarParedes() {
+    override fun limpiarParedes() {
         listaParedes.clear()
     }
 
-    fun obtenerParedes(): List<Pared> = listaParedes.toList()
+    override fun obtenerParedes(): List<Pared> = listaParedes.toList()
+
+    override fun cambiarAmbiente(ambiente: Ambiente) {
+        this.ambiente = ambiente
+        this.detectorReposo = DetectorReposo(ambiente)
+    }
 
     /** Avanza el proyectil y devuelve las paredes que ha roto en este paso. */
-    fun simularPaso(proyectil: Proyectil, deltaTime: Double): List<Pared> {
+    override fun simularPaso(proyectil: Proyectil, deltaTime: Double): List<Pared> {
         if (deltaTime <= 0.0) return emptyList()
 
         val fuerzaTotal = ambiente.gravedad * proyectil.masa + fuerzaArrastre(proyectil)
@@ -181,7 +186,7 @@ class MotorFisico(
      * El tiro ha terminado: lo decide [DetectorReposo]. Se conserva aqui porque
      * es parte del contrato del motor con quien lo usa.
      */
-    fun estaEnReposo(proyectil: Proyectil): Boolean =
+    override fun estaEnReposo(proyectil: Proyectil): Boolean =
         detectorReposo.estaEnReposo(proyectil, listaParedes)
 
     companion object {
