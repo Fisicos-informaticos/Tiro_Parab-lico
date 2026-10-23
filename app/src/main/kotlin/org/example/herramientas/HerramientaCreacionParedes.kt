@@ -20,6 +20,16 @@ class HerramientaCreacionParedes(
         private set
 
     var estaActiva: Boolean = false
+        private set
+
+    fun activar() {
+        estaActiva = true
+    }
+
+    fun desactivar() {
+        estaActiva = false
+        cancelar()
+    }
 
     fun iniciar(puntoPantalla: Vector2D) {
         if (!estaActiva) return

@@ -2,6 +2,7 @@ package org.example.modos
 
 import org.example.entrada.InputHandler
 import org.example.modelo.Vector2D
+import java.util.Locale
 
 /**
  * Contrato de un modo de simulacion. El nucleo ([org.example.simulacion.Simulacion])
@@ -40,6 +41,12 @@ interface ModoSimulacion {
     fun lineasDeApuntado(lectura: LecturaModo): List<String>
     fun lineasDeVuelo(lectura: LecturaModo): List<String>
     fun lineasDeReposo(lectura: LecturaModo): List<String>
+
+    companion object {
+        /** Formato estable con punto decimal, independiente del idioma del sistema. */
+        fun formatear(valor: Double, cifras: Int): String =
+            String.format(Locale.US, "%.${cifras}f", valor)
+    }
 }
 
 /**

@@ -9,32 +9,38 @@ import kotlin.math.ceil
 import kotlin.math.exp
 
 class MotorFisico(
-    private val ambiente: Ambiente,
+    private var ambiente: Ambiente,
     paredes: List<Pared> = emptyList()
-) {
+) : PhysicsEngine {
     private val listaParedes = paredes.toMutableList()
+    private var detectorReposo = DetectorReposo(ambiente)
 
-    val sueloY: Double get() = ambiente.sueloY
-    val techoY: Double get() = ambiente.techoY
+    override val sueloY: Double get() = ambiente.sueloY
+    override val techoY: Double get() = ambiente.techoY
 
-    fun agregarPared(pared: Pared) {
+    override fun agregarPared(pared: Pared) {
         listaParedes.add(pared)
     }
 
-    fun removerPared(pared: Pared): Boolean = listaParedes.remove(pared)
+    override fun removerPared(pared: Pared): Boolean = listaParedes.remove(pared)
 
-    fun quitarPared(pared: Pared) {
+    override fun quitarPared(pared: Pared) {
         listaParedes.remove(pared)
     }
 
-    fun limpiarParedes() {
+    override fun limpiarParedes() {
         listaParedes.clear()
     }
 
-    fun obtenerParedes(): List<Pared> = listaParedes.toList()
+    override fun obtenerParedes(): List<Pared> = listaParedes.toList()
+
+    override fun cambiarAmbiente(ambiente: Ambiente) {
+        this.ambiente = ambiente
+        this.detectorReposo = DetectorReposo(ambiente)
+    }
 
     /** Avanza el proyectil y devuelve las paredes que ha roto en este paso. */
-    fun simularPaso(proyectil: Proyectil, deltaTime: Double): List<Pared> {
+    override fun simularPaso(proyectil: Proyectil, deltaTime: Double): List<Pared> {
         if (deltaTime <= 0.0) return emptyList()
 
         val fuerzaTotal = ambiente.gravedad * proyectil.masa + fuerzaArrastre(proyectil)
@@ -155,8 +161,13 @@ class MotorFisico(
         val nuevaTangente =
             velocidadTangente * exp(-p.coeficienteFriccion * TIEMPO_ROZAMIENTO_IMPACTO)
 
-        p.velocidad = normal * (-velocidadNormal * p.coeficienteRestitucion) +
-            tangente * nuevaTangente
+        // Golpes flojos no rebotan: sin esto la gravedad realimenta micro-rebotes
+        // que dejan a la pelota botando para siempre y el tiro nunca termina.
+        val reboteNormal =
+            if (-velocidadNormal < UMBRAL_REBOTE) 0.0
+            else -velocidadNormal * p.coeficienteRestitucion
+
+        p.velocidad = normal * reboteNormal + tangente * nuevaTangente
         p.velocidadAngular = -nuevaTangente / p.forma.radioEnvoltura * p.giro
     }
 
@@ -172,34 +183,11 @@ class MotorFisico(
     }
 
     /**
-     * El tiro ha terminado: por debajo del umbral del aire la pelota ya no se
-     * frena sola y nada va a moverla otra vez, porque la apoya una superficie o
-     * porque no hay gravedad. Sin ese apoyo sigue en vuelo aunque su velocidad
-     * sea nula: es el punto mas alto de un lanzamiento vertical.
+     * El tiro ha terminado: lo decide [DetectorReposo]. Se conserva aqui porque
+     * es parte del contrato del motor con quien lo usa.
      */
-    fun estaEnReposo(proyectil: Proyectil): Boolean =
-        proyectil.velocidad.magnitud < UMBRAL_ARRASTRE && (tieneApoyo(proyectil) || sinGravedad)
-
-    private val sinGravedad: Boolean get() = ambiente.gravedad.magnitud <= EPSILON
-
-    private fun tieneApoyo(proyectil: Proyectil): Boolean {
-        val apoyoSuelo = sueloY - proyectil.radio - TOLERANCIA_APOYO
-        if (proyectil.posicion.y >= apoyoSuelo) return true
-
-        return listaParedes.any { apoyaEnPared(proyectil, it) }
-    }
-
-    /**
-     * Toca la pared y esta por encima de ella: solo entonces la pared empuja
-     * hacia arriba y sostiene a la pelota. Rozar una pared vertical no vale.
-     */
-    private fun apoyaEnPared(proyectil: Proyectil, pared: Pared): Boolean {
-        val delta = proyectil.posicion - pared.puntoMasCercano(proyectil.posicion)
-        if (delta.y > -TOLERANCIA_APOYO) return false
-
-        val alcance = pared.grosor / 2.0 + proyectil.radio + TOLERANCIA_APOYO
-        return delta.magnitud <= alcance
-    }
+    override fun estaEnReposo(proyectil: Proyectil): Boolean =
+        detectorReposo.estaEnReposo(proyectil, listaParedes)
 
     companion object {
         private const val MAXIMA_DISTANCIA_POR_SUBPASO = 4.0
@@ -211,8 +199,11 @@ class MotorFisico(
         /** Rapidez por debajo de la cual el aire y la orientacion no hacen nada. */
         private const val UMBRAL_ARRASTRE = 1.0
 
-        /** Holgura con la que se acepta que el suelo o una pared apoyan a la pelota. */
-        private const val TOLERANCIA_APOYO = 2.0
+        /**
+         * Componente normal por debajo de la cual un golpe no rebota (se absorbe).
+         * Evita el bucle de micro-rebotes que impide que el tiro termine.
+         */
+        private const val UMBRAL_REBOTE = 40.0
 
         /** Constante de orientacion: como de rapido sigue el vuelo a su forma. */
         private const val TASA_ORIENTACION = 4.0
