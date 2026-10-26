@@ -12,16 +12,16 @@ import org.example.modelo.colision.FormaPoligono
  * entrada aqui.
  */
 enum class TipoPelota(
-    val nombre: String,
-    val descripcion: String,
-    val masa: Double,
-    val coeficienteRestitucion: Double,
-    val coeficienteFriccion: Double,
-    val coeficienteArrastre: Double,
-    val giro: Double,
-    val tamano: Double,
-    val color: Int,
-    val colorSecundario: Int,
+    private val nombre: String,
+    private val descripcion: String,
+    private val masa: Double,
+    private val coeficienteRestitucion: Double,
+    private val coeficienteFriccion: Double,
+    private val coeficienteArrastre: Double,
+    private val giro: Double,
+    private val tamano: Double,
+    private val color: Int,
+    private val colorSecundario: Int,
     private val creadorForma: (Double) -> FormaColision
 ) {
     GOMA(
@@ -73,9 +73,29 @@ enum class TipoPelota(
         { t -> FormaPoligono(6, t) }
     );
 
+    fun nombre(): String = nombre
+
+    fun descripcion(): String = descripcion
+
+    fun masa(): Double = masa
+
+    fun coeficienteRestitucion(): Double = coeficienteRestitucion
+
+    fun coeficienteFriccion(): Double = coeficienteFriccion
+
+    fun coeficienteArrastre(): Double = coeficienteArrastre
+
+    fun giro(): Double = giro
+
+    fun tamano(): Double = tamano
+
+    fun color(): Int = color
+
+    fun colorSecundario(): Int = colorSecundario
+
     fun crearForma(): FormaColision = creadorForma(tamano)
 
     companion object {
-        val POR_DEFECTO = GOMA
+        fun porDefecto(): TipoPelota = GOMA
     }
 }

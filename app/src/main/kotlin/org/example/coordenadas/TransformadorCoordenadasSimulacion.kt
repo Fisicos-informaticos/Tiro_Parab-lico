@@ -10,7 +10,9 @@ import org.example.simulacion.Simulacion
 class TransformadorCoordenadasSimulacion(
     private val simulacion: Simulacion
 ) : TransformadorCoordenadas {
-    override val ancho: Double get() = simulacion.ancho
-    override val alto: Double get() = simulacion.alto
-    override val offsetCamara: Vector2D get() = simulacion.offsetCamara
+    override fun ancho(): Double = simulacion.ancho()
+
+    override fun alto(): Double = simulacion.alto()
+
+    override fun offsetCamara(): Vector2D = simulacion.offsetCamara()
 }

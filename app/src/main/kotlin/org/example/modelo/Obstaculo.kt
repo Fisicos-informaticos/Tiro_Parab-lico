@@ -6,11 +6,11 @@ package org.example.modelo
  * sustituir a [Pared] sin romper la simulacion (LSP).
  */
 interface Obstaculo {
-    val inicio: Vector2D
-    val fin: Vector2D
-    val tipo: TipoPared
-    val grosor: Double
-    val danio: Double
+    fun inicio(): Vector2D
+    fun fin(): Vector2D
+    fun tipo(): TipoPared
+    fun grosor(): Double
+    fun danio(): Double
 
     fun registrarImpacto(energia: Double, tipoPelota: TipoPelota): Boolean
     fun puntoMasCercano(posicion: Vector2D): Vector2D

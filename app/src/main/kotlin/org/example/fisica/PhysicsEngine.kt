@@ -8,8 +8,8 @@ import org.example.modelo.Proyectil
  * esta abstraccion (DIP) y no de una implementacion concreta.
  */
 interface PhysicsEngine {
-    val sueloY: Double
-    val techoY: Double
+    fun sueloY(): Double
+    fun techoY(): Double
 
     fun agregarPared(pared: Pared)
     fun removerPared(pared: Pared): Boolean

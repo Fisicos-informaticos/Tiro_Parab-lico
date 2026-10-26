@@ -75,10 +75,10 @@ class MainApp : Application(), UIEventListener {
 
     /** Con un menu abierto el mundo no responde al raton. */
     private val interaccionBloqueada: Boolean
-        get() = simulacion.pausado || menuPelotasAbierto || menuParedesAbierto || menuFinAbierto
+        get() = simulacion.pausado() || menuPelotasAbierto || menuParedesAbierto || menuFinAbierto
 
     private val enVuelo: Boolean
-        get() = simulacion.estado is EstadoSimulacion.EnVuelo
+        get() = simulacion.estado().estaEnVuelo()
 
     override fun start(stage: Stage) {
         canvas = Canvas(ANCHO_VENTANA, ALTO_VENTANA)
@@ -88,9 +88,9 @@ class MainApp : Application(), UIEventListener {
 
         panelControl = PanelControl(
             this,
-            CatalogoModos.nombres,
-            simulacion.modo.nombre,
-            Simulacion.GRAVEDADES.keys.toList(),
+            CatalogoModos.nombres(),
+            simulacion.modo().nombre(),
+            Simulacion.gravedades(),
             Simulacion.GRAVEDAD_POR_DEFECTO
         )
 
@@ -99,9 +99,9 @@ class MainApp : Application(), UIEventListener {
         crearMenuPausa()
         crearMenuFin()
 
-        val root = StackPane(canvas, panelControl.raiz, menuPelotas, menuParedes, menuPausa, menuFin)
-        StackPane.setAlignment(panelControl.raiz, Pos.TOP_RIGHT)
-        StackPane.setMargin(panelControl.raiz, Insets(12.0))
+        val root = StackPane(canvas, panelControl.raiz(), menuPelotas, menuParedes, menuPausa, menuFin)
+        StackPane.setAlignment(panelControl.raiz(), Pos.TOP_RIGHT)
+        StackPane.setMargin(panelControl.raiz(), Insets(12.0))
         for (menu in listOf(menuPelotas, menuParedes, menuPausa, menuFin)) {
             StackPane.setAlignment(menu, Pos.CENTER)
         }
@@ -147,10 +147,10 @@ class MainApp : Application(), UIEventListener {
     }
 
     override fun alternarPausa() {
-        if (menuFinAbierto || simulacion.estado is EstadoSimulacion.PantallaInicio) return
+        if (menuFinAbierto || !simulacion.estado().permitePausa()) return
 
         simulacion.alternarPausa()
-        if (simulacion.pausado) cerrarTodosLosMenus()
+        if (simulacion.pausado()) cerrarTodosLosMenus()
         actualizarControles()
     }
 
@@ -160,7 +160,7 @@ class MainApp : Application(), UIEventListener {
         cerrarTodosLosMenus()
         cerrarMenuFin()
         simulacion.volverAlMenu()
-        estadoPrevio = simulacion.estado
+        estadoPrevio = simulacion.estado()
         actualizarControles()
     }
 
@@ -186,7 +186,7 @@ class MainApp : Application(), UIEventListener {
         )
 
         grupoPelotas.selectedToggleProperty().addListener { _, _, _ -> marcarSeleccion(botonesPelota) }
-        grupoPelotas.selectToggle(botonesPelota[simulacion.tipoPelota])
+        grupoPelotas.selectToggle(botonesPelota[simulacion.tipoPelota()])
     }
 
     private fun crearMenuParedes() {
@@ -198,7 +198,7 @@ class MainApp : Application(), UIEventListener {
         )
 
         grupoParedes.selectedToggleProperty().addListener { _, _, _ -> marcarSeleccion(botonesPared) }
-        grupoParedes.selectToggle(botonesPared[simulacion.tipoPared])
+        grupoParedes.selectToggle(botonesPared[simulacion.tipoPared()])
     }
 
     private fun crearMenuPausa() {
@@ -262,13 +262,13 @@ class MainApp : Application(), UIEventListener {
 
     private fun crearBotonPelota(tipo: TipoPelota): ToggleButton {
         val forma = tipo.crearForma()
-        val escala = (ALTO_PREVIA * 0.42) / forma.radioEnvoltura
+        val escala = (ALTO_PREVIA * 0.42) / forma.radioEnvoltura()
         val previa = previaCanvas { DibujoPelota.dibujar(it, tipo, forma, 0.0, Vector2D(60.0, ALTO_PREVIA / 2.0), escala) }
 
-        val nombre = Label(tipo.nombre).also { it.style = EstilosUI.NOMBRE }
-        val datos = Label("masa ${"%.2f".format(tipo.masa)} kg · rebote ${"%.2f".format(tipo.coeficienteRestitucion)}")
+        val nombre = Label(tipo.nombre()).also { it.style = EstilosUI.NOMBRE }
+        val datos = Label("masa ${"%.2f".format(tipo.masa())} kg · rebote ${"%.2f".format(tipo.coeficienteRestitucion())}")
             .also { it.style = EstilosUI.DETALLE }
-        val rozamiento = Label("rozamiento ${"%.1f".format(tipo.coeficienteFriccion)} · ${forma.tipo.etiqueta}")
+        val rozamiento = Label("rozamiento ${"%.1f".format(tipo.coeficienteFriccion())} · ${forma.tipo().etiqueta()}")
             .also { it.style = EstilosUI.AYUDA }
 
         val textos = VBox(2.0, nombre, datos, rozamiento).also {
@@ -277,7 +277,7 @@ class MainApp : Application(), UIEventListener {
         }
 
         val boton = botonMenu(previa, textos, ANCHO_BOTON_MENU) { simulacion.seleccionarPelota(tipo) }
-        boton.tooltip = Tooltip(tipo.descripcion)
+        boton.tooltip = Tooltip(tipo.descripcion())
         botonesPelota[tipo] = boton
         return boton
     }
@@ -285,23 +285,23 @@ class MainApp : Application(), UIEventListener {
     private fun crearBotonPared(tipo: TipoPared): ToggleButton {
         val previa = previaCanvas { gc ->
             val yCentro = ALTO_PREVIA / 2.0
-            gc.stroke = colorDe(tipo.colorBorde)
-            gc.lineWidth = tipo.grosor + 2.0
+            gc.stroke = colorDe(tipo.colorBorde())
+            gc.lineWidth = tipo.grosor() + 2.0
             gc.strokeLine(4.0, yCentro, 116.0, yCentro)
-            gc.stroke = colorDe(tipo.color)
-            gc.lineWidth = tipo.grosor
+            gc.stroke = colorDe(tipo.color())
+            gc.lineWidth = tipo.grosor()
             gc.strokeLine(4.0, yCentro, 116.0, yCentro)
-            if (tipo.indestructible) {
+            if (tipo.indestructible()) {
                 gc.stroke = Color.web("#f1c40f")
                 gc.lineWidth = 2.0
                 gc.strokeLine(60.0, 6.0, 60.0, ALTO_PREVIA - 6.0)
             }
         }
 
-        val nombre = Label(tipo.nombre).also { it.style = EstilosUI.NOMBRE }
-        val datos = Label("grosor ${tipo.grosor.toInt()} px · aguanta ${textoResistencia(tipo)}")
+        val nombre = Label(tipo.nombre()).also { it.style = EstilosUI.NOMBRE }
+        val datos = Label("grosor ${tipo.grosor().toInt()} px · aguanta ${textoResistencia(tipo)}")
             .also { it.style = EstilosUI.DETALLE }
-        val rompe = Label(tipo.textoRompible).also {
+        val rompe = Label(tipo.textoRompible()).also {
             it.style = EstilosUI.AYUDA
             it.maxWidth = ANCHO_BOTON_PARED
             it.isWrapText = true
@@ -313,7 +313,7 @@ class MainApp : Application(), UIEventListener {
         }
 
         val boton = botonMenu(previa, textos, ANCHO_BOTON_PARED) { simulacion.seleccionarTipoPared(tipo) }
-        boton.tooltip = Tooltip(tipo.descripcion)
+        boton.tooltip = Tooltip(tipo.descripcion())
         botonesPared[tipo] = boton
         return boton
     }
@@ -322,7 +322,7 @@ class MainApp : Application(), UIEventListener {
         Color.rgb((valor shr 16) and 0xFF, (valor shr 8) and 0xFF, valor and 0xFF)
 
     private fun textoResistencia(tipo: TipoPared): String =
-        if (tipo.indestructible) "todo" else "${tipo.resistencia.toInt()} de energia"
+        if (tipo.indestructible()) "todo" else "${tipo.resistencia().toInt()} de energia"
 
     private fun previaCanvas(dibujar: (javafx.scene.canvas.GraphicsContext) -> Unit): Canvas {
         val canvas = Canvas(120.0, ALTO_PREVIA)
@@ -402,8 +402,8 @@ class MainApp : Application(), UIEventListener {
             menuPelotasAbierto -> cerrarMenuPelotas()
             menuParedesAbierto -> cerrarMenuParedes()
             menuFinAbierto -> cerrarMenuFin()
-            simulacion.pausado -> simulacion.alternarPausa()
-            simulacion.modoParedes -> simulacion.alternarModoParedes()
+            simulacion.pausado() -> simulacion.alternarPausa()
+            simulacion.modoParedes() -> simulacion.alternarModoParedes()
             else -> { }
         }
         actualizarControles()
@@ -417,7 +417,7 @@ class MainApp : Application(), UIEventListener {
         simulacion.abrirEdicion()
         cerrarMenuParedes()
         menuPelotasAbierto = true
-        grupoPelotas.selectToggle(botonesPelota[simulacion.tipoPelota])
+        grupoPelotas.selectToggle(botonesPelota[simulacion.tipoPelota()])
         menuPelotas.isVisible = true
     }
 
@@ -432,7 +432,7 @@ class MainApp : Application(), UIEventListener {
         simulacion.abrirEdicion()
         cerrarMenuPelotas()
         menuParedesAbierto = true
-        grupoParedes.selectToggle(botonesPared[simulacion.tipoPared])
+        grupoParedes.selectToggle(botonesPared[simulacion.tipoPared()])
         menuParedes.isVisible = true
     }
 
@@ -455,35 +455,35 @@ class MainApp : Application(), UIEventListener {
         cerrarTodosLosMenus()
         cerrarMenuFin()
         simulacion.nuevaPartida()
-        estadoPrevio = simulacion.estado
+        estadoPrevio = simulacion.estado()
         actualizarControles()
     }
 
     private fun actualizarControles() {
         menuPelotas.isVisible = menuPelotasAbierto
         menuParedes.isVisible = menuParedesAbierto
-        menuPausa.isVisible = simulacion.pausado
-        menuFin.isVisible = menuFinAbierto && !simulacion.pausado
+        menuPausa.isVisible = simulacion.pausado()
+        menuFin.isVisible = menuFinAbierto && !simulacion.pausado()
         panelControl.refrescar(estadoPanel())
     }
 
     /** Resumen de solo lectura con el que el panel decide textos y bloqueos. */
     private fun estadoPanel(): EstadoPanel = EstadoPanel(
-        pausado = simulacion.pausado,
+        pausado = simulacion.pausado(),
         enVuelo = enVuelo,
-        enPantallaInicio = simulacion.estado is EstadoSimulacion.PantallaInicio,
-        modoParedes = simulacion.modoParedes,
-        modoSuperficies = simulacion.modoSuperficies,
+        enPantallaInicio = simulacion.estado().esPantallaInicio(),
+        modoParedes = simulacion.modoParedes(),
+        modoSuperficies = simulacion.modoSuperficies(),
         menuParedesAbierto = menuParedesAbierto,
         menuPelotasAbierto = menuPelotasAbierto,
         menuFinAbierto = menuFinAbierto,
-        nombreTipoPared = simulacion.tipoPared.nombre,
-        nombrePelota = simulacion.tipoPelota.nombre,
-        factorGravedad = simulacion.factorGravedad,
-        nombreModo = simulacion.modo.nombre,
-        ayudaModo = simulacion.modo.ayuda,
-        hayParedes = simulacion.paredes.isNotEmpty(),
-        haySuperficies = simulacion.superficiesLanzamientoLista.isNotEmpty()
+        nombreTipoPared = simulacion.tipoPared().nombre(),
+        nombrePelota = simulacion.tipoPelota().nombre(),
+        factorGravedad = simulacion.factorGravedad(),
+        nombreModo = simulacion.modo().nombre(),
+        ayudaModo = simulacion.modo().ayuda(),
+        hayParedes = simulacion.paredes().isNotEmpty(),
+        haySuperficies = simulacion.superficiesLanzamientoLista().isNotEmpty()
     )
 
     // ---- Bucle -----------------------------------------------------------------------
@@ -511,15 +511,15 @@ class MainApp : Application(), UIEventListener {
 
     /** El menu final se abre justo al terminar el tiro, no en cada fotograma. */
     private fun detectarFinDeVuelo() {
-        val estado = simulacion.estado
+        val estado = simulacion.estado()
         if (estado === estadoPrevio) return
 
         estadoPrevio = estado
-        menuFinAbierto = estado is EstadoSimulacion.EnSuelo
+        menuFinAbierto = estado.esEnSuelo()
         if (menuFinAbierto) {
             etiquetaResumenFin.text =
-                "Distancia: ${"%.2f".format(simulacion.distanciaRecorrida)} px · " +
-                    "Tiempo: ${"%.2f".format(simulacion.tiempoVuelo)} s"
+                "Distancia: ${"%.2f".format(simulacion.distanciaRecorrida())} px · " +
+                    "Tiempo: ${"%.2f".format(simulacion.tiempoVuelo())} s"
         }
     }
 }

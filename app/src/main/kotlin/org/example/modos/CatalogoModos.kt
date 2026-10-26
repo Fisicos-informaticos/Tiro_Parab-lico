@@ -17,7 +17,7 @@ object CatalogoModos {
     )
 
     /** Nombres en el orden en el que los muestra el selector. */
-    val nombres: List<String> get() = fabricas.keys.toList()
+    fun nombres(): List<String> = fabricas.keys.toList()
 
     fun crear(nombre: String?): ModoSimulacion =
         fabricas[nombre]?.invoke() ?: fabricas.getValue(POR_DEFECTO)()

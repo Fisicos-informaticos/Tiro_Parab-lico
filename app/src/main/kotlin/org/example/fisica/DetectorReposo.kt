@@ -16,18 +16,18 @@ import org.example.modelo.Vector2D
 class DetectorReposo(private val ambiente: Ambiente) {
 
     fun estaEnReposo(proyectil: Proyectil, paredes: List<Pared>): Boolean =
-        rapidezPracticamenteNula(proyectil.velocidad) &&
-            (tieneApoyo(proyectil, paredes) || !hayGravedad)
+        rapidezPracticamenteNula(proyectil.velocidad()) &&
+            (tieneApoyo(proyectil, paredes) || !hayGravedad())
 
     /** sqrt(Vx^2 + Vy^2) por debajo del umbral. */
     private fun rapidezPracticamenteNula(velocidad: Vector2D): Boolean =
-        velocidad.magnitud < UMBRAL_REPOSO
+        velocidad.magnitud() < UMBRAL_REPOSO
 
-    private val hayGravedad: Boolean get() = ambiente.gravedad.magnitud > EPSILON
+    private fun hayGravedad(): Boolean = ambiente.gravedad().magnitud() > EPSILON
 
     private fun tieneApoyo(proyectil: Proyectil, paredes: List<Pared>): Boolean {
-        val apoyoSuelo = ambiente.sueloY - proyectil.radio - TOLERANCIA_APOYO
-        if (proyectil.posicion.y >= apoyoSuelo) return true
+        val apoyoSuelo = ambiente.sueloY() - proyectil.radio() - TOLERANCIA_APOYO
+        if (proyectil.posicion().y() >= apoyoSuelo) return true
 
         return paredes.any { apoyaEnPared(proyectil, it) }
     }
@@ -37,11 +37,11 @@ class DetectorReposo(private val ambiente: Ambiente) {
      * hacia arriba y sostiene a la pelota. Rozar una pared vertical no vale.
      */
     private fun apoyaEnPared(proyectil: Proyectil, pared: Pared): Boolean {
-        val delta = proyectil.posicion - pared.puntoMasCercano(proyectil.posicion)
-        if (delta.y > -TOLERANCIA_APOYO) return false
+        val delta = proyectil.posicion() - pared.puntoMasCercano(proyectil.posicion())
+        if (delta.y() > -TOLERANCIA_APOYO) return false
 
-        val alcance = pared.grosor / 2.0 + proyectil.radio + TOLERANCIA_APOYO
-        return delta.magnitud <= alcance
+        val alcance = pared.grosor() / 2.0 + proyectil.radio() + TOLERANCIA_APOYO
+        return delta.magnitud() <= alcance
     }
 
     companion object {

@@ -13,8 +13,8 @@ import kotlin.math.sin
 
 class CanvasRenderer(
     private val gc: GraphicsContext,
-    override val ancho: Double,
-    override val alto: Double
+    private val ancho: Double,
+    private val alto: Double
 ) : Renderer {
 
     private val colorSuelo = Color.web("#4a7c3f")
@@ -30,7 +30,17 @@ class CanvasRenderer(
     /** Los vectores fisicos los pinta una clase dedicada: aqui solo se le delega. */
     private val vectoresFisica = VectorRenderer(gc)
 
-    override var offsetCamara = Vector2D(0.0, 0.0)
+    private var camara = Vector2D(0.0, 0.0)
+
+    override fun ancho(): Double = ancho
+
+    override fun alto(): Double = alto
+
+    override fun offsetCamara(): Vector2D = camara
+
+    override fun fijarOffsetCamara(nuevo: Vector2D) {
+        camara = nuevo
+    }
 
     override fun limpiar() {
         gc.fill = colorCielo
@@ -38,7 +48,7 @@ class CanvasRenderer(
     }
 
     override fun dibujarEntorno() {
-        val ySuelo = sueloY - offsetCamara.y
+        val ySuelo = sueloY - camara.y()
         if (ySuelo < alto) {
             gc.fill = colorSuelo
             val desde = Math.max(ySuelo, 0.0)
@@ -46,8 +56,8 @@ class CanvasRenderer(
         }
 
         val margen = MARGEN_VISIBILIDAD
-        val desde = -offsetCamara.x - margen
-        val hasta = ancho - offsetCamara.x + margen
+        val desde = -camara.x() - margen
+        val hasta = ancho - camara.x() + margen
 
         dibujarPasto(desde, hasta, ySuelo)
         dibujarArboles(desde, hasta)
@@ -61,25 +71,25 @@ class CanvasRenderer(
 
         for (brizna in GeneradorEntorno.pasto(desde, hasta)) {
             gc.fill = when {
-                brizna.brillo < 0.4 -> colorCespedOscuro
-                brizna.brillo > 0.78 -> colorCespedClaro
+                brizna.brillo() < 0.4 -> colorCespedOscuro
+                brizna.brillo() > 0.78 -> colorCespedClaro
                 else -> colorCesped
             }
-            gc.fillOval(brizna.x, yBase - brizna.alto, brizna.ancho, brizna.alto + 3.0)
+            gc.fillOval(brizna.x(), yBase - brizna.alto(), brizna.ancho(), brizna.alto() + 3.0)
         }
     }
 
     private fun dibujarArboles(desde: Double, hasta: Double) {
-        if (sueloY - offsetCamara.y > alto + 220.0) return
+        if (sueloY - camara.y() > alto + 220.0) return
 
         for (arbol in GeneradorEntorno.arboles(desde, hasta)) {
-            dibujarArbol(arbol.x, sueloY, arbol.escala, arbol.claro)
+            dibujarArbol(arbol.x(), sueloY, arbol.escala(), arbol.claro())
         }
     }
 
     private fun dibujarNubes(desde: Double, hasta: Double) {
         for (nube in GeneradorEntorno.nubes(desde, hasta)) {
-            dibujarNube(nube.x, nube.y, nube.escala, nube.opacidad)
+            dibujarNube(nube.x(), nube.y(), nube.escala(), nube.opacidad())
         }
     }
 
@@ -92,18 +102,18 @@ class CanvasRenderer(
             gc.stroke = colorMeta
             gc.lineWidth = 4.0
             gc.setLineDashes()
-            gc.strokeLine(meta.x, yPoste, meta.x, ySuelo)
+            gc.strokeLine(meta.x(), yPoste, meta.x(), ySuelo)
 
             gc.fill = colorMeta
-            gc.fillRect(meta.x + 2.0, yPoste - 4.0, 30.0, 17.0)
+            gc.fillRect(meta.x() + 2.0, yPoste - 4.0, 30.0, 17.0)
             gc.lineWidth = 2.0
-            gc.strokeRect(meta.x + 2.0, yPoste - 4.0, 30.0, 17.0)
+            gc.strokeRect(meta.x() + 2.0, yPoste - 4.0, 30.0, 17.0)
         }
     }
 
     private fun dibujarArbol(xMundo: Double, sueloMundo: Double, escala: Double, clara: Boolean) {
-        val x = xMundo - offsetCamara.x
-        val yBase = sueloMundo - offsetCamara.y
+        val x = xMundo - camara.x()
+        val yBase = sueloMundo - camara.y()
         val tronco = 45.0 * escala
         val copa = if (clara) 58.0 * escala else 48.0 * escala
 
@@ -119,8 +129,8 @@ class CanvasRenderer(
     }
 
     private fun dibujarNube(xMundo: Double, yMundo: Double, escala: Double, opacidad: Double) {
-        val x = xMundo - offsetCamara.x
-        val y = yMundo - offsetCamara.y
+        val x = xMundo - camara.x()
+        val y = yMundo - camara.y()
         val ancho = 92.0 * escala
         val alto = 30.0 * escala
 
@@ -140,62 +150,62 @@ class CanvasRenderer(
         colorOverride: javafx.scene.paint.Color?,
         grosorExtra: Double?
     ) {
-        val inicio = pared.inicio - offsetCamara
-        val fin = pared.fin - offsetCamara
+        val inicio = pared.inicio() - camara
+        val fin = pared.fin() - camara
 
-        val colorBase = colorOverride ?: colorDe(pared.tipo.color)
-        val colorBordeBase = colorOverride ?: colorDe(pared.tipo.colorBorde)
+        val colorBase = colorOverride ?: colorDe(pared.tipo().color())
+        val colorBordeBase = colorOverride ?: colorDe(pared.tipo().colorBorde())
 
-        gc.stroke = mezclar(colorBordeBase, COLOR_DANO, pared.danio * 0.6)
-        gc.lineWidth = pared.grosor + (grosorExtra ?: 2.0)
+        gc.stroke = mezclar(colorBordeBase, COLOR_DANO, pared.danio() * 0.6)
+        gc.lineWidth = pared.grosor() + (grosorExtra ?: 2.0)
         gc.setLineDashes()
-        gc.strokeLine(inicio.x, inicio.y, fin.x, fin.y)
+        gc.strokeLine(inicio.x(), inicio.y(), fin.x(), fin.y())
 
-        gc.stroke = mezclar(colorBase, COLOR_DANO, pared.danio * 0.5)
-        gc.lineWidth = pared.grosor
-        gc.strokeLine(inicio.x, inicio.y, fin.x, fin.y)
+        gc.stroke = mezclar(colorBase, COLOR_DANO, pared.danio() * 0.5)
+        gc.lineWidth = pared.grosor()
+        gc.strokeLine(inicio.x(), inicio.y(), fin.x(), fin.y())
 
         dibujarGrietas(pared, inicio, fin)
     }
 
     /** Grietas estables: la semilla sale de la pared, asi que no parpadean. */
     private fun dibujarGrietas(pared: Pared, inicio: Vector2D, fin: Vector2D) {
-        if (pared.danio <= UMBRAL_GRIETAS) return
+        if (pared.danio() <= UMBRAL_GRIETAS) return
 
-        val largo = pared.longitud
+        val largo = pared.longitud()
         if (largo <= 0.0) return
 
         val direccion = (fin - inicio) / largo
-        val perpendicular = Vector2D(-direccion.y, direccion.x)
-        val medio = pared.grosor / 2.0
+        val perpendicular = Vector2D(-direccion.y(), direccion.x())
+        val medio = pared.grosor() / 2.0
         val semilla = semillaDe(pared)
 
         gc.stroke = COLOR_GRIETA
-        gc.lineWidth = max(1.0, pared.grosor * 0.16)
+        gc.lineWidth = max(1.0, pared.grosor() * 0.16)
         gc.setLineDashes()
 
-        val numero = ceil(pared.danio * GRIETAS_MAXIMAS).toInt()
+        val numero = ceil(pared.danio() * GRIETAS_MAXIMAS).toInt()
         for (i in 1..numero) {
             val t = 0.12 + 0.76 * fraccion(semilla + i * 0.41)
             val centro = inicio + direccion * (largo * t)
-            val desvio = (fraccion(semilla + i * 0.77) - 0.5) * pared.grosor * 1.4
+            val desvio = (fraccion(semilla + i * 0.77) - 0.5) * pared.grosor() * 1.4
             gc.strokeLine(
-                centro.x - perpendicular.x * medio,
-                centro.y - perpendicular.y * medio,
-                centro.x + perpendicular.x * medio + direccion.x * desvio,
-                centro.y + perpendicular.y * medio + direccion.y * desvio
+                centro.x() - perpendicular.x() * medio,
+                centro.y() - perpendicular.y() * medio,
+                centro.x() + perpendicular.x() * medio + direccion.x() * desvio,
+                centro.y() + perpendicular.y() * medio + direccion.y() * desvio
             )
         }
     }
 
     override fun dibujarParedTemporal(pared: Pared) {
-        val inicioPantalla = pared.inicio - offsetCamara
-        val finPantalla = pared.fin - offsetCamara
+        val inicioPantalla = pared.inicio() - camara
+        val finPantalla = pared.fin() - camara
 
-        gc.stroke = colorDe(pared.tipo.color)
-        gc.lineWidth = pared.grosor
+        gc.stroke = colorDe(pared.tipo().color())
+        gc.lineWidth = pared.grosor()
         gc.setLineDashes(10.0, 6.0)
-        gc.strokeLine(inicioPantalla.x, inicioPantalla.y, finPantalla.x, finPantalla.y)
+        gc.strokeLine(inicioPantalla.x(), inicioPantalla.y(), finPantalla.x(), finPantalla.y())
         gc.setLineDashes()
     }
 
@@ -211,7 +221,13 @@ class CanvasRenderer(
     private fun fraccion(valor: Double): Double = valor - floor(valor)
 
     private fun semillaDe(pared: Pared): Double =
-        fraccion(sin(pared.inicio.x * 12.9898 + pared.inicio.y * 78.233 + pared.fin.y * 37.719) * 43758.5453)
+        fraccion(
+            sin(
+                pared.inicio().x() * 12.9898 +
+                    pared.inicio().y() * 78.233 +
+                    pared.fin().y() * 37.719
+            ) * 43758.5453
+        )
 
     override fun dibujarPantallaInicio(nombrePelota: String?) {
         gc.fill = Color.color(0.0, 0.0, 0.0, 0.85)
@@ -231,8 +247,16 @@ class CanvasRenderer(
 
         gc.fill = Color.color(1.0, 1.0, 1.0, 0.8)
         gc.font = Font.font("Monospace", 15.0)
-        gc.fillText("Arrastra con el mouse para apuntar y soltar para lanzar", ancho / 2.0 - 290.0, alto / 2.0 + 100.0)
-        gc.fillText("Crea paredes (tipo con W) y haz rebotar la pelota", ancho / 2.0 - 250.0, alto / 2.0 + 125.0)
+        gc.fillText(
+            "Arrastra con el mouse para apuntar y soltar para lanzar",
+            ancho / 2.0 - 290.0,
+            alto / 2.0 + 100.0
+        )
+        gc.fillText(
+            "Crea paredes (tipo con W) y haz rebotar la pelota",
+            ancho / 2.0 - 250.0,
+            alto / 2.0 + 125.0
+        )
         gc.fillText("Pulsa B para cambiar de pelota", ancho / 2.0 - 180.0, alto / 2.0 + 150.0)
         if (nombrePelota != null) {
             gc.fill = Color.web("#d4e157")
@@ -243,10 +267,10 @@ class CanvasRenderer(
     override fun dibujarProyectil(proyectil: Proyectil) {
         DibujoPelota.dibujar(
             gc,
-            proyectil.tipo,
-            proyectil.forma,
-            proyectil.angulo,
-            proyectil.posicion - offsetCamara
+            proyectil.tipo(),
+            proyectil.forma(),
+            proyectil.angulo(),
+            proyectil.posicion() - camara
         )
     }
 
@@ -256,22 +280,27 @@ class CanvasRenderer(
 
     override fun dibujarPuntoLanzamiento(posicion: Vector2D, radio: Double) {
         gc.fill = Color.web("#3498db")
-        gc.fillOval(posicion.x - radio, posicion.y - radio, radio * 2, radio * 2)
+        gc.fillOval(posicion.x() - radio, posicion.y() - radio, radio * 2, radio * 2)
 
         gc.stroke = Color.web("#2980b9")
         gc.lineWidth = 2.0
-        gc.strokeOval(posicion.x - radio - 3.0, posicion.y - radio - 3.0, radio * 2 + 6.0, radio * 2 + 6.0)
+        gc.strokeOval(
+            posicion.x() - radio - 3.0,
+            posicion.y() - radio - 3.0,
+            radio * 2 + 6.0,
+            radio * 2 + 6.0
+        )
     }
 
     override fun dibujarLineaDireccion(inicio: Vector2D, fin: Vector2D) {
         gc.stroke = colorLinea
         gc.lineWidth = 3.0
         gc.setLineDashes(8.0, 4.0)
-        gc.strokeLine(inicio.x, inicio.y, fin.x, fin.y)
+        gc.strokeLine(inicio.x(), inicio.y(), fin.x(), fin.y())
         gc.setLineDashes()
 
-        val dx = fin.x - inicio.x
-        val dy = fin.y - inicio.y
+        val dx = fin.x() - inicio.x()
+        val dy = fin.y() - inicio.y()
         val len = kotlin.math.sqrt(dx * dx + dy * dy)
         if (len < 1.0) return
 
@@ -280,8 +309,8 @@ class CanvasRenderer(
 
         gc.fill = colorLinea
         gc.fillPolygon(
-            doubleArrayOf(fin.x, fin.x - ny * 8.0 - nx * 12.0, fin.x + ny * 8.0 - nx * 12.0),
-            doubleArrayOf(fin.y, fin.y + nx * 8.0 - ny * 12.0, fin.y - nx * 8.0 - ny * 12.0),
+            doubleArrayOf(fin.x(), fin.x() - ny * 8.0 - nx * 12.0, fin.x() + ny * 8.0 - nx * 12.0),
+            doubleArrayOf(fin.y(), fin.y() + nx * 8.0 - ny * 12.0, fin.y() - nx * 8.0 - ny * 12.0),
             3
         )
     }
@@ -290,7 +319,7 @@ class CanvasRenderer(
         gc.stroke = Color.web(color)
         gc.lineWidth = grosor
         gc.setLineDashes()
-        gc.strokeLine(inicio.x, inicio.y, fin.x, fin.y)
+        gc.strokeLine(inicio.x(), inicio.y(), fin.x(), fin.y())
     }
 
     override fun dibujarTexto(texto: String, x: Double, y: Double, tamano: Double) {
@@ -313,10 +342,8 @@ class CanvasRenderer(
         }
     }
 
-    override fun dibujarImagenMundo(imagen: Any, x: Double, y: Double, ancho: Double, alto: Double) {
-        if (imagen is javafx.scene.image.Image) {
-            gc.drawImage(imagen, x - offsetCamara.x, y - offsetCamara.y, ancho, alto)
-        }
+    override fun dibujarImagenMundo(imagen: javafx.scene.image.Image, x: Double, y: Double, ancho: Double, alto: Double) {
+        gc.drawImage(imagen, x - camara.x(), y - camara.y(), ancho, alto)
     }
 
     companion object {

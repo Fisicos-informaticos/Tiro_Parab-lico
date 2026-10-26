@@ -4,11 +4,14 @@ import org.example.grafico.ContextoDibujo
 import org.example.modelo.Vector2D
 
 interface Sprite {
-    val ruta: String
-    val ancho: Double
-    val alto: Double
-    var posicion: Vector2D
-    var visible: Boolean
+    fun ruta(): String
+    fun ancho(): Double
+    fun alto(): Double
+    fun posicion(): Vector2D
+    fun visible(): Boolean
+
+    fun fijarPosicion(nueva: Vector2D)
+    fun fijarVisible(valor: Boolean)
 
     fun dibujar(contexto: ContextoDibujo)
 }

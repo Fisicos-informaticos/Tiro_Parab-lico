@@ -15,8 +15,9 @@ class MotorFisico(
     private val listaParedes = paredes.toMutableList()
     private var detectorReposo = DetectorReposo(ambiente)
 
-    override val sueloY: Double get() = ambiente.sueloY
-    override val techoY: Double get() = ambiente.techoY
+    override fun sueloY(): Double = ambiente.sueloY()
+
+    override fun techoY(): Double = ambiente.techoY()
 
     override fun agregarPared(pared: Pared) {
         listaParedes.add(pared)
@@ -43,9 +44,9 @@ class MotorFisico(
     override fun simularPaso(proyectil: Proyectil, deltaTime: Double): List<Pared> {
         if (deltaTime <= 0.0) return emptyList()
 
-        val fuerzaTotal = ambiente.gravedad * proyectil.masa + fuerzaArrastre(proyectil)
-        val velocidadTrasFuerza = proyectil.velocidad + fuerzaTotal * deltaTime
-        val desplazamiento = velocidadTrasFuerza.magnitud * deltaTime
+        val fuerzaTotal = ambiente.gravedad() * proyectil.masa() + fuerzaArrastre(proyectil)
+        val velocidadTrasFuerza = proyectil.velocidad() + fuerzaTotal * deltaTime
+        val desplazamiento = velocidadTrasFuerza.magnitud() * deltaTime
         val cantidadSubpasos = ceil(desplazamiento / MAXIMA_DISTANCIA_POR_SUBPASO)
             .toInt()
             .coerceIn(1, MAXIMOS_SUBPASOS)
@@ -62,23 +63,23 @@ class MotorFisico(
 
     /** Freno del aire: proporcional al cuadrado de la rapidez y opuesto al movimiento. */
     private fun fuerzaArrastre(p: Proyectil): Vector2D {
-        if (p.coeficienteArrastre <= 0.0) return Vector2D(0.0, 0.0)
-        val rapidez = p.velocidad.magnitud
+        if (p.coeficienteArrastre() <= 0.0) return Vector2D(0.0, 0.0)
+        val rapidez = p.velocidad().magnitud()
         if (rapidez < UMBRAL_ARRASTRE) return Vector2D(0.0, 0.0)
-        return p.velocidad * (-p.coeficienteArrastre * rapidez * p.masa)
+        return p.velocidad() * (-p.coeficienteArrastre() * rapidez * p.masa())
     }
 
     /** Giro propio y orientacion aerodinamica de las formas alargadas. */
     private fun avanzarOrientacion(p: Proyectil, deltaTime: Double) {
-        p.angulo += p.velocidadAngular * deltaTime
-        if (p.giro <= 0.0 || !p.forma.alineable) return
-        if (p.velocidad.magnitud < UMBRAL_ARRASTRE) return
+        p.fijarAngulo(p.angulo() + p.velocidadAngular() * deltaTime)
+        if (p.giro() <= 0.0 || !p.forma().alineable()) return
+        if (p.velocidad().magnitud() < UMBRAL_ARRASTRE) return
 
-        val tasa = p.giro * TASA_ORIENTACION * deltaTime
-        p.velocidadAngular *= exp(-tasa)
-        val objetivo = Transformaciones.anguloDe(p.velocidad) -
-            Transformaciones.anguloDe(p.forma.ejePrincipal)
-        p.angulo += Transformaciones.diferenciaAngular(objetivo, p.angulo) * tasa
+        val tasa = p.giro() * TASA_ORIENTACION * deltaTime
+        p.fijarVelocidadAngular(p.velocidadAngular() * exp(-tasa))
+        val objetivo = Transformaciones.anguloDe(p.velocidad()) -
+            Transformaciones.anguloDe(p.forma().ejePrincipal())
+        p.fijarAngulo(p.angulo() + Transformaciones.diferenciaAngular(objetivo, p.angulo()) * tasa)
     }
 
     private fun resolverColisiones(p: Proyectil, deltaTime: Double): List<Pared> {
@@ -99,18 +100,18 @@ class MotorFisico(
 
     /** Devuelve true si el golpe deja la pared rota: entonces no hay rebote. */
     private fun resolverColisionPared(p: Proyectil, pared: Pared): Boolean {
-        val puntoMasCercano = pared.puntoMasCercano(p.posicion)
-        val delta = p.posicion - puntoMasCercano
-        val distancia = delta.magnitud
-        if (distancia > pared.grosor / 2.0 + p.forma.radioEnvoltura + CORRECCION_POSICION) return false
+        val puntoMasCercano = pared.puntoMasCercano(p.posicion())
+        val delta = p.posicion() - puntoMasCercano
+        val distancia = delta.magnitud()
+        if (distancia > pared.grosor() / 2.0 + p.forma().radioEnvoltura() + CORRECCION_POSICION) return false
 
         val normal =
-            if (distancia > EPSILON) delta.normalizado else normalDeRespaldo(p, pared)
-        val cara = puntoMasCercano + normal * (pared.grosor / 2.0)
-        val contacto = p.forma.contactoPlano(cara, p.posicion, p.angulo, normal) ?: return false
+            if (distancia > EPSILON) delta.normalizado() else normalDeRespaldo(p, pared)
+        val cara = puntoMasCercano + normal * (pared.grosor() / 2.0)
+        val contacto = p.forma().contactoPlano(cara, p.posicion(), p.angulo(), normal) ?: return false
 
-        val velocidadNormal = p.velocidad.x * normal.x + p.velocidad.y * normal.y
-        if (velocidadNormal < 0.0 && pared.registrarImpacto(energiaDeImpacto(p, velocidadNormal), p.tipo)) {
+        val velocidadNormal = p.velocidad().x() * normal.x() + p.velocidad().y() * normal.y()
+        if (velocidadNormal < 0.0 && pared.registrarImpacto(energiaDeImpacto(p, velocidadNormal), p.tipo())) {
             return true
         }
 
@@ -121,65 +122,65 @@ class MotorFisico(
 
     /** Energia que el golpe deposita en el muro: solo cuenta la componente normal. */
     private fun energiaDeImpacto(p: Proyectil, velocidadNormal: Double): Double =
-        0.5 * p.masa * velocidadNormal * velocidadNormal
+        0.5 * p.masa() * velocidadNormal * velocidadNormal
 
     private fun resolverColisionSuelo(p: Proyectil, deltaTime: Double) {
-        val punto = Vector2D(p.posicion.x, sueloY)
-        val contacto = p.forma.contactoPlano(punto, p.posicion, p.angulo, NORMAL_ARRIBA) ?: return
+        val punto = Vector2D(p.posicion().x(), sueloY())
+        val contacto = p.forma().contactoPlano(punto, p.posicion(), p.angulo(), NORMAL_ARRIBA) ?: return
 
         aplicarImpacto(p, contacto)
         separar(p, contacto)
-        aplicarRozamiento(p, contacto.normal, deltaTime)
+        aplicarRozamiento(p, contacto.normal(), deltaTime)
     }
 
     private fun resolverColisionTecho(p: Proyectil, deltaTime: Double) {
-        val punto = Vector2D(p.posicion.x, techoY)
-        val contacto = p.forma.contactoPlano(punto, p.posicion, p.angulo, NORMAL_ABAJO) ?: return
+        val punto = Vector2D(p.posicion().x(), techoY())
+        val contacto = p.forma().contactoPlano(punto, p.posicion(), p.angulo(), NORMAL_ABAJO) ?: return
 
         aplicarImpacto(p, contacto)
         separar(p, contacto)
-        aplicarRozamiento(p, contacto.normal, deltaTime)
+        aplicarRozamiento(p, contacto.normal(), deltaTime)
     }
 
     private fun normalDeRespaldo(p: Proyectil, pared: Pared): Vector2D {
-        val direccion = pared.direccion.normalizado
-        if (direccion.magnitud <= EPSILON) return NORMAL_ARRIBA
+        val direccion = pared.direccion().normalizado()
+        if (direccion.magnitud() <= EPSILON) return NORMAL_ARRIBA
 
-        val normal = Vector2D(-direccion.y, direccion.x)
-        val velocidadNormal = p.velocidad.x * normal.x + p.velocidad.y * normal.y
+        val normal = Vector2D(-direccion.y(), direccion.x())
+        val velocidadNormal = p.velocidad().x() * normal.x() + p.velocidad().y() * normal.y()
         return if (velocidadNormal <= 0.0) normal else -normal
     }
 
     /** Rebote y giro: la velocidad se separa en normal y tangencial al contacto. */
     private fun aplicarImpacto(p: Proyectil, contacto: Penetracion) {
-        val normal = contacto.normal
-        val tangente = Vector2D(normal.y, -normal.x)
-        val velocidadNormal = p.velocidad.x * normal.x + p.velocidad.y * normal.y
+        val normal = contacto.normal()
+        val tangente = Vector2D(normal.y(), -normal.x())
+        val velocidadNormal = p.velocidad().x() * normal.x() + p.velocidad().y() * normal.y()
         if (velocidadNormal >= 0.0) return
 
-        val velocidadTangente = p.velocidad.x * tangente.x + p.velocidad.y * tangente.y
+        val velocidadTangente = p.velocidad().x() * tangente.x() + p.velocidad().y() * tangente.y()
         val nuevaTangente =
-            velocidadTangente * exp(-p.coeficienteFriccion * TIEMPO_ROZAMIENTO_IMPACTO)
+            velocidadTangente * exp(-p.coeficienteFriccion() * TIEMPO_ROZAMIENTO_IMPACTO)
 
         // Golpes flojos no rebotan: sin esto la gravedad realimenta micro-rebotes
         // que dejan a la pelota botando para siempre y el tiro nunca termina.
         val reboteNormal =
             if (-velocidadNormal < UMBRAL_REBOTE) 0.0
-            else -velocidadNormal * p.coeficienteRestitucion
+            else -velocidadNormal * p.coeficienteRestitucion()
 
-        p.velocidad = normal * reboteNormal + tangente * nuevaTangente
-        p.velocidadAngular = -nuevaTangente / p.forma.radioEnvoltura * p.giro
+        p.fijarVelocidad(normal * reboteNormal + tangente * nuevaTangente)
+        p.fijarVelocidadAngular(-nuevaTangente / p.forma().radioEnvoltura() * p.giro())
     }
 
     /** Rozamiento mientras la pelota permanece en contacto con la superficie. */
     private fun aplicarRozamiento(p: Proyectil, normal: Vector2D, deltaTime: Double) {
-        val velocidadNormal = p.velocidad.x * normal.x + p.velocidad.y * normal.y
-        val tangente = p.velocidad - normal * velocidadNormal
-        p.velocidad = normal * velocidadNormal + tangente * exp(-p.coeficienteFriccion * deltaTime)
+        val velocidadNormal = p.velocidad().x() * normal.x() + p.velocidad().y() * normal.y()
+        val tangente = p.velocidad() - normal * velocidadNormal
+        p.fijarVelocidad(normal * velocidadNormal + tangente * exp(-p.coeficienteFriccion() * deltaTime))
     }
 
     private fun separar(p: Proyectil, contacto: Penetracion) {
-        p.posicion = p.posicion + contacto.normal * (contacto.profundidad + CORRECCION_POSICION)
+        p.fijarPosicion(contacto.separarDesde(p.posicion(), CORRECCION_POSICION))
     }
 
     /**

@@ -37,6 +37,6 @@ class SpriteManager {
     }
 
     fun actualizarPosicion(sprite: Sprite, nuevaPosicion: Vector2D) {
-        sprite.posicion = nuevaPosicion
+        sprite.fijarPosicion(nuevaPosicion)
     }
 }

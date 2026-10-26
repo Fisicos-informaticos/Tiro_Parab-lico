@@ -45,20 +45,20 @@ class AppTest {
     fun colisionSueloRebota() {
         val sueloY = 600.0
         val pelota = Pelota(Vector2D(50.0, sueloY - 1.0), TipoPelota.GOMA)
-        pelota.velocidad = Vector2D(10.0, 10.0)
+        pelota.fijarVelocidad(Vector2D(10.0, 10.0))
         val ambiente = Tierra()
         val motor = MotorFisico(ambiente)
 
         repeat(20) { motor.simularPaso(pelota, 0.05) }
 
-        assertTrue(pelota.velocidad.y < 0 || pelota.posicion.y < sueloY,
+        assertTrue(pelota.velocidad().y() < 0 || pelota.posicion().y() < sueloY,
             "La pelota debe rebotar hacia arriba o permanecer en el suelo")
     }
 
     @Test
     fun velocidadInicialCorrecta() {
         val vel = CalculadoraTrayectoria.calcularVelocidadInicial(20.0, 45.0)
-        assertEquals(20.0, vel.magnitud, 0.01)
+        assertEquals(20.0, vel.magnitud(), 0.01)
     }
 
     @Test
@@ -75,26 +75,26 @@ class AppTest {
     fun colisionParedReflejaPelota() {
         val pared = Pared(Vector2D(100.0, 100.0), Vector2D(100.0, 300.0))
         val pelota = Pelota(Vector2D(80.0, 200.0), TipoPelota.GOMA, FormaCirculo(10.0), 1.0, 1.0)
-        pelota.velocidad = Vector2D(100.0, 0.0)
+        pelota.fijarVelocidad(Vector2D(100.0, 0.0))
         val motor = MotorFisico(Tierra(gravedad = Vector2D(0.0, 0.0)), listOf(pared))
 
         motor.simularPaso(pelota, 0.1)
 
-        assertTrue(pelota.posicion.x < 100.0)
-        assertTrue(pelota.velocidad.x < 0.0)
+        assertTrue(pelota.posicion().x() < 100.0)
+        assertTrue(pelota.velocidad().x() < 0.0)
     }
 
     @Test
     fun colisionRapidaNoAtraviesaPared() {
         val pared = Pared(Vector2D(100.0, 100.0), Vector2D(100.0, 300.0), TipoPared.ACERO)
         val pelota = Pelota(Vector2D(0.0, 200.0), TipoPelota.GOMA, FormaCirculo(10.0), 1.0, 0.8)
-        pelota.velocidad = Vector2D(1000.0, 0.0)
+        pelota.fijarVelocidad(Vector2D(1000.0, 0.0))
         val motor = MotorFisico(Tierra(gravedad = Vector2D(0.0, 0.0)), listOf(pared))
 
         motor.simularPaso(pelota, 0.1)
 
-        assertTrue(pelota.posicion.x < 100.0)
-        assertTrue(pelota.velocidad.x < 0.0)
+        assertTrue(pelota.posicion().x() < 100.0)
+        assertTrue(pelota.velocidad().x() < 0.0)
     }
 
     @Test
@@ -110,26 +110,26 @@ class AppTest {
 
     @Test
     fun elCatalogoDefineCuatroFormasDistintas() {
-        val formas = TipoPelota.entries.map { it.crearForma().tipo }.toSet()
+        val formas = TipoPelota.entries.map { it.crearForma().tipo() }.toSet()
         assertEquals(TipoColision.entries.toSet(), formas)
     }
 
     @Test
     fun lasCualidadesDelCatalogoSonValidas() {
         for (tipo in TipoPelota.entries) {
-            assertTrue(tipo.masa > 0.0, "${tipo.nombre}: masa")
-            assertTrue(tipo.coeficienteRestitucion > 0.0, "${tipo.nombre}: restitucion")
-            assertTrue(tipo.coeficienteRestitucion <= 1.0, "${tipo.nombre}: restitucion")
-            assertTrue(tipo.coeficienteFriccion >= 0.0, "${tipo.nombre}: friccion")
-            assertTrue(tipo.coeficienteArrastre >= 0.0, "${tipo.nombre}: arrastre")
-            assertTrue(tipo.tamano > 0.0, "${tipo.nombre}: tamano")
-            assertNotNull(tipo.crearForma().contorno(), "${tipo.nombre}: contorno")
+            assertTrue(tipo.masa() > 0.0, "${tipo.nombre()}: masa")
+            assertTrue(tipo.coeficienteRestitucion() > 0.0, "${tipo.nombre()}: restitucion")
+            assertTrue(tipo.coeficienteRestitucion() <= 1.0, "${tipo.nombre()}: restitucion")
+            assertTrue(tipo.coeficienteFriccion() >= 0.0, "${tipo.nombre()}: friccion")
+            assertTrue(tipo.coeficienteArrastre() >= 0.0, "${tipo.nombre()}: arrastre")
+            assertTrue(tipo.tamano() > 0.0, "${tipo.nombre()}: tamano")
+            assertNotNull(tipo.crearForma().contorno(), "${tipo.nombre()}: contorno")
         }
     }
 
     @Test
     fun elRadioDependeDelTipoDePelota() {
-        val radios = TipoPelota.entries.map { it.crearForma().radioEnvoltura }
+        val radios = TipoPelota.entries.map { it.crearForma().radioEnvoltura() }
         assertTrue(radios.toSet().size == TipoPelota.entries.size, "Cada tipo deberia tener su tamano")
         assertTrue(radios.all { it > 0.0 })
     }
@@ -143,8 +143,8 @@ class AppTest {
             Vector2D(108.0, 100.0), centro, 0.0, Vector2D(-1.0, 0.0)
         )
         assertNotNull(contacto)
-        assertEquals(2.0, contacto.profundidad, 1e-9)
-        assertVectorIgual(Vector2D(-1.0, 0.0), contacto.normal)
+        assertEquals(2.0, contacto.profundidad(), 1e-9)
+        assertVectorIgual(Vector2D(-1.0, 0.0), contacto.normal())
 
         assertNull(forma.contactoPlano(Vector2D(115.0, 100.0), centro, 0.0, Vector2D(-1.0, 0.0)))
     }
@@ -153,15 +153,15 @@ class AppTest {
     fun laCapsulaGolpeaConElExtremo() {
         val forma = FormaCapsula(20.0, 8.0)
         val centro = Vector2D(100.0, 100.0)
-        val largo = forma.medioLargo + forma.radio
+        val largo = forma.medioLargo() + forma.radio()
 
         // Impacto de frente: solo la punta llega a la pared, 28 px del centro.
         val frontal = forma.contactoPlano(
             centro + Vector2D(largo - 2.0, 0.0), centro, 0.0, Vector2D(-1.0, 0.0)
         )
         assertNotNull(frontal)
-        assertEquals(2.0, frontal.profundidad, 1e-9)
-        assertVectorIgual(Vector2D(-1.0, 0.0), frontal.normal)
+        assertEquals(2.0, frontal.profundidad(), 1e-9)
+        assertVectorIgual(Vector2D(-1.0, 0.0), frontal.normal())
 
         // La punta justa rozando ya no produce contacto.
         assertNull(
@@ -173,8 +173,8 @@ class AppTest {
             centro + Vector2D(0.0, 6.0), centro, 0.0, Vector2D(0.0, -1.0)
         )
         assertNotNull(lateral)
-        assertEquals(2.0, lateral.profundidad, 1e-9)
-        assertVectorIgual(Vector2D(0.0, -1.0), lateral.normal)
+        assertEquals(2.0, lateral.profundidad(), 1e-9)
+        assertVectorIgual(Vector2D(0.0, -1.0), lateral.normal())
     }
 
     @Test
@@ -186,14 +186,14 @@ class AppTest {
             Vector2D(112.0, 100.0), centro, 0.0, Vector2D(-1.0, 0.0)
         )
         assertNotNull(horizontal)
-        assertEquals(3.0, horizontal.profundidad, 1e-9)
-        assertVectorIgual(Vector2D(-1.0, 0.0), horizontal.normal)
+        assertEquals(3.0, horizontal.profundidad(), 1e-9)
+        assertVectorIgual(Vector2D(-1.0, 0.0), horizontal.normal())
 
         val vertical = forma.contactoPlano(
             Vector2D(100.0, 108.0), centro, 0.0, Vector2D(0.0, -1.0)
         )
         assertNotNull(vertical)
-        assertEquals(2.0, vertical.profundidad, 1e-9)
+        assertEquals(2.0, vertical.profundidad(), 1e-9)
     }
 
     @Test
@@ -209,7 +209,7 @@ class AppTest {
         )
         assertEquals((15.0 + 10.0) / Math.sqrt(2.0), alcance, 1e-9)
         assertNotNull(contacto)
-        assertEquals(1.0, contacto.profundidad, 1e-9)
+        assertEquals(1.0, contacto.profundidad(), 1e-9)
     }
 
     @Test
@@ -220,16 +220,16 @@ class AppTest {
         // Justo fuera de una cara: no hay contacto.
         assertNull(
             forma.contactoPlano(
-                Vector2D(100.0, 100.0 + forma.apotema + 0.1), centro, 0.0, Vector2D(0.0, -1.0)
+                Vector2D(100.0, 100.0 + forma.apotema() + 0.1), centro, 0.0, Vector2D(0.0, -1.0)
             )
         )
         // Dentro de una cara: la profundidad la fija el apotema.
         val contacto = forma.contactoPlano(
-            Vector2D(100.0, 100.0 + forma.apotema - 1.0), centro, 0.0, Vector2D(0.0, -1.0)
+            Vector2D(100.0, 100.0 + forma.apotema() - 1.0), centro, 0.0, Vector2D(0.0, -1.0)
         )
         assertNotNull(contacto)
-        assertEquals(1.0, contacto.profundidad, 1e-9)
-        assertVectorIgual(Vector2D(0.0, -1.0), contacto.normal)
+        assertEquals(1.0, contacto.profundidad(), 1e-9)
+        assertVectorIgual(Vector2D(0.0, -1.0), contacto.normal())
     }
 
     @Test
@@ -240,12 +240,12 @@ class AppTest {
             repeat(1500) { motor.simularPaso(pelota, 1.0 / 60.0) }
 
             assertTrue(
-                pelota.posicion.y <= motor.sueloY + 0.5,
-                "${tipo.nombre} se hunde en el suelo"
+                pelota.posicion().y() <= motor.sueloY() + 0.5,
+                "${tipo.nombre()} se hunde en el suelo"
             )
             assertTrue(
-                pelota.posicion.y >= motor.sueloY - pelota.radio - 0.5,
-                "${tipo.nombre} flota sobre el suelo"
+                pelota.posicion().y() >= motor.sueloY() - pelota.radio() - 0.5,
+                "${tipo.nombre()} flota sobre el suelo"
             )
         }
     }
@@ -259,11 +259,11 @@ class AppTest {
                 listOf(pared)
             )
             val pelota = Pelota(Vector2D(100.0, 300.0), tipo)
-            pelota.velocidad = Vector2D(2000.0, 0.0)
+            pelota.fijarVelocidad(Vector2D(2000.0, 0.0))
             repeat(10) { motor.simularPaso(pelota, 1.0 / 60.0) }
 
-            assertTrue(pelota.posicion.x < 300.0, "${tipo.nombre} atraviesa la pared")
-            assertTrue(pelota.velocidad.x < 0.0, "${tipo.nombre} no rebota contra la pared")
+            assertTrue(pelota.posicion().x() < 300.0, "${tipo.nombre()} atraviesa la pared")
+            assertTrue(pelota.velocidad().x() < 0.0, "${tipo.nombre()} no rebota contra la pared")
         }
     }
 
@@ -271,12 +271,12 @@ class AppTest {
     fun elArrastreFrenaLaPelotaDeTenis() {
         val motor = MotorFisico(Tierra(gravedad = Vector2D(0.0, 0.0)))
         val pelota = Pelota(Vector2D(50.0, 300.0), TipoPelota.TENIS)
-        pelota.velocidad = Vector2D(1200.0, 0.0)
+        pelota.fijarVelocidad(Vector2D(1200.0, 0.0))
 
         repeat(60) { motor.simularPaso(pelota, 1.0 / 60.0) }
 
-        assertTrue(pelota.velocidad.x < 1200.0, "El aire debe frenar la pelota de tenis")
-        assertTrue(pelota.posicion.x < 1200.0, "Sin arrastre recorreria 1200 px en un segundo")
+        assertTrue(pelota.velocidad().x() < 1200.0, "El aire debe frenar la pelota de tenis")
+        assertTrue(pelota.posicion().x() < 1200.0, "Sin arrastre recorreria 1200 px en un segundo")
     }
 
     @Test
@@ -284,12 +284,12 @@ class AppTest {
         val distancia = { tipo: TipoPelota ->
             val motor = MotorFisico(Tierra(1000.0, 650.0, Vector2D(0.0, 900.0)))
             val pelota = Pelota(Vector2D(50.0, 40.0), tipo)
-            pelota.velocidad = Vector2D(1400.0, -200.0)
+            pelota.fijarVelocidad(Vector2D(1400.0, -200.0))
             var recorrida = 0.0
             repeat(120) {
-                val antes = pelota.posicion
+                val antes = pelota.posicion()
                 motor.simularPaso(pelota, 1.0 / 60.0)
-                recorrida += pelota.posicion.distanciaA(antes)
+                recorrida += pelota.posicion().distanciaA(antes)
             }
             recorrida
         }
@@ -304,10 +304,10 @@ class AppTest {
     fun laPelotaDeGomaRuedaMasLejosQueLaDeRugby() {
         val recorrido = { tipo: TipoPelota ->
             val motor = MotorFisico(Tierra(1000.0, 650.0, Vector2D(0.0, 0.0)))
-            val pelota = Pelota(Vector2D(50.0, motor.sueloY - 20.0), tipo)
-            pelota.velocidad = Vector2D(900.0, 0.0)
+            val pelota = Pelota(Vector2D(50.0, motor.sueloY() - 20.0), tipo)
+            pelota.fijarVelocidad(Vector2D(900.0, 0.0))
             repeat(60) { motor.simularPaso(pelota, 1.0 / 60.0) }
-            pelota.posicion.x
+            pelota.posicion().x()
         }
 
         assertTrue(
@@ -331,9 +331,9 @@ class AppTest {
             val desde = camara
             val hasta = camara + 1000.0
 
-            val arboles = GeneradorEntorno.arboles(desde, hasta).count { it.x in desde..hasta }
-            val nubes = GeneradorEntorno.nubes(desde, hasta).count { it.x in desde..hasta }
-            val briznas = GeneradorEntorno.pasto(desde, hasta).count { it.x in desde..hasta }
+            val arboles = GeneradorEntorno.arboles(desde, hasta).count { it.x() in desde..hasta }
+            val nubes = GeneradorEntorno.nubes(desde, hasta).count { it.x() in desde..hasta }
+            val briznas = GeneradorEntorno.pasto(desde, hasta).count { it.x() in desde..hasta }
 
             assertTrue(arboles >= 4, "Solo $arboles arboles en la pantalla x=$desde")
             assertTrue(nubes >= 3, "Solo $nubes nubes en la pantalla x=$desde")
@@ -348,7 +348,7 @@ class AppTest {
         val desde = -5000.0
         val hasta = 5000.0
         val briznas = GeneradorEntorno.pasto(desde, hasta)
-            .map { it.x + it.ancho / 2.0 }
+            .map { it.x() + it.ancho() / 2.0 }
             .sorted()
 
         for (i in 0 until briznas.size - 1) {
@@ -362,7 +362,7 @@ class AppTest {
         val desde = -5000.0
         val hasta = 5000.0
         val copas = GeneradorEntorno.arboles(desde, hasta)
-            .map { it.x to 58.0 * it.escala }
+            .map { it.x() to 58.0 * it.escala() }
             .sortedBy { it.first }
         for (i in 0 until copas.size - 1) {
             val separacion = copas[i + 1].first - copas[i].first
@@ -371,7 +371,7 @@ class AppTest {
         }
 
         val anchos = GeneradorEntorno.nubes(desde, hasta)
-            .map { it.x to 92.0 * it.escala }
+            .map { it.x() to 92.0 * it.escala() }
             .sortedBy { it.first }
         for (i in 0 until anchos.size - 1) {
             val separacion = anchos[i + 1].first - anchos[i].first
@@ -382,13 +382,13 @@ class AppTest {
     @Test
     fun elCatalogoDeParedesEsCoherente() {
         for (tipo in TipoPared.entries) {
-            assertTrue(tipo.grosor > 0.0, "${tipo.nombre}: grosor")
-            assertTrue(tipo.resistencia > 0.0, "${tipo.nombre}: resistencia")
-            assertTrue(tipo.pelotasQueLaRompen.size <= TipoPelota.entries.size)
+            assertTrue(tipo.grosor() > 0.0, "${tipo.nombre()}: grosor")
+            assertTrue(tipo.resistencia() > 0.0, "${tipo.nombre()}: resistencia")
+            assertTrue(tipo.pelotasQueLaRompen().size <= TipoPelota.entries.size)
             assertEquals(
-                tipo.pelotasQueLaRompen.isEmpty(),
-                tipo.indestructible,
-                "${tipo.nombre}: coherencia entre indestructible y sus pelotas"
+                tipo.pelotasQueLaRompen().isEmpty(),
+                tipo.indestructible(),
+                "${tipo.nombre()}: coherencia entre indestructible y sus pelotas"
             )
         }
     }
@@ -396,7 +396,7 @@ class AppTest {
     @Test
     fun laBolicheRompeMaderaYElAceroNoSeRompeNunca() {
         val madera = Pared(Vector2D(0.0, 0.0), Vector2D(0.0, 200.0), TipoPared.MADERA)
-        val energiaBoliche = 0.5 * TipoPelota.BOLICHE.masa * 600.0 * 600.0
+        val energiaBoliche = 0.5 * TipoPelota.BOLICHE.masa() * 600.0 * 600.0
         assertTrue(madera.registrarImpacto(energiaBoliche, TipoPelota.BOLICHE))
 
         val acero = Pared(Vector2D(0.0, 0.0), Vector2D(0.0, 200.0), TipoPared.ACERO)
@@ -408,10 +408,10 @@ class AppTest {
     @Test
     fun unaPelotaQueNoRompeElMaterialNoLeHaceDano() {
         val ladrillo = Pared(Vector2D(0.0, 0.0), Vector2D(0.0, 200.0), TipoPared.LADRILLO)
-        val energiaBoliche = 0.5 * TipoPelota.BOLICHE.masa * 600.0 * 600.0
+        val energiaBoliche = 0.5 * TipoPelota.BOLICHE.masa() * 600.0 * 600.0
 
         assertTrue(!ladrillo.registrarImpacto(energiaBoliche, TipoPelota.TENIS))
-        assertEquals(0.0, ladrillo.danio)
+        assertEquals(0.0, ladrillo.danio())
         assertTrue(!TipoPared.LADRILLO.registraDanio(TipoPelota.TENIS))
         assertTrue(TipoPared.LADRILLO.registraDanio(TipoPelota.BOLICHE))
     }
@@ -419,14 +419,14 @@ class AppTest {
     @Test
     fun losGolpesSuavesVanGastandoLaParedHastaRomperla() {
         val pared = Pared(Vector2D(0.0, 0.0), Vector2D(0.0, 200.0), TipoPared.MADERA)
-        val energia = TipoPared.MADERA.resistencia / 4.0
+        val energia = TipoPared.MADERA.resistencia() / 4.0
 
         assertTrue(!pared.registrarImpacto(energia, TipoPelota.GOMA))
-        assertEquals(0.25, pared.danio, 1e-9)
+        assertEquals(0.25, pared.danio(), 1e-9)
         assertTrue(!pared.registrarImpacto(energia, TipoPelota.GOMA))
         assertTrue(!pared.registrarImpacto(energia, TipoPelota.GOMA))
         assertTrue(pared.registrarImpacto(energia, TipoPelota.GOMA))
-        assertEquals(1.0, pared.danio, 1e-9)
+        assertEquals(1.0, pared.danio(), 1e-9)
     }
 
     @Test
@@ -437,14 +437,14 @@ class AppTest {
             listOf(pared)
         )
         val pelota = Pelota(Vector2D(200.0, 200.0), TipoPelota.GOMA)
-        pelota.velocidad = Vector2D(600.0, 0.0)
+        pelota.fijarVelocidad(Vector2D(600.0, 0.0))
 
         var rotas = 0
         repeat(60) { rotas += motor.simularPaso(pelota, 1.0 / 60.0).size }
 
         assertEquals(1, rotas, "El carton deberia romperse una sola vez")
         assertTrue(motor.obtenerParedes().isEmpty(), "La pared rota debe desaparecer")
-        assertTrue(pelota.posicion.x > 300.0, "La pelota sigue su camino al romperse el carton")
+        assertTrue(pelota.posicion().x() > 300.0, "La pelota sigue su camino al romperse el carton")
     }
 
     @Test
@@ -455,23 +455,23 @@ class AppTest {
             listOf(pared)
         )
         val pelota = Pelota(Vector2D(200.0, 200.0), TipoPelota.GOMA)
-        pelota.velocidad = Vector2D(900.0, 0.0)
+        pelota.fijarVelocidad(Vector2D(900.0, 0.0))
 
         repeat(30) { motor.simularPaso(pelota, 1.0 / 60.0) }
 
         assertEquals(listOf(pared), motor.obtenerParedes())
-        assertTrue(pared.danio == 0.0, "El acero no se dania")
-        assertTrue(pelota.velocidad.x < 0.0, "La pelota rebota contra el acero")
+        assertTrue(pared.danio() == 0.0, "El acero no se dania")
+        assertTrue(pelota.velocidad().x() < 0.0, "La pelota rebota contra el acero")
     }
 
     @Test
     fun unMaterialIndestructibleNoAdmiteNingunaPelotaQueLoRompa() {
         for (tipoPared in TipoPared.entries) {
-            if (!tipoPared.indestructible) continue
+            if (!tipoPared.indestructible()) continue
             for (tipoPelota in TipoPelota.entries) {
                 assertTrue(
                     !tipoPared.registraDanio(tipoPelota),
-                    "${tipoPelota.nombre} no deberia romper ${tipoPared.nombre}"
+                    "${tipoPelota.nombre()} no deberia romper ${tipoPared.nombre()}"
                 )
             }
         }
@@ -480,8 +480,8 @@ class AppTest {
     @Test
     fun elDecoradoNoSaleDeLaFranjaDelCielo() {
         for (nube in GeneradorEntorno.nubes(-3000.0, 3000.0)) {
-            assertTrue(nube.y >= 20.0, "Nube muy alta en y=${nube.y}")
-            assertTrue(nube.y <= 160.0, "Nube muy baja en y=${nube.y}")
+            assertTrue(nube.y() >= 20.0, "Nube muy alta en y=${nube.y()}")
+            assertTrue(nube.y() <= 160.0, "Nube muy baja en y=${nube.y()}")
         }
     }
 
@@ -495,7 +495,7 @@ class AppTest {
         repeat(900) { motor.simularPaso(pelota, 1.0 / 60.0) }
 
         assertTrue(
-            pelota.posicion.y < ambiente.sueloY - pelota.radio - 5.0,
+            pelota.posicion().y() < ambiente.sueloY() - pelota.radio() - 5.0,
             "La pelota tiene que quedar apoyada sobre la pared, no en el suelo"
         )
         assertTrue(motor.estaEnReposo(pelota), "Quieta sobre una pared tambien termina el tiro")
@@ -506,9 +506,9 @@ class AppTest {
         val ambiente = Tierra()
         val pared = Pared(Vector2D(600.0, 600.0), Vector2D(600.0, 100.0), TipoPared.ACERO)
         val motor = MotorFisico(ambiente, listOf(pared))
-        val x = 600.0 - pared.grosor / 2.0 - 10.0
+        val x = 600.0 - pared.grosor() / 2.0 - 10.0
         val pelota = Pelota(Vector2D(x, 400.0), TipoPelota.GOMA, FormaCirculo(10.0))
-        pelota.velocidad = Vector2D(0.0, -450.0)
+        pelota.fijarVelocidad(Vector2D(0.0, -450.0))
 
         repeat(18) { motor.simularPaso(pelota, 1.0 / 60.0) }
 
@@ -516,7 +516,7 @@ class AppTest {
     }
 
     private fun assertVectorIgual(esperado: Vector2D, real: Vector2D) {
-        assertEquals(esperado.x, real.x, 1e-9, "Componente x")
-        assertEquals(esperado.y, real.y, 1e-9, "Componente y")
+        assertEquals(esperado.x(), real.x(), 1e-9, "Componente x")
+        assertEquals(esperado.y(), real.y(), 1e-9, "Componente y")
     }
 }

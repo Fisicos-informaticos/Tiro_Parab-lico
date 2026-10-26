@@ -11,9 +11,10 @@ import org.example.modelo.TipoPared
  */
 class ConstructorParedes(
     private val motor: PhysicsEngine,
-    private var tipoActual: TipoPared = TipoPared.POR_DEFECTO
+    private var tipoActual: TipoPared = TipoPared.porDefecto()
 ) : CreadorParedes {
-    override val paredes: List<Pared> get() = motor.obtenerParedes()
+
+    override fun paredes(): List<Pared> = motor.obtenerParedes()
 
     override fun agregarPared(pared: Pared) {
         motor.agregarPared(pared)

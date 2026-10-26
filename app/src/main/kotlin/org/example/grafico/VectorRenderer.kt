@@ -21,13 +21,13 @@ class VectorRenderer(private val gc: GraphicsContext) {
 
     /** Flecha azul en la direccion del movimiento, proporcional a su rapidez. */
     fun dibujarVelocidad(centro: Vector2D, velocidad: Vector2D) {
-        if (velocidad.magnitud < UMBRAL_NULO) return
+        if (velocidad.magnitud() < UMBRAL_NULO) return
         flecha(centro, velocidad, ESCALA_VELOCIDAD, COLOR_VELOCIDAD, ETIQUETA_VELOCIDAD)
     }
 
     /** Flecha roja vertical hacia abajo, proporcional a la gravedad activa. */
     fun dibujarGravedad(centro: Vector2D, gravedad: Vector2D) {
-        if (gravedad.magnitud < UMBRAL_NULO) return
+        if (gravedad.magnitud() < UMBRAL_NULO) return
         flecha(centro, gravedad, ESCALA_GRAVEDAD, COLOR_GRAVEDAD, ETIQUETA_GRAVEDAD)
     }
 
@@ -43,35 +43,40 @@ class VectorRenderer(private val gc: GraphicsContext) {
         color: Color,
         etiqueta: String
     ) {
-        val largo = (magnitud.magnitud * escala).coerceAtMost(LARGO_MAXIMO)
+        val largo = (magnitud.magnitud() * escala).coerceAtMost(LARGO_MAXIMO)
         if (largo < LARGO_MINIMO) return
 
-        val direccion = magnitud.normalizado
-        val perpendicular = Vector2D(-direccion.y, direccion.x)
+        val direccion = magnitud.normalizado()
+        val perpendicular = Vector2D(-direccion.y(), direccion.x())
         val punta = origen + direccion * largo
         val cabeza = (largo * FRACCION_CABEZA).coerceAtMost(CABEZA_MAXIMA)
 
         gc.stroke = color
         gc.lineWidth = GROSOR_LINEA
         gc.setLineDashes()
-        gc.strokeLine(origen.x, origen.y, punta.x, punta.y)
+        gc.strokeLine(origen.x(), origen.y(), punta.x(), punta.y())
 
         gc.fill = color
         gc.fillPolygon(
             doubleArrayOf(
-                punta.x,
-                punta.x - direccion.x * cabeza + perpendicular.x * ANCHO_CABEZA,
-                punta.x - direccion.x * cabeza - perpendicular.x * ANCHO_CABEZA
+                punta.x(),
+                punta.x() - direccion.x() * cabeza + perpendicular.x() * ANCHO_CABEZA,
+                punta.x() - direccion.x() * cabeza - perpendicular.x() * ANCHO_CABEZA
             ),
             doubleArrayOf(
-                punta.y,
-                punta.y - direccion.y * cabeza + perpendicular.y * ANCHO_CABEZA,
-                punta.y - direccion.y * cabeza - perpendicular.y * ANCHO_CABEZA
+                punta.y(),
+                punta.y() - direccion.y() * cabeza + perpendicular.y() * ANCHO_CABEZA,
+                punta.y() - direccion.y() * cabeza - perpendicular.y() * ANCHO_CABEZA
             ),
             3
         )
 
-        pintarEtiqueta(etiqueta, origen + direccion * (largo * POSICION_ETIQUETA), perpendicular, color)
+        pintarEtiqueta(
+            etiqueta,
+            origen + direccion * (largo * POSICION_ETIQUETA),
+            perpendicular,
+            color
+        )
     }
 
     /** Rotulo del vector a un lado del eje, para no tapar la punta. */
@@ -83,7 +88,11 @@ class VectorRenderer(private val gc: GraphicsContext) {
     ) {
         gc.fill = color
         gc.font = Font.font("Monospace", TAMANO_ETIQUETA)
-        gc.fillText(texto, punto.x + perpendicular.x * DESPLAZAMIENTO_ETIQUETA, punto.y + perpendicular.y * DESPLAZAMIENTO_ETIQUETA)
+        gc.fillText(
+            texto,
+            punto.x() + perpendicular.x() * DESPLAZAMIENTO_ETIQUETA,
+            punto.y() + perpendicular.y() * DESPLAZAMIENTO_ETIQUETA
+        )
     }
 
     companion object {

@@ -1,15 +1,26 @@
 package org.example.simulacion
 
 /**
- * Resumen de un tiro terminado. Es un objeto de solo lectura que el nucleo
- * entrega a quien observa el final de la simulacion, de modo que la interfaz no
- * necesita consultar la [Simulacion] para pintar los resultados.
+ * Resumen de un tiro terminado. Encapsula sus metricas y sabe presentarlas en
+ * texto, de modo que la interfaz no necesita manipular los numeros.
  */
-data class ResultadoSimulacion(
+class ResultadoSimulacion(
     /** Tiempo total de vuelo en segundos, ya detenido en el instante de reposo. */
-    val tiempoTotal: Double,
+    private val tiempoTotal: Double,
     /** Distancia horizontal maxima alcanzada desde el punto de lanzamiento, en px. */
-    val distanciaX: Double,
+    private val distanciaX: Double,
     /** Altura maxima alcanzada sobre el suelo, en px. */
-    val alturaMaxima: Double
-)
+    private val alturaMaxima: Double
+) {
+    fun tiempoTotal(): Double = tiempoTotal
+
+    fun distanciaX(): Double = distanciaX
+
+    fun alturaMaxima(): Double = alturaMaxima
+
+    fun tiempoTexto(): String = String.format("%.2f", tiempoTotal)
+
+    fun distanciaTexto(): String = String.format("%.2f", distanciaX)
+
+    fun alturaTexto(): String = String.format("%.2f", alturaMaxima)
+}

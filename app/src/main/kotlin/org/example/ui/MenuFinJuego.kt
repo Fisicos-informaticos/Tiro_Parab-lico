@@ -23,19 +23,22 @@ class MenuFinJuego(private val escucha: UIEventListener) : ObservadorFinSimulaci
     private val etiquetaDistancia = Label("Distancia en X").also { it.style = EstilosUI.DETALLE }
     private val etiquetaAltura = Label("Altura máxima").also { it.style = EstilosUI.DETALLE }
 
+    private val raiz: VBox = construirRaiz()
+
+    private var abierto: Boolean = false
+
     /** Raiz que se monta en la escena. */
-    val raiz: VBox = construirRaiz()
+    fun raiz(): VBox = raiz
 
     /** Cierto mientras el resumen esta en pantalla. */
-    var abierto: Boolean = false
-        private set
+    fun abierto(): Boolean = abierto
 
     override fun alTerminarSimulacion(resultado: ResultadoSimulacion) = mostrar(resultado)
 
     fun mostrar(resultado: ResultadoSimulacion) {
-        etiquetaTiempo.text = "Tiempo total: ${decimales(resultado.tiempoTotal)} s"
-        etiquetaDistancia.text = "Distancia en X: ${decimales(resultado.distanciaX)} px"
-        etiquetaAltura.text = "Altura máxima: ${decimales(resultado.alturaMaxima)} px"
+        etiquetaTiempo.text = "Tiempo total: ${resultado.tiempoTexto()} s"
+        etiquetaDistancia.text = "Distancia en X: ${resultado.distanciaTexto()} px"
+        etiquetaAltura.text = "Altura máxima: ${resultado.alturaTexto()} px"
         abierto = true
         raiz.isVisible = true
     }
@@ -70,9 +73,6 @@ class MenuFinJuego(private val escucha: UIEventListener) : ObservadorFinSimulaci
         }
         return menu
     }
-
-    /** Dos decimales fijos para las metricas del resumen. */
-    private fun decimales(valor: Double): String = String.format("%.2f", valor)
 
     companion object {
         private const val ANCHO_BOTON = 220.0
