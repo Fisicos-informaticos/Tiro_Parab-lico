@@ -1,5 +1,8 @@
 package org.example.ui
 
+import org.example.modelo.TipoPelota
+import org.example.modelo.TipoPared
+
 /**
  * Contrato de comunicacion entre la interfaz y el motor del juego.
  *
@@ -30,4 +33,8 @@ interface UIEventListener {
     fun seleccionarModo(nombre: String?)
 
     fun aplicarGravedad(nombre: String?)
+
+    fun seleccionarPelota(tipo: TipoPelota)
+
+    fun seleccionarTipoPared(tipo: TipoPared)
 }

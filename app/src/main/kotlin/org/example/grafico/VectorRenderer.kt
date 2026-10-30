@@ -11,10 +11,10 @@ import org.example.modelo.Vector2D
  * resto del renderizado no depende de como se construye una flecha ni de la
  * escala fisica que se usa para convertir pixeles/segundo en pixeles.
  */
-class VectorRenderer(private val gc: GraphicsContext) {
+class VectorRenderer(private val gc: GraphicsContext) : DibujoVectoresFisica {
 
     /** Dibuja los dos vectores activos desde el centro de la pelota. */
-    fun dibujar(centro: Vector2D, velocidad: Vector2D, gravedad: Vector2D) {
+    override fun dibujar(centro: Vector2D, velocidad: Vector2D, gravedad: Vector2D) {
         dibujarVelocidad(centro, velocidad)
         dibujarGravedad(centro, gravedad)
     }

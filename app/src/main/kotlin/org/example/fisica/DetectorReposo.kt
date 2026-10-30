@@ -13,11 +13,15 @@ import org.example.modelo.Vector2D
  * sostiene al proyectil (el suelo, una pared o la ausencia de gravedad). En el
  * aire, rozando una pared vertical, el vuelo continua.
  */
-class DetectorReposo(private val ambiente: Ambiente) {
+class DetectorReposo(private var ambiente: Ambiente) : DetectorDeReposo {
 
-    fun estaEnReposo(proyectil: Proyectil, paredes: List<Pared>): Boolean =
+    override fun estaEnReposo(proyectil: Proyectil, paredes: List<Pared>): Boolean =
         rapidezPracticamenteNula(proyectil.velocidad()) &&
             (tieneApoyo(proyectil, paredes) || !hayGravedad())
+
+    override fun cambiarAmbiente(ambiente: Ambiente) {
+        this.ambiente = ambiente
+    }
 
     /** sqrt(Vx^2 + Vy^2) por debajo del umbral. */
     private fun rapidezPracticamenteNula(velocidad: Vector2D): Boolean =

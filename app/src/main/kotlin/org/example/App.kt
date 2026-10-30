@@ -3,6 +3,7 @@ package org.example
 import org.example.modelo.TipoPelota
 import org.example.modelo.TipoPared
 import org.example.modelo.Vector2D
+import org.example.simulacion.FabricaSimulacion
 import org.example.simulacion.Simulacion
 import kotlin.math.cos
 import kotlin.math.sin
@@ -13,7 +14,7 @@ import kotlin.math.sin
  */
 class App {
 
-    private val simulacion = Simulacion()
+    private val simulacion = FabricaSimulacion.crear()
 
     fun iniciar() {
         println("=== SIMULADOR DE TIRO PARABOLICO (consola) ===")

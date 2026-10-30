@@ -3,7 +3,7 @@ package org.example.grafico
 import org.example.modelo.Vector2D
 import org.example.simulacion.EscenaEstado
 import org.example.simulacion.Simulacion
-import org.example.sprites.SpriteManager
+import org.example.sprites.GestionSprites
 
 /**
  * Traduce una [Simulacion] a pixeles. El estado activo decide que escena mostrar
@@ -12,10 +12,10 @@ import org.example.sprites.SpriteManager
  */
 class PresentadorJuego(
     private val renderer: Renderable,
-    private val sprites: SpriteManager = SpriteManager()
+    private val sprites: GestionSprites
 ) : EscenaEstado {
 
-    fun sprites(): SpriteManager = sprites
+    fun sprites(): GestionSprites = sprites
 
     fun pintar(simulacion: Simulacion) {
         renderer.fijarOffsetCamara(simulacion.offsetCamara())

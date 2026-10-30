@@ -3,40 +3,39 @@ package org.example.sprites
 import org.example.grafico.ContextoDibujo
 import org.example.modelo.Vector2D
 
-class SpriteManager {
+class SpriteManager(
+    private val fabrica: FabricaSprite
+) : GestionSprites {
+
     private val sprites = mutableListOf<Sprite>()
 
-    fun agregar(sprite: Sprite) {
+    override fun agregar(sprite: Sprite) {
         sprites.add(sprite)
     }
 
-    fun remover(sprite: Sprite) {
+    override fun remover(sprite: Sprite) {
         sprites.remove(sprite)
     }
 
-    fun limpiar() {
+    override fun limpiar() {
         sprites.clear()
     }
 
-    fun obtenerSprites(): List<Sprite> = sprites.toList()
+    override fun obtenerSprites(): List<Sprite> = sprites.toList()
 
-    fun crearDecoracion(
+    override fun crearDecoracion(
         ruta: String,
         posicion: Vector2D,
-        escala: Double = 1.0
-    ): SpriteEstatico {
-        val sprite = SpriteEstatico(ruta, posicion)
-        sprite.cargar()
-        return sprite
-    }
+        escala: Double
+    ): Sprite = fabrica.crear(ruta, posicion)
 
-    fun dibujarTodos(contexto: ContextoDibujo) {
+    override fun dibujarTodos(contexto: ContextoDibujo) {
         for (sprite in sprites) {
             sprite.dibujar(contexto)
         }
     }
 
-    fun actualizarPosicion(sprite: Sprite, nuevaPosicion: Vector2D) {
+    override fun actualizarPosicion(sprite: Sprite, nuevaPosicion: Vector2D) {
         sprite.fijarPosicion(nuevaPosicion)
     }
 }

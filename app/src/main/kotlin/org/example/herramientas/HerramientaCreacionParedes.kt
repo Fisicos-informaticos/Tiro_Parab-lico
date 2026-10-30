@@ -15,34 +15,34 @@ class HerramientaCreacionParedes(
     private val transformador: TransformadorCoordenadas,
     private val creador: CreadorParedes,
     private val longitudMinima: Double = 12.0
-) {
+) : HerramientaParedes {
     private var paredTemporal: Pared? = null
     private var estaActiva: Boolean = false
 
-    fun paredTemporal(): Pared? = paredTemporal
+    override fun paredTemporal(): Pared? = paredTemporal
 
-    fun activar() {
+    override fun activar() {
         estaActiva = true
     }
 
-    fun desactivar() {
+    override fun desactivar() {
         estaActiva = false
         cancelar()
     }
 
-    fun iniciar(puntoPantalla: Vector2D) {
+    override fun iniciar(puntoPantalla: Vector2D) {
         if (!estaActiva) return
         val puntoMundo = transformador.pantallaAMundo(puntoPantalla)
         paredTemporal = Pared(puntoMundo, puntoMundo, creador.tipoParedActual())
     }
 
-    fun actualizar(puntoPantalla: Vector2D) {
+    override fun actualizar(puntoPantalla: Vector2D) {
         if (!estaActiva) return
         val puntoMundo = transformador.pantallaAMundo(puntoPantalla)
         paredTemporal = paredTemporal?.conFin(puntoMundo)
     }
 
-    fun finalizar(puntoPantalla: Vector2D? = null) {
+    override fun finalizar(puntoPantalla: Vector2D?) {
         if (!estaActiva) return
         val temporal = paredTemporal ?: return
         val paredFinal = if (puntoPantalla != null) {
@@ -56,7 +56,7 @@ class HerramientaCreacionParedes(
         }
     }
 
-    fun cancelar() {
+    override fun cancelar() {
         paredTemporal = null
     }
 }

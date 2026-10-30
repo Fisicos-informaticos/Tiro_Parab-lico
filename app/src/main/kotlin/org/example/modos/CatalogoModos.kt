@@ -5,7 +5,7 @@ package org.example.modos
  * (combo box), de modo que aqui es donde se traduce cada nombre a su modo.
  * Anadir un modo es declarar su fabrica aqui, sin tocar el resto del registro.
  */
-object CatalogoModos {
+object CatalogoModos : FabricaModos {
 
     const val TIRO_PARABOLICO = "Tiro parabólico"
     const val CAIDA_LIBRE = "Caída libre"
@@ -17,8 +17,10 @@ object CatalogoModos {
     )
 
     /** Nombres en el orden en el que los muestra el selector. */
-    fun nombres(): List<String> = fabricas.keys.toList()
+    override fun nombres(): List<String> = fabricas.keys.toList()
 
-    fun crear(nombre: String?): ModoSimulacion =
-        fabricas[nombre]?.invoke() ?: fabricas.getValue(POR_DEFECTO)()
+    override fun crear(nombre: String?): ModoSimulacion =
+        fabricas[nombre]?.invoke() ?: porDefecto()
+
+    override fun porDefecto(): ModoSimulacion = fabricas.getValue(POR_DEFECTO)()
 }
