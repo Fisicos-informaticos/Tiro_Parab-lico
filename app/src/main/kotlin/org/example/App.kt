@@ -3,7 +3,7 @@ package org.example
 import org.example.modelo.TipoPelota
 import org.example.modelo.TipoPared
 import org.example.modelo.Vector2D
-import org.example.simulacion.EstadoSimulacion
+import org.example.simulacion.FabricaSimulacion
 import org.example.simulacion.Simulacion
 import kotlin.math.cos
 import kotlin.math.sin
@@ -14,7 +14,7 @@ import kotlin.math.sin
  */
 class App {
 
-    private val simulacion = Simulacion()
+    private val simulacion = FabricaSimulacion.crear()
 
     fun iniciar() {
         println("=== SIMULADOR DE TIRO PARABOLICO (consola) ===")
@@ -24,9 +24,9 @@ class App {
             println("\n--- Nueva simulacion ---")
             simulacion.reiniciar()
 
-            val tipoPelota = elegir("Pelota", TipoPelota.entries, { it.nombre })
+            val tipoPelota = elegir("Pelota", TipoPelota.entries, { it.nombre() })
             simulacion.seleccionarPelota(tipoPelota)
-            val tipoPared = elegir("Pared", TipoPared.entries, { it.nombre })
+            val tipoPared = elegir("Pared", TipoPared.entries, { it.nombre() })
             simulacion.seleccionarTipoPared(tipoPared)
 
             val angulo = leerDouble("Angulo de lanzamiento (grados)", 45.0)
@@ -45,7 +45,7 @@ class App {
      * aqui se arrastra hacia abajo a la izquierda.
      */
     private fun lanzar(anguloGrados: Double, fuerza: Double) {
-        val origen = simulacion.pelota.posicion - simulacion.offsetCamara
+        val origen = simulacion.pelota().posicion() - simulacion.offsetCamara()
         val rad = Math.toRadians(anguloGrados)
         val destino = origen + Vector2D(-cos(rad) * fuerza, sin(rad) * fuerza)
 
@@ -57,7 +57,7 @@ class App {
     private fun repetirTiros() {
         val pasos = (1.0 / Simulacion.DT_FISICA).toInt()
         var impresos = 0
-        while (simulacion.estado is EstadoSimulacion.EnVuelo) {
+        while (simulacion.estado().estaEnVuelo()) {
             simulacion.actualizar(Simulacion.DT_FISICA)
             if (impresos++ % pasos == 0) mostrarVuelo()
         }
@@ -65,26 +65,26 @@ class App {
     }
 
     private fun mostrarVuelo() {
-        val pelota = simulacion.pelota
+        val pelota = simulacion.pelota()
         println(
-            "  t=${"%.1f".format(simulacion.tiempoVuelo)}s  " +
-                "x=${"%.1f".format(pelota.posicion.x)}  y=${"%.1f".format(pelota.posicion.y)}  " +
-                "v=${"%.1f".format(pelota.velocidad.magnitud)}"
+            "  t=${"%.1f".format(simulacion.tiempoVuelo())}s  " +
+                "x=${"%.1f".format(pelota.posicion().x())}  y=${"%.1f".format(pelota.posicion().y())}  " +
+                "v=${"%.1f".format(pelota.velocidad().magnitud())}"
         )
     }
 
     private fun mostrarResumen() {
         println("\n--- Resultados ---")
-        println("Pelota: ${simulacion.tipoPelota.nombre} (${simulacion.etiquetaColision()})")
-        println("Pared: ${simulacion.tipoPared.nombre} · la rompe: ${rompe()}")
-        println("Distancia: ${"%.1f".format(simulacion.distanciaRecorrida)} px")
-        println("Tiempo: ${"%.2f".format(simulacion.tiempoVuelo)} s")
-        println("Paredes colocadas: ${simulacion.paredes.size} · rotas: ${simulacion.paredesDestruidas}")
+        println("Pelota: ${simulacion.tipoPelota().nombre()} (${simulacion.etiquetaColision()})")
+        println("Pared: ${simulacion.tipoPared().nombre()} · la rompe: ${rompe()}")
+        println("Distancia: ${"%.1f".format(simulacion.distanciaRecorrida())} px")
+        println("Tiempo: ${"%.2f".format(simulacion.tiempoVuelo())} s")
+        println("Paredes colocadas: ${simulacion.paredes().size} · rotas: ${simulacion.paredesDestruidas()}")
     }
 
     private fun mostrarEstado() {
         println()
-        println("Estado: ${simulacion.estado.nombre}")
+        println("Estado: ${simulacion.estado().nombre()}")
     }
 
     private fun rompe(): String =

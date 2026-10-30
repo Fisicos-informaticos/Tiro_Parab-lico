@@ -8,8 +8,7 @@ import org.example.modelo.TipoPared
  * Sigue DIP: las clases de UI/controladores dependen de esta abstracción.
  */
 interface CreadorParedes {
-    val paredes: List<Pared>
-
+    fun paredes(): List<Pared>
     fun agregarPared(pared: Pared)
     fun limpiarParedes()
     fun seleccionarTipoPared(tipo: TipoPared)

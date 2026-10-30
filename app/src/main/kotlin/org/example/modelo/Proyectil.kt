@@ -2,31 +2,46 @@ package org.example.modelo
 
 import org.example.modelo.colision.FormaColision
 
+/**
+ * Contrato de un cuerpo que se mueve por el mundo. El estado solo se consulta y
+ * se modifica mediante metodos explicitos, nunca accediendo a campos.
+ */
 interface Proyectil {
-    var posicion: Vector2D
-    var velocidad: Vector2D
+    fun posicion(): Vector2D
+
+    fun velocidad(): Vector2D
 
     /** Rotacion del cuerpo en radianes (sentido antihorario en el plano de la pantalla). */
-    var angulo: Double
-    var velocidadAngular: Double
+    fun angulo(): Double
 
-    val tipo: TipoPelota
-    val forma: FormaColision
+    fun velocidadAngular(): Double
 
-    val masa: Double get() = tipo.masa
-    val coeficienteRestitucion: Double get() = tipo.coeficienteRestitucion
-    val coeficienteFriccion: Double get() = tipo.coeficienteFriccion
-    val coeficienteArrastre: Double get() = tipo.coeficienteArrastre
-    val giro: Double get() = tipo.giro
+    fun tipo(): TipoPelota
+
+    fun forma(): FormaColision
+
+    fun masa(): Double = tipo().masa()
+
+    fun coeficienteRestitucion(): Double = tipo().coeficienteRestitucion()
+
+    fun coeficienteFriccion(): Double = tipo().coeficienteFriccion()
+
+    fun coeficienteArrastre(): Double = tipo().coeficienteArrastre()
+
+    fun giro(): Double = tipo().giro()
 
     /** Radio del circulo que envuelve al proyectil. */
-    val radio: Double get() = forma.radioEnvoltura
+    fun radio(): Double = forma().radioEnvoltura()
 
-    fun aplicarFuerza(fuerza: Vector2D, deltaTime: Double) {
-        val aceleracion = fuerza * (1.0 / masa)
-        velocidad += aceleracion * deltaTime
-        posicion += velocidad * deltaTime
-    }
+    fun fijarPosicion(nueva: Vector2D)
 
-    fun estaEnSuelo(limiteY: Double): Boolean = posicion.y >= limiteY
+    fun fijarVelocidad(nueva: Vector2D)
+
+    fun fijarAngulo(nuevo: Double)
+
+    fun fijarVelocidadAngular(nueva: Double)
+
+    fun aplicarFuerza(fuerza: Vector2D, deltaTime: Double)
+
+    fun estaEnSuelo(limiteY: Double): Boolean
 }

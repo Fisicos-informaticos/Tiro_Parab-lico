@@ -9,35 +9,38 @@ import org.example.simulacion.Simulacion
  * contrario al arrastre. Toda la fisica de lanzamiento vive aqui, no en el
  * nucleo (SRP).
  */
-class TiroParabolico : ModoSimulacion {
+open class ModoTiroParabolico : ModoSimulacion {
 
-    override val nombre = CatalogoModos.TIRO_PARABOLICO
-    override val ayuda = "Arrastra en el mundo para dibujar"
-    override val dibujaVectorDeTiro = true
+    override fun nombre(): String = CatalogoModos.TIRO_PARABOLICO
+
+    override fun ayuda(): String = "Arrastra en el mundo para dibujar"
+
+    override fun dibujaVectorDeTiro(): Boolean = true
 
     override fun colocar(preparacion: Preparacion): Vector2D? {
-        if (preparacion.punto.y < preparacion.sueloY - MARGEN_COLOCACION) return null
-        return Vector2D(preparacion.punto.x, preparacion.apoyoY)
+        if (!preparacion.sobreElSuelo(MARGEN_COLOCACION)) return null
+        return Vector2D(preparacion.punto().x(), preparacion.apoyoY())
     }
 
     override fun arrastrar(preparacion: Preparacion): Vector2D? = null
 
     override fun velocidadDeSuelta(entrada: InputHandler): Vector2D? {
-        val vector = entrada.vectorLanzamiento ?: return null
-        if (vector.magnitud < FUERZA_MINIMA_APUNTADO) return null
-        return vector.normalizado * (entrada.fuerzaLanzamiento.coerceAtMost(Simulacion.MAX_FUERZA) * ESCALA_VELOCIDAD)
+        val vector = entrada.vectorLanzamiento() ?: return null
+        if (vector.magnitud() < FUERZA_MINIMA_APUNTADO) return null
+        return vector.normalizado() *
+            (entrada.fuerzaLanzamiento().coerceAtMost(Simulacion.MAX_FUERZA) * ESCALA_VELOCIDAD)
     }
 
     override fun condicionDePrevia(entrada: InputHandler, posicion: Vector2D): CondicionPrevia? {
-        val vector = entrada.vectorLanzamiento ?: return null
-        val velocidad = vector.normalizado *
-            (entrada.fuerzaLanzamiento.coerceAtMost(Simulacion.MAX_FUERZA) * ESCALA_VELOCIDAD)
+        val vector = entrada.vectorLanzamiento() ?: return null
+        val velocidad = vector.normalizado() *
+            (entrada.fuerzaLanzamiento().coerceAtMost(Simulacion.MAX_FUERZA) * ESCALA_VELOCIDAD)
         return CondicionPrevia(posicion, velocidad)
     }
 
     override fun etiquetasDePreparacion(lectura: LecturaModo) = listOf(
-        "Angulo: ${"%.1f".format(lectura.angulo)}°",
-        "Fuerza: ${"%.0f".format(lectura.fuerza)}"
+        "Angulo: ${ModoSimulacion.formatear(lectura.angulo(), 1)}°",
+        "Fuerza: ${ModoSimulacion.formatear(lectura.fuerza(), 0)}"
     )
 
     override fun lineasDeColocacion(lectura: LecturaModo) = listOf(
@@ -47,17 +50,17 @@ class TiroParabolico : ModoSimulacion {
 
     override fun lineasDeApuntado(lectura: LecturaModo) = listOf(
         "Arrastra para lanzar",
-        "Angulo: ${"%.1f".format(lectura.angulo)}°",
-        "Fuerza: ${"%.1f".format(lectura.fuerza)}"
+        "Angulo: ${ModoSimulacion.formatear(lectura.angulo(), 1)}°",
+        "Fuerza: ${ModoSimulacion.formatear(lectura.fuerza(), 1)}"
     )
 
     override fun lineasDeVuelo(lectura: LecturaModo) = listOf(
-        "Vel: ${"%.2f".format(lectura.velocidad.magnitud)} px/s",
-        "Pos: (${lectura.posicion.x.toInt()}, ${lectura.posicion.y.toInt()})"
+        "Vel: ${ModoSimulacion.formatear(lectura.rapidez(), 2)} px/s",
+        "Pos: (${lectura.posicion().x().toInt()}, ${lectura.posicion().y().toInt()})"
     )
 
     override fun lineasDeReposo(lectura: LecturaModo) = listOf(
-        "Distancia: ${"%.2f".format(lectura.distancia)} px",
+        "Distancia: ${ModoSimulacion.formatear(lectura.distancia(), 2)} px",
         "Click para reiniciar"
     )
 
@@ -72,3 +75,6 @@ class TiroParabolico : ModoSimulacion {
         private const val MARGEN_COLOCACION = 30.0
     }
 }
+
+/** Nombre historico del modo, conservado para no romper a sus consumidores. */
+class TiroParabolico : ModoTiroParabolico()

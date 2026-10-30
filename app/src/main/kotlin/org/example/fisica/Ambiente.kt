@@ -3,10 +3,10 @@ package org.example.fisica
 import org.example.modelo.Vector2D
 
 interface Ambiente {
-    val gravedad: Vector2D
-    val densidadAire: Double
-    val ancho: Double
-    val alto: Double
-    val sueloY: Double
-    val techoY: Double
+    fun gravedad(): Vector2D
+    fun densidadAire(): Double
+    fun ancho(): Double
+    fun alto(): Double
+    fun sueloY(): Double
+    fun techoY(): Double
 }

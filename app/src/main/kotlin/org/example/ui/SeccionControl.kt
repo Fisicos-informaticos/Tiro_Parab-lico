@@ -12,7 +12,7 @@ import javafx.scene.layout.VBox
  */
 class SeccionControl(titulo: String, contenido: List<Node>) {
 
-    val raiz: VBox = VBox(8.0).apply {
+    private val raiz: VBox = VBox(8.0).apply {
         val etiqueta = Label(titulo).apply { style = EstilosUI.TITULO_SECCION }
         val divisor = Region().apply {
             style = EstilosUI.DIVISOR
@@ -22,4 +22,7 @@ class SeccionControl(titulo: String, contenido: List<Node>) {
         children.addAll(etiqueta, divisor)
         children.addAll(contenido)
     }
+
+    /** Contenedor estilizado que se inserta en la escena. */
+    fun raiz(): VBox = raiz
 }

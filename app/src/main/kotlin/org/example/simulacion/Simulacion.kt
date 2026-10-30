@@ -1,37 +1,77 @@
 package org.example.simulacion
 
-import org.example.entrada.DragInputHandler
-import org.example.entrada.InputHandler
-import org.example.fisica.MotorFisico
-import org.example.fisica.Tierra
+import org.example.coordenadas.Camara
 import org.example.coordenadas.TransformadorCoordenadas
-import org.example.coordenadas.TransformadorCoordenadasSimulacion
-import org.example.herramientas.HerramientaCreacionParedes
+import org.example.entrada.InputHandler
+import org.example.entrada.InputListener
+import org.example.fisica.Ambiente
+import org.example.fisica.FabricaAmbiente
+import org.example.fisica.FabricaMotorFisico
+import org.example.fisica.Tierra
+import org.example.fisica.PhysicsEngine
+import org.example.herramientas.HerramientaParedes
 import org.example.modelo.Pared
 import org.example.modelo.Pelota
 import org.example.modelo.TipoPelota
 import org.example.modelo.TipoPared
 import org.example.modelo.Vector2D
-import org.example.modelo.creadores.ConstructorParedes
 import org.example.modelo.creadores.CreadorParedes
-import org.example.modos.CatalogoModos
+import org.example.modos.FabricaModos
 import org.example.modos.LecturaModo
 import org.example.modos.ModoSimulacion
 import org.example.modos.Preparacion
-import kotlin.math.exp
-import kotlin.math.min
-import kotlin.math.max
 
 /**
  * Nucleo del simulador: reglas del tiro, fisica, camara y estado de la partida.
  * No sabe nada de JavaFX ni de como se dibuja; cualquier presentacion (ventana o
- * consola) maneja la partida solo con lo que hay expuesto aqui.
+ * consola) maneja la partida solo con lo que hay expuesto aqui. Todo su estado
+ * es privado y se consulta mediante metodos.
  */
 class Simulacion(
-    val ancho: Double = 1000.0,
-    val alto: Double = 650.0,
-    val entrada: InputHandler = DragInputHandler()
-) {
+    private val ancho: Double,
+    private val alto: Double,
+    private val entrada: InputHandler,
+    private val camara: Camara,
+    private val motor: PhysicsEngine,
+    private val creadorParedes: CreadorParedes,
+    private val transformador: TransformadorCoordenadas,
+    private val herramientaCreacionParedes: HerramientaParedes,
+    private val fabricaAmbiente: FabricaAmbiente,
+    private val fabricaMotorFisico: FabricaMotorFisico,
+    private val fabricaModos: FabricaModos
+) : InputListener {
+
+    /**
+     * Constructor de conveniencia que delega el cableado en el punto de
+     * composicion. La clase sigue recibiendo solo abstracciones.
+     */
+    constructor(
+        ancho: Double = 1000.0,
+        alto: Double = 650.0,
+        entrada: InputHandler? = null
+    ) : this(
+        ancho,
+        alto,
+        FabricaSimulacion.componentes(ancho, alto, entrada)
+    )
+
+    private constructor(
+        ancho: Double,
+        alto: Double,
+        componentes: ComponentesSimulacion
+    ) : this(
+        ancho,
+        alto,
+        componentes.entrada,
+        componentes.camara,
+        componentes.motor,
+        componentes.creadorParedes,
+        componentes.transformador,
+        componentes.herramienta,
+        componentes.fabricaAmbiente,
+        componentes.fabricaMotorFisico,
+        componentes.fabricaModos
+    )
 
     companion object {
         const val DT_FISICA = 1.0 / 60.0
@@ -41,7 +81,7 @@ class Simulacion(
         const val DURACION_ROTURA = 0.45
 
         /** Gravedades seleccionables, expresadas como multiplicador de la terrestre. */
-        val GRAVEDADES = linkedMapOf(
+        private val GRAVEDADES = linkedMapOf(
             "Sin gravedad" to 0.0,
             "Sol (28.0 g)" to 27.94,
             "Mercurio (0.38 g)" to 0.377,
@@ -55,107 +95,116 @@ class Simulacion(
             "Neptuno (1.14 g)" to 1.137
         )
 
-        private const val TIEMPO_MAXIMO_VUELO = 30.0
-        private const val VELOCIDAD_CAMARA = 6.0
-        private const val ANCHOR_CAMARA = 0.4
-        private const val ALTURA_CAMARA = 0.45
-        private const val PASOS_PREVISUALIZACION = 150
-        private const val ALTURA_APOYO_PELOTA = 2.0
+        /** Nombres de gravedad en el orden en el que los muestra el selector. */
+        fun gravedades(): List<String> = GRAVEDADES.keys.toList()
+
+        fun factorGravedadDe(nombre: String): Double? = GRAVEDADES[nombre]
+
+        fun factorGravedadPorDefecto(): Double = GRAVEDADES[GRAVEDAD_POR_DEFECTO] ?: 1.0
+
     }
 
-    var estado: EstadoSimulacion = EstadoSimulacion.PantallaInicio
-        private set
-    var pausado: Boolean = false
-        private set
-    var modoParedes: Boolean = false
-        private set
-    var modoSuperficies: Boolean = false
-        private set
-    var tipoPelota: TipoPelota = TipoPelota.POR_DEFECTO
-        private set
-    var tipoPared: TipoPared
-        get() = creadorParedes.tipoParedActual()
-        private set(value) {
-            creadorParedes.seleccionarTipoPared(value)
-        }
-    var factorGravedad: Double = GRAVEDADES[GRAVEDAD_POR_DEFECTO] ?: 1.0
-        private set
+    private var estado: EstadoSimulacion = EstadoSimulacion.PantallaInicio
+    private var pausado: Boolean = false
+    private var tipoPelota: TipoPelota = TipoPelota.porDefecto()
+    private var factorGravedad: Double = factorGravedadPorDefecto()
 
     /** Modo activo: el nucleo y el presentador trabajan contra esta abstraccion. */
-    var modo: ModoSimulacion = CatalogoModos.crear(CatalogoModos.POR_DEFECTO)
-        private set
+    private var modo: ModoSimulacion = fabricaModos.porDefecto()
 
-    var pelota: Pelota = Pelota(posicionInicial(), tipoPelota)
-        private set
-    var offsetCamara: Vector2D = Vector2D(0.0, 0.0)
-        private set
-    var tiempoVuelo: Double = 0.0
-        private set
-    var distanciaRecorrida: Double = 0.0
-        private set
-    var paredesDestruidas: Int = 0
-        private set
-
-    /** Pared que se esta dibujando ahora mismo, todavia no colocada. */
-    val paredTemporal: Pared? get() = herramientaCreacionParedes.paredTemporal
-
-    val paredes: List<Pared> get() = motor.obtenerParedes()
-    val superficiesLanzamientoLista: List<Pared> get() = superficiesLanzamiento.toList()
-    val efectos: List<EfectoRotura> get() = listaEfectos.toList()
-    val sueloY: Double get() = motor.sueloY
-
-    private var motor: MotorFisico = MotorFisico(crearTierra())
-    val creadorParedes: CreadorParedes = ConstructorParedes(motor, TipoPared.POR_DEFECTO)
-    private val transformador: TransformadorCoordenadas = TransformadorCoordenadasSimulacion(this)
-    private val herramientaCreacionParedes = HerramientaCreacionParedes(
-        transformador,
-        creadorParedes,
-        LONGITUD_MINIMA_PARED
-    )
+    private var pelota: Pelota = Pelota(posicionInicial(), tipoPelota)
     private var posicionOrigen: Vector2D = posicionInicial()
-    private val superficiesLanzamiento = mutableListOf<Pared>()
-    private val listaEfectos = mutableListOf<EfectoRotura>()
+
+    private val metricas = MetricasTiro()
+    private val efectos = RegistroEfectos()
+    private val superficies = SuperficiesLanzamiento()
+    private val controladorCamara = ControladorCamara(camara, ancho, alto)
+    private val edicion = GestorEdicion(herramientaCreacionParedes, motor, superficies)
+    private val previsualizador = PrevisualizadorTrayectoria(fabricaMotorFisico) { crearAmbiente() }
+    private val observadores = RegistroObservadoresFin()
+    private val integrador = IntegradorVuelo(motor, metricas, efectos)
 
     init {
-        tipoPared = TipoPared.POR_DEFECTO
+        seleccionarTipoPared(TipoPared.porDefecto())
     }
+
+    // ---- Consulta de solo lectura ---------------------------------------------------
+
+    fun ancho(): Double = ancho
+
+    fun alto(): Double = alto
+
+    fun entrada(): InputHandler = entrada
+
+    fun estado(): EstadoSimulacion = estado
+
+    fun pausado(): Boolean = pausado
+
+    fun modoParedes(): Boolean = edicion.modoParedes()
+
+    fun modoSuperficies(): Boolean = edicion.modoSuperficies()
+
+    fun tipoPelota(): TipoPelota = tipoPelota
+
+    fun tipoPared(): TipoPared = creadorParedes.tipoParedActual()
+
+    fun factorGravedad(): Double = factorGravedad
+
+    fun modo(): ModoSimulacion = modo
+
+    fun nombresModos(): List<String> = fabricaModos.nombres()
+
+    fun pelota(): Pelota = pelota
+
+    fun offsetCamara(): Vector2D = camara.offsetCamara()
+
+    fun tiempoVuelo(): Double = metricas.tiempoVuelo()
+
+    fun distanciaRecorrida(): Double = metricas.distanciaRecorrida()
+
+    fun alturaMaxima(): Double = metricas.alturaMaxima()
+
+    fun distanciaX(): Double = metricas.distanciaX()
+
+    fun paredesDestruidas(): Int = metricas.paredesDestruidas()
+
+    /** Pared que se esta dibujando ahora mismo, todavia no colocada. */
+    fun paredTemporal(): Pared? = edicion.paredTemporal()
+
+    fun paredes(): List<Pared> = motor.obtenerParedes()
+
+    fun superficiesLanzamientoLista(): List<Pared> = superficies.lista()
+
+    fun efectos(): List<EfectoRotura> = efectos.lista()
+
+    fun sueloY(): Double = motor.sueloY()
+
+    /** Gravedad activa en pixeles/segundo^2: la misma que empuja al proyectil. */
+    fun gravedad(): Vector2D = Vector2D(0.0, Tierra.GRAVEDAD_PIXELES * factorGravedad)
 
     // ---- Entrada que reenvia la presentacion ---------------------------------------
 
     private fun aMundo(punto: Vector2D): Vector2D = transformador.pantallaAMundo(punto)
 
-    fun pulsar(punto: Vector2D) {
-        if (dibujandoPared()) {
-            herramientaCreacionParedes.iniciar(punto)
+    override fun pulsar(punto: Vector2D) {
+        if (edicion.activaCon(estado)) {
+            edicion.iniciar(punto)
         } else {
             estado.alPulsar(this, punto)
         }
     }
 
-    fun arrastrar(punto: Vector2D) {
-        if (dibujandoPared()) {
-            herramientaCreacionParedes.actualizar(punto)
+    override fun arrastrar(punto: Vector2D) {
+        if (edicion.activaCon(estado)) {
+            edicion.actualizar(punto)
         } else {
             estado.alArrastrar(this, punto)
         }
     }
 
-    fun soltar(punto: Vector2D) {
-        if (dibujandoPared()) {
-            val antes = motor.obtenerParedes().size
-            herramientaCreacionParedes.finalizar(punto)
-            if (modoSuperficies) {
-                val despues = motor.obtenerParedes().size
-                if (despues == antes + 1) {
-                    val ultima = motor.obtenerParedes().lastOrNull()
-                    if (ultima != null) {
-                        motor.quitarPared(ultima)
-                        superficiesLanzamiento.add(ultima)
-                    }
-                }
-                modoSuperficies = false
-                herramientaCreacionParedes.estaActiva = false
-            }
+    override fun soltar(punto: Vector2D) {
+        if (edicion.activaCon(estado)) {
+            edicion.finalizar(punto)
         } else {
             estado.alSoltar(this, punto)
         }
@@ -166,81 +215,46 @@ class Simulacion(
     fun actualizar(deltaTime: Double) {
         if (pausado) return
 
-        actualizarCamara(deltaTime)
-        envejecerEfectos(deltaTime)
+        controladorCamara.actualizar(deltaTime, entrada, pelota)
+        efectos.avanzar(deltaTime)
         estado.alActualizar(this, deltaTime)
     }
 
     // ---- Comandos -------------------------------------------------------------------
 
     fun alternarPausa() {
-        if (estado is EstadoSimulacion.PantallaInicio) return
+        if (!estado.permitePausa()) return
 
         pausado = !pausado
         if (pausado) {
-            modoParedes = false
-            modoSuperficies = false
-            herramientaCreacionParedes.estaActiva = false
-            cancelarDibujoPared()
+            edicion.desactivar()
             entrada.reiniciar()
         }
     }
 
     fun alternarModoParedes() {
-        if (pausado || estado is EstadoSimulacion.EnVuelo) return
-
-        modoParedes = !modoParedes
-        modoSuperficies = false
-        herramientaCreacionParedes.estaActiva = modoParedes
-        if (!modoParedes) {
-            cancelarDibujoPared()
-            return
-        }
-        when (estado) {
-            is EstadoSimulacion.PantallaInicio -> cambiarA(EstadoSimulacion.Inactivo)
-            is EstadoSimulacion.Arrojando -> {
-                entrada.reiniciar()
-                cambiarA(EstadoSimulacion.Inactivo)
-            }
-            is EstadoSimulacion.EnSuelo -> reiniciar()
-            else -> { }
-        }
+        if (pausado || !estado.permiteEditar()) return
+        if (edicion.alternarParedes()) estado.alActivarHerramienta(this)
     }
 
     fun alternarModoSuperficies() {
-        if (pausado || estado is EstadoSimulacion.EnVuelo) return
-
-        modoSuperficies = !modoSuperficies
-        modoParedes = false
-        herramientaCreacionParedes.estaActiva = modoSuperficies
-        if (!modoSuperficies) {
-            cancelarDibujoPared()
-            return
-        }
-        when (estado) {
-            is EstadoSimulacion.PantallaInicio -> cambiarA(EstadoSimulacion.Inactivo)
-            is EstadoSimulacion.Arrojando -> {
-                entrada.reiniciar()
-                cambiarA(EstadoSimulacion.Inactivo)
-            }
-            is EstadoSimulacion.EnSuelo -> reiniciar()
-            else -> { }
-        }
+        if (pausado || !estado.permiteEditar()) return
+        if (edicion.alternarSuperficies()) estado.alActivarHerramienta(this)
     }
 
     fun agregarSuperficieLanzamiento(pared: Pared) {
-        if (estado is EstadoSimulacion.EnVuelo) return
-        superficiesLanzamiento.add(pared)
+        if (!estado.permiteEditar()) return
+        superficies.agregar(pared)
     }
 
     fun limpiarSuperficiesLanzamiento() {
-        if (estado is EstadoSimulacion.EnVuelo) return
-        superficiesLanzamiento.clear()
-        if (estado !is EstadoSimulacion.EnVuelo) reiniciar()
+        if (!estado.permiteEditar()) return
+        superficies.limpiar()
+        reiniciar()
     }
 
     fun seleccionarPelota(tipo: TipoPelota) {
-        if (estado is EstadoSimulacion.EnVuelo) return
+        if (!estado.permiteEditar()) return
 
         tipoPelota = tipo
         pelota = Pelota(posicionOrigen, tipoPelota)
@@ -249,10 +263,10 @@ class Simulacion(
     }
 
     fun seleccionarTipoPared(tipo: TipoPared) {
-        if (estado is EstadoSimulacion.EnVuelo) return
+        if (!estado.permiteEditar()) return
 
         creadorParedes.seleccionarTipoPared(tipo)
-        cancelarDibujoPared()
+        edicion.cancelarDibujo()
     }
 
     fun aplicarGravedad(nombre: String?) {
@@ -260,112 +274,109 @@ class Simulacion(
         if (factor == factorGravedad) return
 
         factorGravedad = factor
-        motor = MotorFisico(crearTierra(), motor.obtenerParedes())
-        if (estado !is EstadoSimulacion.EnVuelo) reiniciar()
+        motor.cambiarAmbiente(crearAmbiente())
+        if (!estado.estaEnVuelo()) reiniciar()
     }
 
     /** Cambia el modo activo y deja la pelota lista para preparar otro tiro. */
     fun seleccionarModo(nombre: String?) {
-        val nuevo = CatalogoModos.crear(nombre)
-        if (nuevo.nombre == modo.nombre) return
+        val nuevo = fabricaModos.crear(nombre)
+        if (nuevo.nombre() == modo.nombre()) return
 
         modo = nuevo
-        if (estado !is EstadoSimulacion.EnVuelo) reiniciar()
+        if (!estado.estaEnVuelo()) reiniciar()
     }
 
     fun agregarPared(pared: Pared) {
-        if (estado !is EstadoSimulacion.EnVuelo) motor.agregarPared(pared)
+        if (!estado.estaEnVuelo()) motor.agregarPared(pared)
     }
 
     fun limpiarParedes() {
-        if (estado is EstadoSimulacion.EnVuelo) return
+        if (!estado.permiteEditar()) return
         motor.limpiarParedes()
     }
 
     /** Al abrir un menu de edicion se abandona el apuntado y el tiro ya cerrado. */
     fun abrirEdicion() {
         pausado = false
-        modoParedes = false
-        modoSuperficies = false
-        herramientaCreacionParedes.estaActiva = false
-        cancelarDibujoPared()
+        edicion.desactivar()
         entrada.reiniciar()
-        when (estado) {
-            is EstadoSimulacion.EnSuelo -> reiniciar()
-            is EstadoSimulacion.Arrojando -> cambiarA(EstadoSimulacion.Inactivo)
-            else -> { }
-        }
+        estado.alAbrirEdicion(this)
     }
 
     /** Reinicia el tiro conservando el escenario: paredes, gravedad y tipo de pelota. */
     fun reiniciar() {
         apoyarPelotaEnElSueloOSuperficie()
-        pelota.posicion = posicionOrigen
-        pelota.velocidad = Vector2D(0.0, 0.0)
-        pelota.angulo = 0.0
-        pelota.velocidadAngular = 0.0
+        pelota.fijarPosicion(posicionOrigen)
+        pelota.fijarVelocidad(Vector2D(0.0, 0.0))
+        pelota.fijarAngulo(0.0)
+        pelota.fijarVelocidadAngular(0.0)
         entrada.reiniciar()
-        tiempoVuelo = 0.0
-        distanciaRecorrida = 0.0
+        metricas.reiniciarTiro()
         cambiarA(EstadoSimulacion.Inactivo)
     }
 
     /** Vuelve al principio de la partida: camara al origen y sin roturas. */
     fun nuevaPartida() {
         pausado = false
-        modoParedes = false
-        modoSuperficies = false
-        herramientaCreacionParedes.estaActiva = false
-        cancelarDibujoPared()
+        edicion.desactivar()
         reiniciar()
-        offsetCamara = Vector2D(0.0, 0.0)
-        paredesDestruidas = 0
-        listaEfectos.clear()
-        superficiesLanzamiento.clear()
+        controladorCamara.reiniciar()
+        metricas.reiniciarPartida()
+        efectos.limpiar()
+        superficies.limpiar()
     }
+
+    /** Regresa a la pantalla de bienvenida, como si se abriese el juego de nuevo. */
+    fun volverAlMenu() {
+        nuevaPartida()
+        cambiarA(EstadoSimulacion.PantallaInicio)
+    }
+
+    // ---- Fin de tiro (patron Observer) ---------------------------------------------
+
+    /** Registra a quien quiera enterarse de que el tiro ha terminado. */
+    fun agregarObservadorFinSimulacion(observador: ObservadorFinSimulacion) {
+        observadores.agregar(observador)
+    }
+
+    fun quitarObservadorFinSimulacion(observador: ObservadorFinSimulacion) {
+        observadores.quitar(observador)
+    }
+
+    /** Instantanea con los resultados del tiro terminado. */
+    fun resultadoFinal(): ResultadoSimulacion = metricas.resultado()
 
     // ---- Datos para el HUD ----------------------------------------------------------
 
     /** Si la pelota actual tiene material que romper en la pared seleccionada. */
-    fun rompeParedSeleccionada(): Boolean = tipoPared.registraDanio(tipoPelota)
+    fun rompeParedSeleccionada(): Boolean = tipoPared().registraDanio(tipoPelota)
 
-    fun etiquetaColision(): String = pelota.forma.tipo.etiqueta
+    fun etiquetaColision(): String = pelota.forma().tipo().etiqueta()
 
     /** Instantanea del mundo que el modo activo traduce a texto para el panel. */
     fun lecturaModo(): LecturaModo = LecturaModo(
-        posicion = pelota.posicion,
-        velocidad = pelota.velocidad,
-        distancia = distanciaRecorrida,
+        posicion = pelota.posicion(),
+        velocidad = pelota.velocidad(),
+        distancia = metricas.distanciaRecorrida(),
         altura = alturaActual(),
-        tiempo = tiempoVuelo,
-        angulo = entrada.anguloLanzamiento,
-        fuerza = entrada.fuerzaLanzamiento
+        tiempo = metricas.tiempoVuelo(),
+        angulo = entrada.anguloLanzamiento(),
+        fuerza = entrada.fuerzaLanzamiento()
     )
 
     /** Simula el tiro que se esta apuntando para dibujar su trayectoria. */
     fun previsualizarTrayectoria(): List<Vector2D> {
-        if (estado !is EstadoSimulacion.Arrojando) return emptyList()
+        if (!estado.permitePrevisualizar()) return emptyList()
 
-        val condicion = modo.condicionDePrevia(entrada, pelota.posicion) ?: return emptyList()
-        val simulada = Pelota(condicion.posicion, tipoPelota)
-        simulada.velocidad = condicion.velocidad
-
-        // Copias: previsualizar nunca debe gastar el danio de las paredes de verdad.
-        val motorSim = MotorFisico(crearTierra(), motor.obtenerParedes().map { it.copy() })
-        val puntos = mutableListOf(Vector2D(simulada.posicion.x, simulada.posicion.y))
-        repeat(PASOS_PREVISUALIZACION) {
-            motorSim.simularPaso(simulada, DT_FISICA)
-            puntos.add(Vector2D(simulada.posicion.x, simulada.posicion.y))
-            if (simulada.posicion.y >= motorSim.sueloY - simulada.radio) return puntos
-        }
-        return puntos
+        val condicion = modo.condicionDePrevia(entrada, pelota.posicion()) ?: return emptyList()
+        return previsualizador.previsualizar(condicion, tipoPelota, motor.obtenerParedes())
     }
 
     // ---- Mecanica interna, llamada desde los estados --------------------------------
 
     internal fun cambiarA(nuevo: EstadoSimulacion) {
         estado = nuevo
-        nuevo.alEntrar(this)
     }
 
     internal fun colocarPelotaParaLanzar(punto: Vector2D) {
@@ -380,16 +391,16 @@ class Simulacion(
     internal fun iniciarApuntado(punto: Vector2D) = entrada.iniciarArrastre(punto)
 
     internal fun continuarApuntado(punto: Vector2D) {
-        if (!entrada.estaArrastrando) return
+        if (!entrada.estaArrastrando()) return
 
         entrada.actualizarArrastre(punto)
         val nuevaPosicion = modo.arrastrar(preparacionPara(aMundo(punto))) ?: return
         posicionOrigen = nuevaPosicion
-        pelota.posicion = nuevaPosicion
+        pelota.fijarPosicion(nuevaPosicion)
     }
 
     internal fun lanzarPelota() {
-        if (!entrada.estaArrastrando) return
+        if (!entrada.estaArrastrando()) return
 
         val velocidad = modo.velocidadDeSuelta(entrada)
         if (velocidad == null) {
@@ -397,70 +408,41 @@ class Simulacion(
             return
         }
 
-        pelota.velocidad = velocidad
-        pelota.posicion = posicionOrigen
+        pelota.fijarVelocidad(velocidad)
+        pelota.fijarPosicion(posicionOrigen)
 
-        tiempoVuelo = 0.0
-        distanciaRecorrida = 0.0
+        metricas.reiniciarTiro()
+        metricas.registrarAltura(alturaActual())
         cambiarA(EstadoSimulacion.EnVuelo)
         entrada.reiniciar()
     }
 
     internal fun avanzarVuelo(deltaTime: Double) {
-        val pasos = (deltaTime / DT_FISICA).toInt().coerceAtLeast(1)
-        repeat(pasos) {
-            val antes = pelota.posicion
-            registrarRoturas(motor.simularPaso(pelota, DT_FISICA))
-            distanciaRecorrida += pelota.posicion.distanciaA(antes)
-        }
-        tiempoVuelo += deltaTime
+        val terminado = integrador.avanzar(pelota, deltaTime, posicionOrigen) { alturaActual() }
+        if (terminado) terminarVuelo()
+    }
 
-        if (motor.estaEnReposo(pelota) || tiempoVuelo > TIEMPO_MAXIMO_VUELO) {
-            modoParedes = false
-            herramientaCreacionParedes.estaActiva = false
-            cancelarDibujoPared()
-            entrada.reiniciar()
-            cambiarA(EstadoSimulacion.EnSuelo)
-        }
+    /** Cierra el vuelo: deja la pelota en reposo y avisa a los observadores. */
+    private fun terminarVuelo() {
+        edicion.desactivar()
+        entrada.reiniciar()
+        cambiarA(EstadoSimulacion.EnSuelo)
+        observadores.notificar(resultadoFinal())
     }
 
     // ---- Utilidades -----------------------------------------------------------------
 
-    private fun dibujandoPared(): Boolean =
-        (modoParedes || modoSuperficies) && estado !is EstadoSimulacion.EnVuelo
-
-    private fun ySuperficieBajo(x: Double, radio: Double): Double? {
-        var mejor: Double? = null
-        for (s in superficiesLanzamiento) {
-            val x1 = minOf(s.inicio.x, s.fin.x)
-            val x2 = maxOf(s.inicio.x, s.fin.x)
-            if (x < x1 - radio * 0.8) continue
-            if (x > x2 + radio * 0.8) continue
-            val ySup = minOf(s.inicio.y, s.fin.y)
-            mejor = when {
-                mejor == null -> ySup
-                ySup < mejor -> ySup
-                else -> mejor
-            }
-        }
-        return mejor
-    }
-
-    /** y donde la pelota apoya: suelo o superficie de lanzamiento bajo el punto. */
-    private fun yDeApoyo(x: Double, radio: Double): Double =
-        (ySuperficieBajo(x, radio) ?: sueloY) - radio - ALTURA_APOYO_PELOTA
-
     /** Vista de solo lectura del mundo que el modo activo necesita para decidir. */
     private fun preparacionPara(puntoMundo: Vector2D): Preparacion {
-        val radio = pelota.radio
-        val minY = maxOf(motor.techoY, offsetCamara.y) + radio
-        val maxY = maxOf(minY, minOf(motor.sueloY, offsetCamara.y + alto) - radio)
+        val radio = pelota.radio()
+        val minY = maxOf(motor.techoY(), offsetCamara().y()) + radio
+        val maxY = maxOf(minY, minOf(motor.sueloY(), offsetCamara().y() + alto) - radio)
 
         return Preparacion(
             punto = puntoMundo,
-            origen = pelota.posicion,
-            apoyoY = yDeApoyo(puntoMundo.x, radio),
-            sueloY = sueloY,
+            origen = pelota.posicion(),
+            apoyoY = superficies.yDeApoyo(puntoMundo.x(), radio, sueloY()),
+            sueloY = sueloY(),
             minY = minY,
             maxY = maxY
         )
@@ -468,67 +450,15 @@ class Simulacion(
 
     /** Altura sobre el suelo: cero cuando la pelota apoya. */
     private fun alturaActual(): Double =
-        (sueloY - pelota.radio - ALTURA_APOYO_PELOTA - pelota.posicion.y).coerceAtLeast(0.0)
+        (sueloY() - pelota.radio() - SuperficiesLanzamiento.ALTURA_APOYO_PELOTA - pelota.posicion().y()).coerceAtLeast(0.0)
 
     private fun apoyarPelotaEnElSueloOSuperficie() {
-        posicionOrigen = Vector2D(posicionOrigen.x, yDeApoyo(posicionOrigen.x, pelota.radio))
-        pelota.posicion = posicionOrigen
+        val y = superficies.yDeApoyo(posicionOrigen.x(), pelota.radio(), sueloY())
+        posicionOrigen = Vector2D(posicionOrigen.x(), y)
+        pelota.fijarPosicion(posicionOrigen)
     }
 
-    private fun apoyarPelotaEnElSuelo() {
-        posicionOrigen = Vector2D(posicionOrigen.x, sueloY - pelota.radio - ALTURA_APOYO_PELOTA)
-        pelota.posicion = posicionOrigen
-    }
-
-    private fun finalizarDibujoPared(enDibujo: Pared) {
-        herramientaCreacionParedes.finalizar()
-    }
-
-    private fun cancelarDibujoPared() {
-        herramientaCreacionParedes.cancelar()
-    }
-
-    private fun registrarRoturas(paredesRotas: List<Pared>) {
-        for (pared in paredesRotas) {
-            paredesDestruidas++
-            listaEfectos.add(EfectoRotura(pared, DURACION_ROTURA))
-        }
-    }
-
-    private fun envejecerEfectos(deltaTime: Double) {
-        val iterator = listaEfectos.iterator()
-        while (iterator.hasNext()) {
-            val efecto = iterator.next()
-            efecto.vida -= deltaTime
-            if (efecto.vida <= 0.0) iterator.remove()
-        }
-    }
-
-    private fun actualizarCamara(deltaTime: Double) {
-        // Mientras se arrastra, el mapa quieto es lo que mantiene sincronizados
-        // el puntero y la pelota (decisivo en caida libre, que la mueve).
-        if (entrada.estaArrastrando) return
-
-        val objetivoX = pelota.posicion.x - ancho * ANCHOR_CAMARA
-        val objetivoY = pelota.posicion.y - alto * ALTURA_CAMARA
-        val factor = 1.0 - exp(-VELOCIDAD_CAMARA * deltaTime)
-        offsetCamara = Vector2D(
-            offsetCamara.x + (objetivoX - offsetCamara.x) * factor,
-            offsetCamara.y + (objetivoY - offsetCamara.y) * factor
-        )
-    }
-
-    private fun crearTierra() =
-        Tierra(ancho, alto, Vector2D(0.0, Tierra.GRAVEDAD_PIXELES * factorGravedad))
+    private fun crearAmbiente(): Ambiente = fabricaAmbiente.crear(ancho, alto, gravedad())
 
     private fun posicionInicial() = Vector2D(50.0, alto - 60.0)
-}
-
-/** Estela que deja una pared al romperse y que se apaga sola. */
-class EfectoRotura(
-    val pared: Pared,
-    var vida: Double
-) {
-    val proporcion: Double
-        get() = (vida / Simulacion.DURACION_ROTURA).coerceIn(0.0, 1.0)
 }

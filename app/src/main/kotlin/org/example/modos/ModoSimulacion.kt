@@ -1,7 +1,9 @@
 package org.example.modos
 
 import org.example.entrada.InputHandler
+import org.example.modelo.Pelota
 import org.example.modelo.Vector2D
+import java.util.Locale
 
 /**
  * Contrato de un modo de simulacion. El nucleo ([org.example.simulacion.Simulacion])
@@ -12,13 +14,13 @@ import org.example.modelo.Vector2D
 interface ModoSimulacion {
 
     /** Nombre que aparece en el selector de la interfaz. */
-    val nombre: String
+    fun nombre(): String
 
     /** Texto de ayuda del panel lateral para este modo. */
-    val ayuda: String
+    fun ayuda(): String
 
     /** Si la preparacion dibuja el vector de tiro (flecha, angulo y fuerza). */
-    val dibujaVectorDeTiro: Boolean
+    fun dibujaVectorDeTiro(): Boolean
 
     /** Posicion donde se coloca la pelota al pulsar; null si el punto no vale. */
     fun colocar(preparacion: Preparacion): Vector2D?
@@ -40,41 +42,95 @@ interface ModoSimulacion {
     fun lineasDeApuntado(lectura: LecturaModo): List<String>
     fun lineasDeVuelo(lectura: LecturaModo): List<String>
     fun lineasDeReposo(lectura: LecturaModo): List<String>
+
+    companion object {
+        /** Formato estable con punto decimal, independiente del idioma del sistema. */
+        fun formatear(valor: Double, cifras: Int): String =
+            String.format(Locale.US, "%.${cifras}f", valor)
+    }
 }
 
 /**
  * Datos de solo lectura del mundo que un modo necesita para ubicar la pelota.
- * La calcula el nucleo, de modo que el modo no depende de la simulacion concreta.
+ * Encapsula las comprobaciones de altura que antes hacian los modos.
  */
-data class Preparacion(
-    /** Punto pulsado o arrastrado, ya convertido a coordenadas de mundo. */
-    val punto: Vector2D,
-    /** Posicion actual de la pelota. */
-    val origen: Vector2D,
-    /** y de reposo bajo el punto: suelo o superficie de lanzamiento. */
-    val apoyoY: Double,
-    /** y del suelo del mundo. */
-    val sueloY: Double,
-    /** y minima visible en la que la pelota puede estar. */
-    val minY: Double,
-    /** y maxima visible en la que la pelota puede estar. */
-    val maxY: Double
-)
+class Preparacion(
+    private val punto: Vector2D,
+    private val origen: Vector2D,
+    private val apoyoY: Double,
+    private val sueloY: Double,
+    private val minY: Double,
+    private val maxY: Double
+) {
+    fun punto(): Vector2D = punto
 
-/** Instantanea del mundo traducida a texto por el modo activo. */
-data class LecturaModo(
-    val posicion: Vector2D,
-    val velocidad: Vector2D,
-    val distancia: Double,
+    fun origen(): Vector2D = origen
+
+    fun apoyoY(): Double = apoyoY
+
+    fun sueloY(): Double = sueloY
+
+    fun minY(): Double = minY
+
+    fun maxY(): Double = maxY
+
+    /** Altura del puntero limitada a la franja visible del mundo. */
+    fun alturaPermitida(): Double = punto.y().coerceIn(minY, maxY)
+
+    /** Cierto si el punto esta lo bastante cerca del suelo para colocar la pelota. */
+    fun sobreElSuelo(margen: Double): Boolean = punto.y() >= sueloY - margen
+}
+
+/**
+ * Instantanea del mundo traducida a texto por el modo activo. Ademas de exponer
+ * los valores, ofrece las magnitudes derivadas que necesitan los paneles.
+ */
+class LecturaModo(
+    private val posicion: Vector2D,
+    private val velocidad: Vector2D,
+    private val distancia: Double,
     /** Altura sobre el suelo: cero cuando la pelota apoya. */
-    val altura: Double,
-    val tiempo: Double,
-    val angulo: Double,
-    val fuerza: Double
-)
+    private val altura: Double,
+    private val tiempo: Double,
+    private val angulo: Double,
+    private val fuerza: Double
+) {
+    fun posicion(): Vector2D = posicion
+
+    fun velocidad(): Vector2D = velocidad
+
+    fun distancia(): Double = distancia
+
+    fun altura(): Double = altura
+
+    fun tiempo(): Double = tiempo
+
+    fun angulo(): Double = angulo
+
+    fun fuerza(): Double = fuerza
+
+    fun rapidez(): Double = velocidad.magnitud()
+
+    fun alturaTexto(cifras: Int = 1): String = ModoSimulacion.formatear(altura, cifras)
+
+    fun velocidadYTexto(cifras: Int = 1): String =
+        ModoSimulacion.formatear(velocidad.y(), cifras)
+
+    fun tiempoTexto(cifras: Int = 2): String = ModoSimulacion.formatear(tiempo, cifras)
+}
 
 /** Punto de partida de la trayectoria dibujada mientras se prepara la suelta. */
-data class CondicionPrevia(
-    val posicion: Vector2D,
-    val velocidad: Vector2D
-)
+class CondicionPrevia(
+    private val posicion: Vector2D,
+    private val velocidad: Vector2D
+) {
+    fun posicion(): Vector2D = posicion
+
+    fun velocidad(): Vector2D = velocidad
+
+    /** Coloca la pelota de prueba con esta condicion inicial. */
+    fun aplicarA(pelota: Pelota) {
+        pelota.fijarPosicion(posicion)
+        pelota.fijarVelocidad(velocidad)
+    }
+}

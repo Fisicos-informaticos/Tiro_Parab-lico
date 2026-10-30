@@ -6,40 +6,69 @@ import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.sin
 
-enum class TipoColision(val etiqueta: String) {
+enum class TipoColision(private val etiqueta: String) {
     CIRCULO("Circulo"),
     CAPSULA("Capsula"),
     CAJA("Caja"),
-    POLIGONO("Poligono")
+    POLIGONO("Poligono");
+
+    fun etiqueta(): String = etiqueta
 }
 
 /**
- * Resultado de una colision.
- *
- * @param profundidad cuanto hay que separar el cuerpo.
- * @param normal direccion (en coordenadas del mundo) hacia la que hay que mover el
- * centro del cuerpo para salir del obstaculo.
+ * Resultado de una colision. Ademas de consultarse, sabe como separar al cuerpo
+ * que la ha sufrido de la superficie con la que ha chocado.
  */
-data class Penetracion(val profundidad: Double, val normal: Vector2D)
+class Penetracion(
+    private val profundidad: Double,
+    private val normal: Vector2D
+) {
+    fun profundidad(): Double = profundidad
+
+    fun normal(): Vector2D = normal
+
+    /** Devuelve la posicion corregida del cuerpo para sacarlo de la superficie. */
+    fun separarDesde(posicion: Vector2D, correccion: Double): Vector2D =
+        posicion + normal * (profundidad + correccion)
+
+    override fun equals(other: Any?): Boolean =
+        other is Penetracion && profundidad == other.profundidad && normal == other.normal
+
+    override fun hashCode(): Int = 31 * profundidad.hashCode() + normal.hashCode()
+
+    override fun toString(): String = "Penetracion(profundidad=$profundidad, normal=$normal)"
+}
 
 /**
  * Forma de colision de un proyectil, expresada en su propio sistema de coordenadas
  * (origen en el centro del cuerpo). El mundo aplica la rotacion y la traslacion.
  */
 interface FormaColision {
-    val tipo: TipoColision
+    fun tipo(): TipoColision
 
     /** Radio de la circunferencia que envuelve a la forma. */
-    val radioEnvoltura: Double
+    fun radioEnvoltura(): Double
 
     /** Grosor de la forma: radio del circulo o del tubo de la capsula. */
-    val radio: Double
+    fun radio(): Double
+
+    /** Semilongitud de una capsula; cero en el resto de formas. */
+    fun medioLargo(): Double = 0.0
+
+    /** Semialtura de una caja; cero en el resto de formas. */
+    fun medioAlto(): Double = 0.0
+
+    /** Vertices propios de un poligono; vacio en el resto de formas. */
+    fun vertices(): List<Vector2D> = emptyList()
+
+    /** Si la forma admite el brillo decorativo de las pelotas redondeadas. */
+    fun dibujaBrillo(): Boolean = true
 
     /** Eje mayor de la forma en coordenadas locales, usado para orientarse al volar. */
-    val ejePrincipal: Vector2D get() = Vector2D(1.0, 0.0)
+    fun ejePrincipal(): Vector2D = Vector2D(1.0, 0.0)
 
     /** Las formas no simetricas se orientan solas por efecto aerodinamico. */
-    val alineable: Boolean get() = false
+    fun alineable(): Boolean = false
 
     /**
      * Distancia maxima, medida desde el centro, hasta la que la forma llega en la
@@ -58,9 +87,9 @@ interface FormaColision {
         angulo: Double,
         normalMundo: Vector2D
     ): Penetracion? {
-        val haciaPlano = Transformaciones.aLocal(-normalMundo, angulo).normalizado
+        val haciaPlano = Transformaciones.aLocal(-normalMundo, angulo).normalizado()
         val delta = centro - puntoMundo
-        val separacion = delta.x * normalMundo.x + delta.y * normalMundo.y
+        val separacion = delta.x() * normalMundo.x() + delta.y() * normalMundo.y()
         val profundidad = soporte(haciaPlano) - separacion
         return if (profundidad > 0.0) Penetracion(profundidad, normalMundo) else null
     }
@@ -73,13 +102,13 @@ object Transformaciones {
     fun aLocal(punto: Vector2D, angulo: Double): Vector2D {
         val c = cos(-angulo)
         val s = sin(-angulo)
-        return Vector2D(punto.x * c - punto.y * s, punto.x * s + punto.y * c)
+        return Vector2D(punto.x() * c - punto.y() * s, punto.x() * s + punto.y() * c)
     }
 
     fun aMundo(punto: Vector2D, angulo: Double): Vector2D {
         val c = cos(angulo)
         val s = sin(angulo)
-        return Vector2D(punto.x * c - punto.y * s, punto.x * s + punto.y * c)
+        return Vector2D(punto.x() * c - punto.y() * s, punto.x() * s + punto.y() * c)
     }
 
     /** Diferencia angular mas corta entre dos angulos, en el rango (-PI, PI]. */
@@ -90,5 +119,5 @@ object Transformaciones {
         return d
     }
 
-    fun anguloDe(direccion: Vector2D): Double = atan2(direccion.y, direccion.x)
+    fun anguloDe(direccion: Vector2D): Double = atan2(direccion.y(), direccion.x())
 }

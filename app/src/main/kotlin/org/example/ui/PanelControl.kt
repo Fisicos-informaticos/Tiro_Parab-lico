@@ -45,49 +45,74 @@ class PanelControl(
     private val etiquetaGravedad = Label()
     private val etiquetaAyuda = Label()
 
-    /** Contenedor estilizado que se inserta en la escena. */
-    val raiz: VBox = VBox(16.0)
+    private val raiz: VBox = VBox(16.0)
 
     init {
         configurar(modos, modoInicial, gravedades, gravedadInicial)
     }
 
+    /** Contenedor estilizado que se inserta en la escena. */
+    fun raiz(): VBox = raiz
+
     /** Vuelca un estado de la partida sobre los textos y bloqueos del panel. */
     fun refrescar(estado: EstadoPanel) {
-        botonAnadirPared.text = if (estado.modoParedes) "Cancelar pared" else "Añadir pared"
-        botonAnadirPared.isDisable = estado.bloqueado
+        actualizarControlesPared(estado)
+        actualizarControlesPelota(estado)
+        actualizarControlesSimulacion(estado)
+        actualizarCombos(estado)
+
+        etiquetaPelota.text = "Actual: ${estado.nombrePelota()}"
+        etiquetaGravedad.text = "Gravedad actual: ${estado.gravedadTexto()} g"
+        etiquetaAyuda.text = estado.ayudaModo()
+    }
+
+    private fun actualizarControlesPared(estado: EstadoPanel) {
+        botonAnadirPared.text = if (estado.modoParedes()) "Cancelar pared" else "Añadir pared"
+        botonAnadirPared.isDisable = estado.bloqueado()
 
         botonTipoPared.text =
-            if (estado.menuParedesAbierto) "Cerrar paredes" else "Pared: ${estado.nombreTipoPared}"
-        botonTipoPared.isDisable = estado.bloqueado
-
-        botonLimpiarParedes.isDisable = estado.bloqueado || !estado.hayParedes
+            if (estado.menuParedesAbierto()) "Cerrar paredes" else "Pared: ${estado.nombreTipoPared()}"
+        botonTipoPared.isDisable = estado.bloqueado()
+        botonLimpiarParedes.isDisable = estado.bloqueado() || !estado.hayParedes()
 
         botonSuperficie.text =
-            if (estado.modoSuperficies) "Cancelar superficie" else "Superficie de lanzamiento"
-        botonSuperficie.isDisable = estado.bloqueado
+            if (estado.modoSuperficies()) "Cancelar superficie" else "Superficie de lanzamiento"
+        botonSuperficie.isDisable = estado.bloqueado()
+        botonLimpiarSuperficies.isDisable = estado.bloqueado() || !estado.haySuperficies()
+    }
 
-        botonLimpiarSuperficies.isDisable = estado.bloqueado || !estado.haySuperficies
+    private fun actualizarControlesPelota(estado: EstadoPanel) {
+        botonPelotas.text = if (estado.menuPelotasAbierto()) "Cerrar pelotas" else "Pelotas"
+        botonPelotas.isDisable = estado.bloqueado()
+    }
 
-        botonPelotas.text = if (estado.menuPelotasAbierto) "Cerrar pelotas" else "Pelotas"
-        botonPelotas.isDisable = estado.bloqueado
+    private fun actualizarControlesSimulacion(estado: EstadoPanel) {
+        botonPausa.text = if (estado.pausado()) "Continuar" else "Pausa"
+        botonPausa.isDisable = estado.enPantallaInicio()
+        botonReiniciar.isDisable = estado.enVuelo() || estado.enPantallaInicio()
+    }
 
-        botonPausa.text = if (estado.pausado) "Continuar" else "Pausa"
-        botonPausa.isDisable = estado.enPantallaInicio
-        botonReiniciar.isDisable = estado.enVuelo || estado.enPantallaInicio
-
-        etiquetaPelota.text = "Actual: ${estado.nombrePelota}"
-        etiquetaGravedad.text = "Gravedad actual: ${"%.2f".format(estado.factorGravedad)} g"
-
-        comboModo.isDisable = estado.bloqueado
-        if (comboModo.value != estado.nombreModo) comboModo.value = estado.nombreModo
-        comboGravedad.isDisable = estado.interaccionBloqueada
-        etiquetaAyuda.text = estado.ayudaModo
+    private fun actualizarCombos(estado: EstadoPanel) {
+        comboModo.isDisable = estado.bloqueado()
+        if (comboModo.value != estado.nombreModo()) comboModo.value = estado.nombreModo()
+        comboGravedad.isDisable = estado.interaccionBloqueada()
     }
 
     // ---- Construccion ---------------------------------------------------------------
 
     private fun configurar(
+        modos: List<String>,
+        modoInicial: String,
+        gravedades: List<String>,
+        gravedadInicial: String
+    ) {
+        configurarCombos(modos, modoInicial, gravedades, gravedadInicial)
+        configurarBotones()
+        configurarEtiquetas()
+        construirRaiz()
+    }
+
+    private fun configurarCombos(
         modos: List<String>,
         modoInicial: String,
         gravedades: List<String>,
@@ -107,7 +132,9 @@ class PanelControl(
             maxWidth = Double.MAX_VALUE
             setOnAction { escucha.aplicarGravedad(value) }
         }
+    }
 
+    private fun configurarBotones() {
         prepararBoton(botonPausa) { escucha.alternarPausa() }
         prepararBoton(botonReiniciar) { escucha.reiniciar() }
         prepararBoton(botonPelotas) { escucha.alternarMenuPelotas() }
@@ -116,7 +143,9 @@ class PanelControl(
         prepararBoton(botonLimpiarParedes) { escucha.limpiarParedes() }
         prepararBoton(botonSuperficie) { escucha.alternarModoSuperficies() }
         prepararBoton(botonLimpiarSuperficies) { escucha.limpiarSuperficiesLanzamiento() }
+    }
 
+    private fun configurarEtiquetas() {
         etiquetaPelota.style = EstilosUI.DETALLE
         etiquetaGravedad.style = EstilosUI.DETALLE
         etiquetaAyuda.apply {
@@ -124,7 +153,9 @@ class PanelControl(
             isWrapText = true
             maxWidth = ANCHO_PANEL
         }
+    }
 
+    private fun construirRaiz() {
         raiz.apply {
             style = EstilosUI.PANEL_CONTENEDOR
             prefWidth = ANCHO_PANEL
@@ -158,7 +189,7 @@ class PanelControl(
     }
 
     private fun seccion(titulo: String, contenido: () -> List<Node>): VBox =
-        SeccionControl(titulo, contenido()).raiz
+        SeccionControl(titulo, contenido()).raiz()
 
     private fun campo(titulo: String, control: Node): VBox =
         VBox(4.0).apply {
@@ -166,13 +197,11 @@ class PanelControl(
             children.addAll(etiqueta, control)
         }
 
-    private fun fila(vararg nodos: Node): HBox =
+    private fun fila(vararg nodos: Region): HBox =
         HBox(8.0).apply {
             for (nodo in nodos) {
-                if (nodo is Region) {
-                    nodo.maxWidth = Double.MAX_VALUE
-                    HBox.setHgrow(nodo, Priority.ALWAYS)
-                }
+                nodo.maxWidth = Double.MAX_VALUE
+                HBox.setHgrow(nodo, Priority.ALWAYS)
                 children.add(nodo)
             }
         }
