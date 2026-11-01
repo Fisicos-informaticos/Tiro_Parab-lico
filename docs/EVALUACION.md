@@ -3,7 +3,7 @@
 
 > Documento **generado automáticamente** por la cátedra de Programación II (RepoSense + análisis de calidad POO/SOLID). **No editar a mano**: se regenera en cada evaluación.
 > Rama evaluada: `main`. Análisis **heurístico** (regex + métricas): es una criba para orientar la revisión, **no una nota**.
-> Generado: 2026-10-30.
+> Generado: 2026-11-01.
 
 ## 1. Veredicto
 
@@ -13,7 +13,7 @@
 | Código (LOC) | 3,963 |
 | Archivos de código | 49 |
 | Clases (bien usadas) | 67 (18 OK) |
-| Código dentro de clases (%POO) | 90% |
+| Código dentro de clases (%POO) | 98% |
 | Funciones fuera de clases | 0 |
 | Duplicación lógica | 1.3% |
 | Señales S/O/L/I/D | 26/7/2/0/12 |
@@ -27,13 +27,13 @@ Criterios de `CRITERIOS-CALIDAD.md`. **Aprobar** se juega con el perfil `estanda
 | Semáforo | Resultado |
 |---|---|
 | Aprobar (`estandar`) | **no cumple** — 3/4 |
-| Destacar (`exigente`) | **no cumple** — 2/5 |
+| Destacar (`exigente`) | **no cumple** — 3/5 |
 
 **Criterios para aprobar**
 
 | Criterio | Requisito | Tu resultado | Cumple |
 |---|---|---|---|
-| Código dentro de clases (%POO) | ≥ 85% | 90% | sí |
+| Código dentro de clases (%POO) | ≥ 85% | 98% | sí |
 | Duplicación lógica | ≤ 10% | 1.3% | sí |
 | Funciones fuera de clases | ≤ 1 | 0 | sí |
 | Señales POO/SOLID críticas | ninguna | Clase demasiado grande (SRP), Baja cohesión (LCOM), Acoplamiento alto (CBO), Switch sobre tipos (OCP), Override vacío / 'no implementado' (LSP) | no |
@@ -42,11 +42,19 @@ Criterios de `CRITERIOS-CALIDAD.md`. **Aprobar** se juega con el perfil `estanda
 
 | Criterio | Requisito | Tu resultado | Cumple |
 |---|---|---|---|
-| Código dentro de clases (%POO) | ≥ 95% | 90% | no |
+| Código dentro de clases (%POO) | ≥ 95% | 98% | sí |
 | Duplicación lógica | ≤ 5% | 1.3% | sí |
 | Funciones fuera de clases | ≤ 1 | 0 | sí |
 | Señales POO/SOLID críticas | ninguna | Clase demasiado grande (SRP), Baja cohesión (LCOM), Acoplamiento alto (CBO), Switch sobre tipos (OCP), Override vacío / 'no implementado' (LSP) | no |
 | Índice de calidad POO/SOLID | ≥ 60 | 4/100 | no |
+
+### Cómo se calcula el %POO (y por qué no sube solo)
+
+`%POO = líneas de lógica dentro de clases ÷ líneas de lógica totales`.
+
+Se cuentan las líneas de **lógica y campos**; no cuentan `package`/`import`/`using`/anotaciones ni comentarios, Javadoc o docstrings. Es una **proporción**: si agregás código nuevo dentro de una clase, el numerador y el denominador crecen juntos y el porcentaje casi no cambia.
+
+Sube cuando el código que hoy está **fuera** de clases pasa a ser método de una clase (o desaparece): funciones sueltas, `main`, constantes de módulo, scripts y lógica de archivos sueltos. También importa que ese trabajo esté **integrado en `main`**: la evaluación siempre mide `main`, así que lo que sigue en otra rama no se refleja todavía.
 
 ## 2. Autoría (RepoSense)
 
@@ -56,7 +64,20 @@ Criterios de `CRITERIOS-CALIDAD.md`. **Aprobar** se juega con el perfil `estanda
 
 > _El LOC de autoría lo calcula RepoSense sobre el historial y puede diferir del LOC de código del análisis de calidad (que mira solo el estado de `main`)._
 
-## 3. Aspectos evaluados
+## 3. Fallas detectadas
+
+Reúne lo que el análisis marcó y lo que todavía falta para cada semáforo. Cuando la señal se puede asociar a archivos, se indican para orientar la revisión. No es una nota.
+
+| Falla | Tu resultado | Requisito | Archivos |
+|---|---|---|---|
+| Señales POO/SOLID críticas | Clase demasiado grande (SRP), Baja cohesión (LCOM), Acoplamiento alto (CBO), Switch sobre tipos (OCP), Override vacío / 'no implementado' (LSP) | Aprobar: ninguna<br>Destacar: ninguna | `app/src/main/kotlin/org/example/App.kt`, `app/src/main/kotlin/org/example/MainApp.kt`, `app/src/main/kotlin/org/example/entrada/DragInputHandler.kt`, `app/src/main/kotlin/org/example/fisica/MotorFisico.kt`, `app/src/main/kotlin/org/example/grafico/CanvasRenderer.kt`, `app/src/main/kotlin/org/example/grafico/DibujoPelota.kt` (+12 más) |
+| Índice de calidad POO/SOLID | 4/100 | Destacar: ≥ 60 | — |
+| Métodos/funciones largos o con muchos parámetros | **4** método(s)/función(es) largos o con muchos parámetros | Sin señales | `app/src/main/kotlin/org/example/MainApp.kt`, `app/src/main/kotlin/org/example/grafico/CanvasRenderer.kt`, `app/src/main/kotlin/org/example/grafico/DibujoPelota.kt` |
+| Dependencia de concretos y falta de abstracciones (DIP) | **12** dependencia(s) de concretos sin abstracciones | Sin señales | `app/src/main/kotlin/org/example/App.kt`, `app/src/main/kotlin/org/example/MainApp.kt`, `app/src/main/kotlin/org/example/grafico/CanvasRenderer.kt`, `app/src/main/kotlin/org/example/grafico/DibujoPelota.kt`, `app/src/main/kotlin/org/example/modelo/TipoPared.kt`, `app/src/main/kotlin/org/example/modelo/TipoPelota.kt` (+6 más) |
+| Clase sin métodos (solo datos) | **17** clase(s) sin métodos (solo datos) | Sin señales | `app/src/main/kotlin/org/example/coordenadas/TransformadorCoordenadas.kt`, `app/src/main/kotlin/org/example/coordenadas/TransformadorCoordenadasSimulacion.kt`, `app/src/main/kotlin/org/example/entrada/InputHandler.kt`, `app/src/main/kotlin/org/example/fisica/Ambiente.kt`, `app/src/main/kotlin/org/example/fisica/Tierra.kt`, `app/src/main/kotlin/org/example/grafico/ContextoDibujo.kt` (+11 más) |
+| Campos públicos (encapsulación) | **22** clase(s) con campos públicos | Sin señales | `app/src/main/kotlin/org/example/MainApp.kt`, `app/src/main/kotlin/org/example/entrada/DragInputHandler.kt`, `app/src/main/kotlin/org/example/entrada/InputHandler.kt`, `app/src/main/kotlin/org/example/fisica/Ambiente.kt`, `app/src/main/kotlin/org/example/fisica/Tierra.kt`, `app/src/main/kotlin/org/example/grafico/GeneradorEntorno.kt` (+13 más) |
+
+## 4. Aspectos evaluados
 
 Cada aspecto indica **qué mide**, **por qué importa** y **tu resultado**. Cuando el análisis reportó una señal, se agregan preguntas para **investigar la causa** (no hay recetas: entender el porqué es parte de la evaluación).
 
@@ -66,21 +87,18 @@ Cada aspecto indica **qué mide**, **por qué importa** y **tu resultado**. Cuan
 - **Por qué importa:** Ordena y prioriza la revisión: un índice bajo indica varias señales que conviene mirar juntas.
 - **Tu resultado:** índice **4/100**
 
-### 2. Duplicación lógica (DRY) (duplicacion) — con señales
+### 2. Duplicación lógica (DRY) (duplicacion) — sin señales
 
 - **Qué mide:** Porcentaje de bloques de LÓGICA repetidos. Quedan fuera imports/includes, anotaciones, declaraciones de campos y comentarios/Javadoc/docstrings: esos bloques son boilerplate, no lógica.
 - **Por qué importa:** Cada copia de lógica se mantiene por separado: un arreglo hay que repetirlo y los defectos se multiplican.
 - **Tu resultado:** **1.3%** de duplicación lógica
-- **Para investigar la causa:**
-    - ¿El trabajo se repartió por pantallas o archivos y se integró copiando y pegando bloques?
-    - ¿Qué zonas del sistema cambiaron juntas más de una vez (señal de lógica compartida)?
-    - ¿Hubo un lugar común acordado para la lógica repetida antes de empezar, o cada integrante resolvió lo suyo?
 
 ### 3. Adopción de POO (% de código en clases) (poo) — sin señales
 
-- **Qué mide:** Qué porción del código vive dentro de clases (no de funciones sueltas).
+- **Qué mide:** Proporción de las **líneas de lógica** que viven dentro de una clase. Quedan fuera `package`/`import`/`using`/anotaciones y comentarios/Javadoc/docstrings: no son código que pueda estar dentro de una clase y, si contaran, el porcentaje quedaría topado por el boilerplate de cada archivo.
 - **Por qué importa:** El diseño orientado a objetos es el eje de la materia: el comportamiento debería vivir como método de una clase.
-- **Tu resultado:** **90.4%** del código dentro de clases
+- **Tu resultado:** **98.1%** del código dentro de clases
+- **Cómo leerlo:** Es una **proporción**, no un acumulado: agregar código dentro de una clase no la sube por sí solo (numerador y denominador crecen juntos). Sube cuando el código que está **fuera** de clases (funciones sueltas, `main`, constantes de módulo, scripts) pasa a ser método de una clase o deja de existir. La medición se hace sobre `main`: el trabajo que todavía vive en otra rama no se refleja hasta que se integra.
 
 ### 4. Funciones fuera de clases (sueltas) — sin señales
 
@@ -202,113 +220,6 @@ Cada aspecto indica **qué mide**, **por qué importa** y **tu resultado**. Cuan
 - **Por qué importa:** Es comportamiento procedural disfrazado de clase: no se instancia ni participa del modelo de objetos.
 - **Tu resultado:** **0** clase(s) solo con métodos estáticos
 
-## 4. Anexo: dónde mirar
-
-Archivos donde el análisis encontró cada señal (sin número de línea, a propósito):
-
-**Clase demasiado grande (SRP) (god)** — 8 archivo(s):
-- `app/src/main/kotlin/org/example/App.kt`
-- `app/src/main/kotlin/org/example/MainApp.kt`
-- `app/src/main/kotlin/org/example/fisica/MotorFisico.kt`
-- `app/src/main/kotlin/org/example/grafico/CanvasRenderer.kt`
-- `app/src/main/kotlin/org/example/simulacion/Simulacion.kt`
-- `app/src/test/kotlin/org/example/AppTest.kt`
-- `app/src/test/kotlin/org/example/CaidaLibreTest.kt`
-- `app/src/test/kotlin/org/example/SimulacionTest.kt`
-
-**Baja cohesión (LCOM) (cohesion)** — 3 archivo(s):
-- `app/src/main/kotlin/org/example/MainApp.kt`
-- `app/src/main/kotlin/org/example/fisica/MotorFisico.kt`
-- `app/src/main/kotlin/org/example/grafico/GeneradorEntorno.kt`
-
-**Métodos/funciones largos o con muchos parámetros (tamano)** — 3 archivo(s):
-- `app/src/main/kotlin/org/example/MainApp.kt`
-- `app/src/main/kotlin/org/example/grafico/CanvasRenderer.kt`
-- `app/src/main/kotlin/org/example/grafico/DibujoPelota.kt`
-
-**Acoplamiento alto (CBO) (acoplamiento)** — 14 archivo(s):
-- `app/src/main/kotlin/org/example/App.kt`
-- `app/src/main/kotlin/org/example/MainApp.kt`
-- `app/src/main/kotlin/org/example/grafico/CanvasRenderer.kt`
-- `app/src/main/kotlin/org/example/grafico/DibujoPelota.kt`
-- `app/src/main/kotlin/org/example/grafico/PresentadorJuego.kt`
-- `app/src/main/kotlin/org/example/modelo/TipoPared.kt`
-- `app/src/main/kotlin/org/example/modelo/TipoPelota.kt`
-- `app/src/main/kotlin/org/example/modos/CaidaLibre.kt`
-- `app/src/main/kotlin/org/example/modos/TiroParabolico.kt`
-- `app/src/main/kotlin/org/example/simulacion/Simulacion.kt`
-- `app/src/main/kotlin/org/example/ui/PanelControl.kt`
-- `app/src/test/kotlin/org/example/AppTest.kt`
-- `app/src/test/kotlin/org/example/CaidaLibreTest.kt`
-- `app/src/test/kotlin/org/example/SimulacionTest.kt`
-
-**Switch sobre tipos (OCP) (ocp)** — 7 archivo(s):
-- `app/src/main/kotlin/org/example/App.kt`
-- `app/src/main/kotlin/org/example/MainApp.kt`
-- `app/src/main/kotlin/org/example/simulacion/Simulacion.kt`
-- `app/src/main/kotlin/org/example/ui/PanelControl.kt`
-- `app/src/test/kotlin/org/example/CaidaLibreTest.kt`
-- `app/src/test/kotlin/org/example/DbgTest.kt`
-- `app/src/test/kotlin/org/example/SimulacionTest.kt`
-
-**Override vacío o 'no implementado' (LSP) (lsp)** — 2 archivo(s):
-- `app/src/main/kotlin/org/example/MainApp.kt`
-- `app/src/main/kotlin/org/example/entrada/DragInputHandler.kt`
-
-**Dependencia de concretos y falta de abstracciones (DIP) (dip)** — 12 archivo(s):
-- `app/src/main/kotlin/org/example/App.kt`
-- `app/src/main/kotlin/org/example/MainApp.kt`
-- `app/src/main/kotlin/org/example/grafico/CanvasRenderer.kt`
-- `app/src/main/kotlin/org/example/grafico/DibujoPelota.kt`
-- `app/src/main/kotlin/org/example/modelo/TipoPared.kt`
-- `app/src/main/kotlin/org/example/modelo/TipoPelota.kt`
-- `app/src/main/kotlin/org/example/modos/CaidaLibre.kt`
-- `app/src/main/kotlin/org/example/simulacion/Simulacion.kt`
-- `app/src/main/kotlin/org/example/ui/PanelControl.kt`
-- `app/src/test/kotlin/org/example/AppTest.kt`
-- `app/src/test/kotlin/org/example/CaidaLibreTest.kt`
-- `app/src/test/kotlin/org/example/SimulacionTest.kt`
-
-**Clase sin métodos (solo datos) (data)** — 17 archivo(s):
-- `app/src/main/kotlin/org/example/coordenadas/TransformadorCoordenadas.kt`
-- `app/src/main/kotlin/org/example/coordenadas/TransformadorCoordenadasSimulacion.kt`
-- `app/src/main/kotlin/org/example/entrada/InputHandler.kt`
-- `app/src/main/kotlin/org/example/fisica/Ambiente.kt`
-- `app/src/main/kotlin/org/example/fisica/Tierra.kt`
-- `app/src/main/kotlin/org/example/grafico/ContextoDibujo.kt`
-- `app/src/main/kotlin/org/example/modelo/Pelota.kt`
-- `app/src/main/kotlin/org/example/modelo/colision/FormaColision.kt`
-- `app/src/main/kotlin/org/example/modelo/colision/FormasColision.kt`
-- `app/src/main/kotlin/org/example/modos/CaidaLibre.kt`
-- `app/src/main/kotlin/org/example/modos/CatalogoModos.kt`
-- `app/src/main/kotlin/org/example/modos/ModoSimulacion.kt`
-- `app/src/main/kotlin/org/example/simulacion/Simulacion.kt`
-- `app/src/main/kotlin/org/example/sprites/Sprite.kt`
-- `app/src/main/kotlin/org/example/ui/EstadoPanel.kt`
-- `app/src/main/kotlin/org/example/ui/EstilosUI.kt`
-- `app/src/main/kotlin/org/example/ui/SeccionControl.kt`
-
-**Campos públicos (encapsulación) (encapsulacion)** — 19 archivo(s):
-- `app/src/main/kotlin/org/example/MainApp.kt`
-- `app/src/main/kotlin/org/example/entrada/DragInputHandler.kt`
-- `app/src/main/kotlin/org/example/entrada/InputHandler.kt`
-- `app/src/main/kotlin/org/example/fisica/Ambiente.kt`
-- `app/src/main/kotlin/org/example/fisica/Tierra.kt`
-- `app/src/main/kotlin/org/example/grafico/GeneradorEntorno.kt`
-- `app/src/main/kotlin/org/example/modelo/Pared.kt`
-- `app/src/main/kotlin/org/example/modelo/Pelota.kt`
-- `app/src/main/kotlin/org/example/modelo/Proyectil.kt`
-- `app/src/main/kotlin/org/example/modelo/TipoPared.kt`
-- `app/src/main/kotlin/org/example/modelo/TipoPelota.kt`
-- `app/src/main/kotlin/org/example/modelo/colision/FormaColision.kt`
-- `app/src/main/kotlin/org/example/modelo/colision/FormasColision.kt`
-- `app/src/main/kotlin/org/example/modos/CatalogoModos.kt`
-- `app/src/main/kotlin/org/example/simulacion/Simulacion.kt`
-- `app/src/main/kotlin/org/example/sprites/Sprite.kt`
-- `app/src/main/kotlin/org/example/sprites/SpriteEstatico.kt`
-- `app/src/main/kotlin/org/example/ui/EstadoPanel.kt`
-- `app/src/main/kotlin/org/example/ui/EstilosUI.kt`
-
 ## 5. Evolución por commit
 
 Métricas calculadas sobre el estado de `main` en **cada commit** (5 commits con trabajo), del primero al último. La calidad usa el perfil `exigente`; el aporte de código lo mide RepoSense. El índice puede **bajar** al crecer el proyecto: se acumulan señales.
@@ -326,8 +237,8 @@ xychart-beta
 | 1 | 2026-08-14 | `c2858d1` | Tomas-Chokita | 0 | 0 | 0% | 0.0% | 0 |
 | 2 | 2026-08-14 | `8b18b95` | Tomas-Chokita | 0 | 0 | 0% | 0.0% | 0 |
 | 3 | 2026-08-24 | `c85d16b` | dqmdz-etec | 0 | 0 | 0% | 0.0% | 0 |
-| 4 | 2026-09-04 | `54a028c` | Tomas-Chokita | 175 | 29 | 61% | 0.0% | 1 |
-| 5 | 2026-10-16 | `136785a` | Tomas-Chokita | 3,963 | 4 | 90% | 1.3% | 0 |
+| 4 | 2026-09-04 | `54a028c` | Tomas-Chokita | 175 | 29 | 76% | 0.0% | 1 |
+| 5 | 2026-10-16 | `136785a` | Tomas-Chokita | 3,963 | 4 | 98% | 1.3% | 0 |
 
 ---
 _Informe generado por la cátedra. Los criterios y umbrales de medición corresponden al perfil `exigente` de `calidad.py`; el semáforo de aprobación, a `CRITERIOS-CALIDAD.md` (ver `README.md`). Ante dudas, revisá el archivo señalado._
