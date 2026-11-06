@@ -60,21 +60,6 @@ class Pared(
         return inicio + d * t
     }
 
-    override fun equals(other: Any?): Boolean =
-        other is Pared &&
-            inicio == other.inicio &&
-            fin == other.fin &&
-            tipo == other.tipo &&
-            danio == other.danio
-
-    override fun hashCode(): Int {
-        var result = inicio.hashCode()
-        result = 31 * result + fin.hashCode()
-        result = 31 * result + tipo.hashCode()
-        result = 31 * result + danio.hashCode()
-        return result
-    }
-
     override fun toString(): String = "Pared(inicio=$inicio, fin=$fin, tipo=$tipo, danio=$danio)"
 
     companion object {

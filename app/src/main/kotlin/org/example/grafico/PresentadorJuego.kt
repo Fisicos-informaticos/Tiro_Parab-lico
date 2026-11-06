@@ -2,11 +2,12 @@ package org.example.grafico
 
 import org.example.modelo.Vector2D
 import org.example.simulacion.EscenaEstado
+import org.example.simulacion.ContextoJuego
 import org.example.simulacion.Simulacion
 import org.example.sprites.GestionSprites
 
 /**
- * Traduce una [Simulacion] a pixeles. El estado activo decide que escena mostrar
+ * Traduce una [ContextoJuego] a pixeles. El estado activo decide que escena mostrar
  * mediante [EscenaEstado], de modo que añadir un estado no obliga a tocar este
  * presentador. Depende de [Renderable], no de JavaFX (DIP).
  */
@@ -17,7 +18,7 @@ class PresentadorJuego(
 
     fun sprites(): GestionSprites = sprites
 
-    fun pintar(simulacion: Simulacion) {
+    fun pintar(simulacion: ContextoJuego) {
         renderer.fijarOffsetCamara(simulacion.offsetCamara())
 
         renderer.limpiar()
@@ -39,7 +40,7 @@ class PresentadorJuego(
         renderer.dibujarPantallaInicio(nombrePelota)
     }
 
-    override fun mostrarPelotaEnEspera(simulacion: Simulacion) {
+    override fun mostrarPelotaEnEspera(simulacion: ContextoJuego) {
         if (simulacion.modoParedes()) return
 
         renderer.dibujarPuntoLanzamiento(
@@ -49,7 +50,7 @@ class PresentadorJuego(
         renderer.dibujarProyectil(simulacion.pelota())
     }
 
-    override fun mostrarApuntado(simulacion: Simulacion) {
+    override fun mostrarApuntado(simulacion: ContextoJuego) {
         val modo = simulacion.modo()
         val origen = simulacion.pelota().posicion() - simulacion.offsetCamara()
         renderer.dibujarPuntoLanzamiento(origen, simulacion.pelota().radio())
@@ -79,18 +80,18 @@ class PresentadorJuego(
         }
     }
 
-    override fun mostrarProyectil(simulacion: Simulacion) {
+    override fun mostrarProyectil(simulacion: ContextoJuego) {
         renderer.dibujarProyectil(simulacion.pelota())
     }
 
-    override fun mostrarInformacion(simulacion: Simulacion) {
+    override fun mostrarInformacion(simulacion: ContextoJuego) {
         dibujarVectoresFisica(simulacion)
         dibujarEfectos(simulacion)
         renderer.dibujarPanel(lineasPanel(simulacion))
     }
 
     /** Flechas de velocidad y de gravedad sobre la pelota en su posicion de pantalla. */
-    private fun dibujarVectoresFisica(simulacion: Simulacion) {
+    private fun dibujarVectoresFisica(simulacion: ContextoJuego) {
         renderer.dibujarVectoresFisica(
             simulacion.pelota().posicion() - simulacion.offsetCamara(),
             simulacion.pelota().velocidad(),
@@ -99,7 +100,7 @@ class PresentadorJuego(
     }
 
     /** Linea de arrastre, flecha y etiquetas del vector de tiro. */
-    private fun dibujarVectorDeTiro(simulacion: Simulacion, origen: Vector2D) {
+    private fun dibujarVectorDeTiro(simulacion: ContextoJuego, origen: Vector2D) {
         val entrada = simulacion.entrada()
         val inicio = entrada.posicionInicial() ?: return
         val actual = entrada.posicionActual() ?: return
@@ -111,7 +112,7 @@ class PresentadorJuego(
     }
 
     /** Estela blanca que se apaga en el sitio donde estaba la pared rota. */
-    private fun dibujarEfectos(simulacion: Simulacion) {
+    private fun dibujarEfectos(simulacion: ContextoJuego) {
         for (efecto in simulacion.efectos()) {
             val pared = efecto.pared()
             renderer.dibujarLinea(
@@ -123,7 +124,7 @@ class PresentadorJuego(
         }
     }
 
-    private fun lineasPanel(simulacion: Simulacion): List<String> {
+    private fun lineasPanel(simulacion: ContextoJuego): List<String> {
         val lineas = mutableListOf("Estado: ${simulacion.estado().nombre()}")
         lineas.add("Modo: ${simulacion.modo().nombre()}")
         lineas.add("Pelota: ${simulacion.tipoPelota().nombre()}")

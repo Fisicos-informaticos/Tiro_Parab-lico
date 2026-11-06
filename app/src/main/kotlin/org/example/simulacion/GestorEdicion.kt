@@ -12,24 +12,24 @@ import org.example.modelo.Vector2D
 class GestorEdicion(
     private val herramienta: HerramientaParedes,
     private val motor: PhysicsEngine,
-    private val superficies: SuperficiesLanzamiento
-) {
+    private val superficies: SuperficiesApoyo
+) : EditorEscenario {
 
     private var modoParedes: Boolean = false
     private var modoSuperficies: Boolean = false
 
-    fun modoParedes(): Boolean = modoParedes
+    override fun modoParedes(): Boolean = modoParedes
 
-    fun modoSuperficies(): Boolean = modoSuperficies
+    override fun modoSuperficies(): Boolean = modoSuperficies
 
-    fun paredTemporal(): Pared? = herramienta.paredTemporal()
+    override fun paredTemporal(): Pared? = herramienta.paredTemporal()
 
     /** Cierto si el estado actual permite dibujar con la herramienta activa. */
-    fun activaCon(estado: EstadoSimulacion): Boolean =
+    override fun activaCon(estado: EstadoSimulacion): Boolean =
         (modoParedes || modoSuperficies) && estado.permiteEditar()
 
     /** Activa o desactiva el modo pared. Devuelve true si quedo activo. */
-    fun alternarParedes(): Boolean {
+    override fun alternarParedes(): Boolean {
         modoParedes = !modoParedes
         modoSuperficies = false
         if (modoParedes) {
@@ -42,7 +42,7 @@ class GestorEdicion(
     }
 
     /** Activa o desactiva el modo superficie. Devuelve true si quedo activo. */
-    fun alternarSuperficies(): Boolean {
+    override fun alternarSuperficies(): Boolean {
         modoSuperficies = !modoSuperficies
         modoParedes = false
         if (modoSuperficies) {
@@ -54,11 +54,11 @@ class GestorEdicion(
         return modoSuperficies
     }
 
-    fun iniciar(punto: Vector2D) = herramienta.iniciar(punto)
+    override fun iniciar(punto: Vector2D) = herramienta.iniciar(punto)
 
-    fun actualizar(punto: Vector2D) = herramienta.actualizar(punto)
+    override fun actualizar(punto: Vector2D) = herramienta.actualizar(punto)
 
-    fun finalizar(punto: Vector2D) {
+    override fun finalizar(punto: Vector2D) {
         val paredesAntes = motor.obtenerParedes().size
         herramienta.finalizar(punto)
         if (!modoSuperficies) return
@@ -69,14 +69,14 @@ class GestorEdicion(
     }
 
     /** Abandona cualquier modo de edicion y cancela el trazo en curso. */
-    fun desactivar() {
+    override fun desactivar() {
         modoParedes = false
         modoSuperficies = false
         herramienta.desactivar()
         herramienta.cancelar()
     }
 
-    fun cancelarDibujo() {
+    override fun cancelarDibujo() {
         herramienta.cancelar()
     }
 

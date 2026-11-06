@@ -10,10 +10,11 @@ import kotlin.math.exp
 class MotorFisico(
     private var ambiente: Ambiente,
     paredes: List<Pared> = emptyList(),
-    private val detectorReposo: DetectorDeReposo = FabricaDetectoresReposo.crear(ambiente)
+    private val detectorReposo: DetectorDeReposo = FabricaDetectoresReposo.crear(ambiente),
+    fabricaResolutor: FabricaResolutor = FabricaResolutorPredeterminada()
 ) : PhysicsEngine {
     private val listaParedes = paredes.toMutableList()
-    private val resolutor = ResolutorColisiones(listaParedes, ambiente)
+    private val resolutor: ResolutorFisico = fabricaResolutor.crear(listaParedes, ambiente)
 
     override fun sueloY(): Double = ambiente.sueloY()
 

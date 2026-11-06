@@ -5,22 +5,22 @@ import kotlin.math.max
 import kotlin.math.min
 
 /** Superficies extra sobre las que se puede apoyar la pelota antes de lanzar. */
-class SuperficiesLanzamiento {
+class SuperficiesLanzamiento : SuperficiesApoyo {
 
     private val superficies = mutableListOf<Pared>()
 
-    fun agregar(pared: Pared) {
+    override fun agregar(pared: Pared) {
         superficies.add(pared)
     }
 
-    fun limpiar() {
+    override fun limpiar() {
         superficies.clear()
     }
 
-    fun lista(): List<Pared> = superficies.toList()
+    override fun lista(): List<Pared> = superficies.toList()
 
     /** y donde la pelota apoya: suelo o superficie de lanzamiento bajo el punto. */
-    fun yDeApoyo(x: Double, radio: Double, sueloY: Double): Double =
+    override fun yDeApoyo(x: Double, radio: Double, sueloY: Double): Double =
         (ySuperficieBajo(x, radio) ?: sueloY) - radio - ALTURA_APOYO_PELOTA
 
     private fun ySuperficieBajo(x: Double, radio: Double): Double? {

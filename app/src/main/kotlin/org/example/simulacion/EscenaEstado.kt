@@ -9,11 +9,11 @@ interface EscenaEstado {
 
     fun mostrarPantallaInicio(nombrePelota: String)
 
-    fun mostrarPelotaEnEspera(simulacion: Simulacion)
+    fun mostrarPelotaEnEspera(simulacion: ContextoJuego)
 
-    fun mostrarApuntado(simulacion: Simulacion)
+    fun mostrarApuntado(simulacion: ContextoJuego)
 
-    fun mostrarProyectil(simulacion: Simulacion)
+    fun mostrarProyectil(simulacion: ContextoJuego)
 
-    fun mostrarInformacion(simulacion: Simulacion)
+    fun mostrarInformacion(simulacion: ContextoJuego)
 }

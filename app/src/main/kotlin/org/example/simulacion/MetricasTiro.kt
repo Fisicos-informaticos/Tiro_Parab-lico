@@ -7,7 +7,7 @@ import kotlin.math.max
  * registro separado del estado de la simulacion para que cada clase tenga una
  * unica responsabilidad.
  */
-class MetricasTiro {
+class MetricasTiro : Metricas {
 
     private var tiempoVuelo: Double = 0.0
     private var distanciaRecorrida: Double = 0.0
@@ -15,18 +15,18 @@ class MetricasTiro {
     private var distanciaX: Double = 0.0
     private var paredesDestruidas: Int = 0
 
-    fun tiempoVuelo(): Double = tiempoVuelo
+    override fun tiempoVuelo(): Double = tiempoVuelo
 
-    fun distanciaRecorrida(): Double = distanciaRecorrida
+    override fun distanciaRecorrida(): Double = distanciaRecorrida
 
-    fun alturaMaxima(): Double = alturaMaxima
+    override fun alturaMaxima(): Double = alturaMaxima
 
-    fun distanciaX(): Double = distanciaX
+    override fun distanciaX(): Double = distanciaX
 
-    fun paredesDestruidas(): Int = paredesDestruidas
+    override fun paredesDestruidas(): Int = paredesDestruidas
 
     /** Deja las metricas del tiro a cero, conservando el total de la partida. */
-    fun reiniciarTiro() {
+    override fun reiniciarTiro() {
         tiempoVuelo = 0.0
         distanciaRecorrida = 0.0
         alturaMaxima = 0.0
@@ -34,32 +34,32 @@ class MetricasTiro {
     }
 
     /** Empieza una partida nueva: tambien borra las paredes destruidas. */
-    fun reiniciarPartida() {
+    override fun reiniciarPartida() {
         reiniciarTiro()
         paredesDestruidas = 0
     }
 
-    fun avanzarTiempo(deltaTime: Double) {
+    override fun avanzarTiempo(deltaTime: Double) {
         tiempoVuelo += deltaTime
     }
 
-    fun sumarDistancia(distancia: Double) {
+    override fun sumarDistancia(distancia: Double) {
         distanciaRecorrida += distancia
     }
 
-    fun registrarAltura(altura: Double) {
+    override fun registrarAltura(altura: Double) {
         alturaMaxima = max(alturaMaxima, altura)
     }
 
-    fun registrarAlcance(alcance: Double) {
+    override fun registrarAlcance(alcance: Double) {
         distanciaX = max(distanciaX, alcance)
     }
 
-    fun registrarRoturas(cantidad: Int) {
+    override fun registrarRoturas(cantidad: Int) {
         paredesDestruidas += cantidad
     }
 
-    fun resultado(): ResultadoSimulacion = ResultadoSimulacion(
+    override fun resultado(): ResultadoSimulacion = ResultadoSimulacion(
         tiempoTotal = tiempoVuelo,
         distanciaX = distanciaX,
         alturaMaxima = alturaMaxima

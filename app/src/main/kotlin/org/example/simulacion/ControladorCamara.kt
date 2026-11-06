@@ -11,13 +11,13 @@ class ControladorCamara(
     private val camara: Camara,
     private val ancho: Double,
     private val alto: Double
-) {
+) : ControlCamara {
 
-    fun reiniciar() {
+    override fun reiniciar() {
         camara.fijarOffsetCamara(Vector2D(0.0, 0.0))
     }
 
-    fun actualizar(deltaTime: Double, entrada: InputHandler, pelota: Pelota) {
+    override fun actualizar(deltaTime: Double, entrada: InputHandler, pelota: Pelota) {
         // Mientras se arrastra, el mapa quieto es lo que mantiene sincronizados
         // el puntero y la pelota (decisivo en caida libre, que la mueve).
         if (entrada.estaArrastrando()) return

@@ -10,42 +10,41 @@ import org.example.modos.FabricaModos
 
 /** Comandos que cambian el escenario o reinician la partida. */
 class ComandosPartida(
-    private val sesion: SesionPartida,
-    private val mecanica: MecanicaTiro,
-    private val edicion: GestorEdicion,
-    private val metricas: MetricasTiro,
-    private val efectos: RegistroEfectos,
-    private val superficies: SuperficiesLanzamiento,
-    private val controladorCamara: ControladorCamara,
+    private val sesion: SesionJuego,
+    private val mecanica: Mecanica,
+    private val edicion: EditorEscenario,
+    private val metricas: Metricas,
+    private val efectos: Efectos,
+    private val superficies: SuperficiesApoyo,
+    private val controladorCamara: ControlCamara,
     private val motor: PhysicsEngine,
     private val fabricaModos: FabricaModos,
     private val fabricaAmbiente: FabricaAmbiente,
     private val ancho: Double,
-    private val alto: Double,
-    private val alCambiarEstado: (EstadoSimulacion) -> Unit
-) {
-    fun seleccionarPelota(tipo: TipoPelota) {
-        if (!sesion.estado.permiteEditar()) return
+    private val alto: Double
+) : ComandosJuego {
+    override fun seleccionarPelota(tipo: TipoPelota) {
+        if (!sesion.estado().permiteEditar()) return
         mecanica.cambiarPelota(tipo)
     }
 
-    fun aplicarGravedad(nombre: String?) {
+    override fun aplicarGravedad(nombre: String?) {
         val factor = Gravedades.factorDe(nombre) ?: return
-        if (factor == sesion.factorGravedad) return
-        sesion.factorGravedad = factor
+        if (factor == sesion.factorGravedad()) return
+        sesion.cambiarGravedad(factor)
         motor.cambiarAmbiente(crearAmbiente())
         reiniciarSiNoVuela()
     }
 
-    fun seleccionarModo(nombre: String?) {
+    override fun seleccionarModo(nombre: String?) {
         val nuevo = fabricaModos.crear(nombre)
-        if (nuevo.nombre() == sesion.modo.nombre()) return
-        sesion.modo = nuevo
+        if (nuevo.nombre() == sesion.modo().nombre()) return
+        sesion.cambiarModo(nuevo)
         reiniciarSiNoVuela()
     }
 
-    fun nuevaPartida() {
-        sesion.pausado = false
+    override fun nuevaPartida() {
+        sesion.reanudar()
         edicion.desactivar()
         mecanica.reiniciar()
         controladorCamara.reiniciar()
@@ -54,17 +53,17 @@ class ComandosPartida(
         superficies.limpiar()
     }
 
-    fun volverAlMenu() {
+    override fun volverAlMenu() {
         nuevaPartida()
-        alCambiarEstado(EstadoSimulacion.PantallaInicio)
+        sesion.cambiarEstado(EstadoSimulacion.PantallaInicio)
     }
 
     private fun reiniciarSiNoVuela() {
-        if (!sesion.estado.estaEnVuelo()) mecanica.reiniciar()
+        if (!sesion.estado().estaEnVuelo()) mecanica.reiniciar()
     }
 
     private fun crearAmbiente(): Ambiente {
-        val gravedad = Vector2D(0.0, Tierra.GRAVEDAD_PIXELES * sesion.factorGravedad)
+        val gravedad = Vector2D(0.0, Tierra.GRAVEDAD_PIXELES * sesion.factorGravedad())
         return fabricaAmbiente.crear(ancho, alto, gravedad)
     }
 }

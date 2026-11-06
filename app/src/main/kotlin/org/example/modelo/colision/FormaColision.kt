@@ -19,7 +19,7 @@ enum class TipoColision(private val etiqueta: String) {
  * Resultado de una colision. Ademas de consultarse, sabe como separar al cuerpo
  * que la ha sufrido de la superficie con la que ha chocado.
  */
-class Penetracion(
+data class Penetracion(
     private val profundidad: Double,
     private val normal: Vector2D
 ) {
@@ -30,13 +30,6 @@ class Penetracion(
     /** Devuelve la posicion corregida del cuerpo para sacarlo de la superficie. */
     fun separarDesde(posicion: Vector2D, correccion: Double): Vector2D =
         posicion + normal * (profundidad + correccion)
-
-    override fun equals(other: Any?): Boolean =
-        other is Penetracion && profundidad == other.profundidad && normal == other.normal
-
-    override fun hashCode(): Int = 31 * profundidad.hashCode() + normal.hashCode()
-
-    override fun toString(): String = "Penetracion(profundidad=$profundidad, normal=$normal)"
 }
 
 /**

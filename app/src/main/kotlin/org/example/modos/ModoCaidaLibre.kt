@@ -14,8 +14,6 @@ open class ModoCaidaLibre : ModoSimulacion {
 
     override fun ayuda(): String = "Coloca la pelota y arrastra en vertical"
 
-    override fun dibujaVectorDeTiro(): Boolean = false
-
     override fun colocar(preparacion: Preparacion): Vector2D =
         Vector2D(preparacion.punto().x(), preparacion.alturaPermitida())
 
@@ -58,5 +56,5 @@ open class ModoCaidaLibre : ModoSimulacion {
     )
 }
 
-/** Nombre historico del modo, conservado para no romper a sus consumidores. */
-class CaidaLibre : ModoCaidaLibre()
+/** Nombre historico del modo, conservado como alias para no romper a sus consumidores. */
+typealias CaidaLibre = ModoCaidaLibre

@@ -11,18 +11,15 @@ class CanvasRenderer(
     private val ancho: Double,
     private val alto: Double,
     private val dibujoVectores: DibujoVectoresFisica,
-    private val entorno: DibujanteEntorno = DibujanteEntorno(gc, ancho, alto),
-    private val paredes: DibujanteParedes = DibujanteParedes(gc)
+    private val entorno: DibujanteEntorno,
+    private val paredes: DibujanteParedes,
+    private val pantallaInicio: DibujantePantallaInicio,
+    private val flechaDireccion: DibujanteFlechaDireccion,
+    private val panelInfo: DibujantePanelInfo,
+    private val objetos: DibujanteObjetos
 ) : Renderer {
 
     private val colorCielo = Color.web("#87CEEB")
-    private val colorLinea = Color.web("#ff6b35")
-    private val colorTexto = Color.WHITE
-
-    private val pantallaInicio = DibujantePantallaInicio(gc, ancho, alto)
-    private val flechaDireccion = DibujanteFlechaDireccion(gc, colorLinea)
-    private val panelInfo = DibujantePanelInfo(gc, colorTexto)
-    private val objetos = DibujanteObjetos(gc, colorTexto)
 
     private var camara = Vector2D(0.0, 0.0)
 

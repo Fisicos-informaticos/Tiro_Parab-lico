@@ -3,19 +3,19 @@ package org.example.simulacion
 import org.example.modelo.Pared
 
 /** Coleccion de estelas de rotura que se apagan con el tiempo. */
-class RegistroEfectos {
+class RegistroEfectos : Efectos {
 
     private val efectos = mutableListOf<EfectoRotura>()
 
-    fun lista(): List<EfectoRotura> = efectos.toList()
+    override fun lista(): List<EfectoRotura> = efectos.toList()
 
-    fun agregarRoturas(paredes: List<Pared>, duracion: Double) {
+    override fun agregarRoturas(paredes: List<Pared>, duracion: Double) {
         for (pared in paredes) {
             efectos.add(EfectoRotura(pared, duracion))
         }
     }
 
-    fun avanzar(deltaTime: Double) {
+    override fun avanzar(deltaTime: Double) {
         val iterator = efectos.iterator()
         while (iterator.hasNext()) {
             val efecto = iterator.next()
@@ -24,7 +24,7 @@ class RegistroEfectos {
         }
     }
 
-    fun limpiar() {
+    override fun limpiar() {
         efectos.clear()
     }
 }

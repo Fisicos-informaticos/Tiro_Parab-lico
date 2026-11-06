@@ -15,6 +15,7 @@ import javafx.scene.layout.Region
 import javafx.scene.layout.VBox
 import javafx.scene.paint.Color
 import org.example.grafico.DibujoPelota
+import org.example.grafico.VistaPelota
 import org.example.modelo.TipoPelota
 import org.example.modelo.TipoPared
 import org.example.modelo.Vector2D
@@ -30,7 +31,7 @@ class MenusJuego(
     private val tipoParedActual: () -> TipoPared,
     private val alCerrarMenus: () -> Unit,
     private val alSalir: () -> Unit
-) {
+) : MenuJuego {
 
     private val grupoPelotas = ToggleGroup()
     private val grupoParedes = ToggleGroup()
@@ -41,25 +42,33 @@ class MenusJuego(
         it.style = EstilosUI.SUBTITULO
     }
 
-    val menuPelotas: VBox = crearMenuPelotas()
-    val menuParedes: VBox = crearMenuParedes()
-    val menuPausa: VBox = crearMenuPausa()
-    val menuFin: VBox = crearMenuFin()
+    private val menuPelotas: VBox = crearMenuPelotas()
+    private val menuParedes: VBox = crearMenuParedes()
+    private val menuPausa: VBox = crearMenuPausa()
+    private val menuFin: VBox = crearMenuFin()
 
     init {
         grupoPelotas.selectedToggleProperty().addListener { _, _, _ -> marcarSeleccion(botonesPelota) }
         grupoParedes.selectedToggleProperty().addListener { _, _, _ -> marcarSeleccion(botonesPared) }
     }
 
-    fun marcarPelotaActual() {
+    override fun menuPelotas(): VBox = menuPelotas
+
+    override fun menuParedes(): VBox = menuParedes
+
+    override fun menuPausa(): VBox = menuPausa
+
+    override fun menuFin(): VBox = menuFin
+
+    override fun marcarPelotaActual() {
         grupoPelotas.selectToggle(botonesPelota[tipoPelotaActual()])
     }
 
-    fun marcarParedActual() {
+    override fun marcarParedActual() {
         grupoParedes.selectToggle(botonesPared[tipoParedActual()])
     }
 
-    fun mostrarResumenFin(texto: String) {
+    override fun mostrarResumenFin(texto: String) {
         etiquetaResumenFin.text = texto
     }
 
@@ -145,7 +154,16 @@ class MenusJuego(
         val forma = tipo.crearForma()
         val escala = (ALTO_PREVIA * 0.42) / forma.radioEnvoltura()
         val previa = previaCanvas {
-            DibujoPelota.dibujar(it, tipo, forma, 0.0, Vector2D(60.0, ALTO_PREVIA / 2.0), escala)
+            DibujoPelota.dibujar(
+                it,
+                VistaPelota(
+                    tipo = tipo,
+                    forma = forma,
+                    angulo = 0.0,
+                    centro = Vector2D(60.0, ALTO_PREVIA / 2.0),
+                    escala = escala
+                )
+            )
         }
 
         val nombre = Label(tipo.nombre()).also { it.style = EstilosUI.NOMBRE }

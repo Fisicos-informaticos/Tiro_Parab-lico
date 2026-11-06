@@ -11,11 +11,11 @@ import kotlin.math.min
  */
 class IntegradorVuelo(
     private val motor: PhysicsEngine,
-    private val metricas: MetricasTiro,
-    private val efectos: RegistroEfectos
-) {
+    private val metricas: Metricas,
+    private val efectos: Efectos
+) : Integrador {
 
-    fun avanzar(
+    override fun avanzar(
         pelota: Pelota,
         deltaTime: Double,
         posicionOrigen: Vector2D,

@@ -33,22 +33,22 @@ sealed class EstadoSimulacion {
     /** Hay una trayectoria de apuntado que se puede previsualizar. */
     open fun permitePrevisualizar(): Boolean = false
 
-    open fun alPulsar(simulacion: Simulacion, punto: Vector2D) = Unit
+    open fun alPulsar(simulacion: ContextoJuego, punto: Vector2D) = Unit
 
-    open fun alArrastrar(simulacion: Simulacion, punto: Vector2D) = Unit
+    open fun alArrastrar(simulacion: ContextoJuego, punto: Vector2D) = Unit
 
-    open fun alSoltar(simulacion: Simulacion, punto: Vector2D) = Unit
+    open fun alSoltar(simulacion: ContextoJuego, punto: Vector2D) = Unit
 
-    open fun alActualizar(simulacion: Simulacion, deltaTime: Double) = Unit
+    open fun alActualizar(simulacion: ContextoJuego, deltaTime: Double) = Unit
 
     /** Deja el estado listo para empezar a dibujar una pared o superficie. */
-    open fun alActivarHerramienta(simulacion: Simulacion) = Unit
+    open fun alActivarHerramienta(simulacion: ContextoJuego) = Unit
 
     /** Abandona el apuntado o el resultado al abrir un menu de edicion. */
-    open fun alAbrirEdicion(simulacion: Simulacion) = Unit
+    open fun alAbrirEdicion(simulacion: ContextoJuego) = Unit
 
     /** Pinta la escena propia del estado y, si procede, su informacion. */
-    abstract fun dibujar(escena: EscenaEstado, simulacion: Simulacion)
+    abstract fun dibujar(escena: EscenaEstado, simulacion: ContextoJuego)
 
     /** Lineas del panel que dependen del estado y del modo activo. */
     abstract fun lineasDeEstado(modo: ModoSimulacion, lectura: LecturaModo): List<String>
@@ -61,15 +61,15 @@ sealed class EstadoSimulacion {
 
         override fun permitePausa(): Boolean = false
 
-        override fun alPulsar(simulacion: Simulacion, punto: Vector2D) {
+        override fun alPulsar(simulacion: ContextoJuego, punto: Vector2D) {
             simulacion.cambiarA(Inactivo)
         }
 
-        override fun alActivarHerramienta(simulacion: Simulacion) {
+        override fun alActivarHerramienta(simulacion: ContextoJuego) {
             simulacion.cambiarA(Inactivo)
         }
 
-        override fun dibujar(escena: EscenaEstado, simulacion: Simulacion) {
+        override fun dibujar(escena: EscenaEstado, simulacion: ContextoJuego) {
             escena.mostrarPantallaInicio(simulacion.tipoPelota().nombre())
         }
 
@@ -81,11 +81,11 @@ sealed class EstadoSimulacion {
     object Inactivo : EstadoSimulacion() {
         override fun nombre(): String = "INACTIVO"
 
-        override fun alPulsar(simulacion: Simulacion, punto: Vector2D) {
+        override fun alPulsar(simulacion: ContextoJuego, punto: Vector2D) {
             simulacion.colocarPelotaParaLanzar(punto)
         }
 
-        override fun dibujar(escena: EscenaEstado, simulacion: Simulacion) {
+        override fun dibujar(escena: EscenaEstado, simulacion: ContextoJuego) {
             escena.mostrarPelotaEnEspera(simulacion)
             escena.mostrarInformacion(simulacion)
         }
@@ -100,28 +100,28 @@ sealed class EstadoSimulacion {
 
         override fun permitePrevisualizar(): Boolean = true
 
-        override fun alPulsar(simulacion: Simulacion, punto: Vector2D) {
+        override fun alPulsar(simulacion: ContextoJuego, punto: Vector2D) {
             simulacion.iniciarApuntado(punto)
         }
 
-        override fun alArrastrar(simulacion: Simulacion, punto: Vector2D) {
+        override fun alArrastrar(simulacion: ContextoJuego, punto: Vector2D) {
             simulacion.continuarApuntado(punto)
         }
 
-        override fun alSoltar(simulacion: Simulacion, punto: Vector2D) {
+        override fun alSoltar(simulacion: ContextoJuego, punto: Vector2D) {
             simulacion.lanzarPelota()
         }
 
-        override fun alActivarHerramienta(simulacion: Simulacion) {
+        override fun alActivarHerramienta(simulacion: ContextoJuego) {
             simulacion.entrada().reiniciar()
             simulacion.cambiarA(Inactivo)
         }
 
-        override fun alAbrirEdicion(simulacion: Simulacion) {
+        override fun alAbrirEdicion(simulacion: ContextoJuego) {
             alActivarHerramienta(simulacion)
         }
 
-        override fun dibujar(escena: EscenaEstado, simulacion: Simulacion) {
+        override fun dibujar(escena: EscenaEstado, simulacion: ContextoJuego) {
             escena.mostrarApuntado(simulacion)
             escena.mostrarInformacion(simulacion)
         }
@@ -138,11 +138,11 @@ sealed class EstadoSimulacion {
 
         override fun permiteEditar(): Boolean = false
 
-        override fun alActualizar(simulacion: Simulacion, deltaTime: Double) {
+        override fun alActualizar(simulacion: ContextoJuego, deltaTime: Double) {
             simulacion.avanzarVuelo(deltaTime)
         }
 
-        override fun dibujar(escena: EscenaEstado, simulacion: Simulacion) {
+        override fun dibujar(escena: EscenaEstado, simulacion: ContextoJuego) {
             escena.mostrarProyectil(simulacion)
             escena.mostrarInformacion(simulacion)
         }
@@ -157,19 +157,19 @@ sealed class EstadoSimulacion {
 
         override fun esEnSuelo(): Boolean = true
 
-        override fun alPulsar(simulacion: Simulacion, punto: Vector2D) {
+        override fun alPulsar(simulacion: ContextoJuego, punto: Vector2D) {
             simulacion.reiniciar()
         }
 
-        override fun alActivarHerramienta(simulacion: Simulacion) {
+        override fun alActivarHerramienta(simulacion: ContextoJuego) {
             simulacion.reiniciar()
         }
 
-        override fun alAbrirEdicion(simulacion: Simulacion) {
+        override fun alAbrirEdicion(simulacion: ContextoJuego) {
             simulacion.reiniciar()
         }
 
-        override fun dibujar(escena: EscenaEstado, simulacion: Simulacion) {
+        override fun dibujar(escena: EscenaEstado, simulacion: ContextoJuego) {
             escena.mostrarProyectil(simulacion)
             escena.mostrarInformacion(simulacion)
         }

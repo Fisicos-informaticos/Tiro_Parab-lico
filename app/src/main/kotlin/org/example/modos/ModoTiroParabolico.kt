@@ -22,8 +22,6 @@ open class ModoTiroParabolico : ModoSimulacion {
         return Vector2D(preparacion.punto().x(), preparacion.apoyoY())
     }
 
-    override fun arrastrar(preparacion: Preparacion): Vector2D? = null
-
     override fun velocidadDeSuelta(entrada: InputHandler): Vector2D? {
         val vector = entrada.vectorLanzamiento() ?: return null
         if (vector.magnitud() < FUERZA_MINIMA_APUNTADO) return null
@@ -76,5 +74,5 @@ open class ModoTiroParabolico : ModoSimulacion {
     }
 }
 
-/** Nombre historico del modo, conservado para no romper a sus consumidores. */
-class TiroParabolico : ModoTiroParabolico()
+/** Nombre historico del modo, conservado como alias para no romper a sus consumidores. */
+typealias TiroParabolico = ModoTiroParabolico

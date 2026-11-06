@@ -24,7 +24,7 @@ object GeneradorEntorno {
     private const val ALTURA_NUBE_MAXIMA = 144.0
 
     /** Una brizna de cesped colocada en el mundo. */
-    class Brizna(
+    data class Brizna(
         private val x: Double,
         private val alto: Double,
         private val ancho: Double,
@@ -34,22 +34,10 @@ object GeneradorEntorno {
         fun alto(): Double = alto
         fun ancho(): Double = ancho
         fun brillo(): Double = brillo
-
-        override fun equals(other: Any?): Boolean =
-            other is Brizna && x == other.x && alto == other.alto &&
-                ancho == other.ancho && brillo == other.brillo
-
-        override fun hashCode(): Int {
-            var result = x.hashCode()
-            result = 31 * result + alto.hashCode()
-            result = 31 * result + ancho.hashCode()
-            result = 31 * result + brillo.hashCode()
-            return result
-        }
     }
 
     /** Un arbol del decorado, con su escala y su tono de copa. */
-    class Arbol(
+    data class Arbol(
         private val x: Double,
         private val escala: Double,
         private val claro: Boolean
@@ -57,20 +45,10 @@ object GeneradorEntorno {
         fun x(): Double = x
         fun escala(): Double = escala
         fun claro(): Boolean = claro
-
-        override fun equals(other: Any?): Boolean =
-            other is Arbol && x == other.x && escala == other.escala && claro == other.claro
-
-        override fun hashCode(): Int {
-            var result = x.hashCode()
-            result = 31 * result + escala.hashCode()
-            result = 31 * result + claro.hashCode()
-            return result
-        }
     }
 
     /** Una nube con su posicion, tamano y opacidad. */
-    class Nube(
+    data class Nube(
         private val x: Double,
         private val y: Double,
         private val escala: Double,
@@ -80,27 +58,11 @@ object GeneradorEntorno {
         fun y(): Double = y
         fun escala(): Double = escala
         fun opacidad(): Double = opacidad
-
-        override fun equals(other: Any?): Boolean =
-            other is Nube && x == other.x && y == other.y &&
-                escala == other.escala && opacidad == other.opacidad
-
-        override fun hashCode(): Int {
-            var result = x.hashCode()
-            result = 31 * result + y.hashCode()
-            result = 31 * result + escala.hashCode()
-            result = 31 * result + opacidad.hashCode()
-            return result
-        }
     }
 
     /** Poste de meta que se repite a lo largo del mapa. */
-    class Meta(private val x: Double) {
+    data class Meta(private val x: Double) {
         fun x(): Double = x
-
-        override fun equals(other: Any?): Boolean = other is Meta && x == other.x
-
-        override fun hashCode(): Int = x.hashCode()
     }
 
     /** Hash entero de difusion: el mismo indice siempre da el mismo valor en [0, 1). */

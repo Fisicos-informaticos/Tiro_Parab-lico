@@ -7,19 +7,38 @@ import org.example.modelo.colision.Penetracion
 import kotlin.math.exp
 
 /**
+ * Contrato del resolvedor de contactos. El motor depende de esta abstraccion
+ * para poder cambiar la estrategia de colision sin modificarse.
+ */
+interface ResolutorFisico {
+    fun cambiarAmbiente(ambiente: Ambiente)
+    fun resolver(proyectil: Proyectil, deltaTime: Double): List<Pared>
+}
+
+/** Fabrica del resolvedor por defecto, inyectable en el motor. */
+interface FabricaResolutor {
+    fun crear(paredes: MutableList<Pared>, ambiente: Ambiente): ResolutorFisico
+}
+
+class FabricaResolutorPredeterminada : FabricaResolutor {
+    override fun crear(paredes: MutableList<Pared>, ambiente: Ambiente): ResolutorFisico =
+        ResolutorColisiones(paredes, ambiente)
+}
+
+/**
  * Resuelve los contactos del proyectil con paredes, suelo y techo. Se mantiene
  * separado del motor para que este solo se ocupe de integrar las fuerzas.
  */
 class ResolutorColisiones(
     private val paredes: MutableList<Pared>,
     private var ambiente: Ambiente
-) {
+) : ResolutorFisico {
 
-    fun cambiarAmbiente(ambiente: Ambiente) {
+    override fun cambiarAmbiente(ambiente: Ambiente) {
         this.ambiente = ambiente
     }
 
-    fun resolver(proyectil: Proyectil, deltaTime: Double): List<Pared> {
+    override fun resolver(proyectil: Proyectil, deltaTime: Double): List<Pared> {
         val dtRozamiento = deltaTime / ITERACIONES_RESOLUCION
         val paredesRotas = mutableListOf<Pared>()
         repeat(ITERACIONES_RESOLUCION) {

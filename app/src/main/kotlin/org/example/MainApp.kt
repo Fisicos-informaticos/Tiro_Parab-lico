@@ -9,9 +9,8 @@ import javafx.scene.canvas.Canvas
 import javafx.scene.input.KeyCode
 import javafx.scene.layout.StackPane
 import javafx.stage.Stage
-import org.example.grafico.CanvasRenderer
+import org.example.grafico.FabricaRenderer
 import org.example.grafico.PresentadorJuego
-import org.example.grafico.VectorRenderer
 import org.example.modelo.TipoPelota
 import org.example.modelo.TipoPared
 import org.example.modelo.Vector2D
@@ -62,11 +61,10 @@ class MainApp : Application(), UIEventListener {
     }
 
     private fun crearPresentador(): PresentadorJuego {
-        val renderer = CanvasRenderer(
+        val renderer = FabricaRenderer.crear(
             canvas.graphicsContext2D,
             ANCHO_VENTANA,
-            ALTO_VENTANA,
-            VectorRenderer(canvas.graphicsContext2D)
+            ALTO_VENTANA
         )
         return PresentadorJuego(renderer, SpriteManager(FabricaSpriteEstatica()))
     }
@@ -94,12 +92,12 @@ class MainApp : Application(), UIEventListener {
 
     private fun crearEscena(): Scene {
         val root = StackPane(
-            canvas, panelControl.raiz(), menus.menuPelotas,
-            menus.menuParedes, menus.menuPausa, menus.menuFin
+            canvas, panelControl.raiz(), menus.menuPelotas(),
+            menus.menuParedes(), menus.menuPausa(), menus.menuFin()
         )
         StackPane.setAlignment(panelControl.raiz(), Pos.TOP_RIGHT)
         StackPane.setMargin(panelControl.raiz(), Insets(12.0))
-        for (menu in listOf(menus.menuPelotas, menus.menuParedes, menus.menuPausa, menus.menuFin)) {
+        for (menu in listOf(menus.menuPelotas(), menus.menuParedes(), menus.menuPausa(), menus.menuFin())) {
             StackPane.setAlignment(menu, Pos.CENTER)
         }
         return Scene(root, ANCHO_VENTANA, ALTO_VENTANA)
@@ -132,7 +130,7 @@ class MainApp : Application(), UIEventListener {
     }
 
     override fun alternarPausa() {
-        if (gestorMenus.menuFinAbierto || !simulacion.estado().permitePausa()) return
+        if (gestorMenus.menuFinAbierto() || !simulacion.estado().permitePausa()) return
         simulacion.alternarPausa()
         if (simulacion.pausado()) gestorMenus.cerrarTodosLosMenus()
         actualizarControles()
@@ -157,7 +155,7 @@ class MainApp : Application(), UIEventListener {
 
     /** Los botones del panel respetan el mismo bloqueo que el raton. */
     private fun conAccion(accion: () -> Unit) {
-        if (gestorMenus.interaccionBloqueada || gestorMenus.enVuelo) return
+        if (gestorMenus.interaccionBloqueada() || gestorMenus.enVuelo()) return
         accion()
         actualizarControles()
     }
@@ -174,16 +172,16 @@ class MainApp : Application(), UIEventListener {
 
     private fun configurarRatones() {
         canvas.setOnMousePressed { e ->
-            if (gestorMenus.interaccionBloqueada) return@setOnMousePressed
+            if (gestorMenus.interaccionBloqueada()) return@setOnMousePressed
             simulacion.pulsar(Vector2D(e.x, e.y))
             actualizarControles()
         }
         canvas.setOnMouseDragged { e ->
-            if (gestorMenus.interaccionBloqueada) return@setOnMouseDragged
+            if (gestorMenus.interaccionBloqueada()) return@setOnMouseDragged
             simulacion.arrastrar(Vector2D(e.x, e.y))
         }
         canvas.setOnMouseReleased { e ->
-            if (gestorMenus.interaccionBloqueada) return@setOnMouseReleased
+            if (gestorMenus.interaccionBloqueada()) return@setOnMouseReleased
             simulacion.soltar(Vector2D(e.x, e.y))
             actualizarControles()
         }
@@ -195,8 +193,8 @@ class MainApp : Application(), UIEventListener {
                 KeyCode.P -> alternarModoParedes()
                 KeyCode.B -> alternarMenuPelotas()
                 KeyCode.W -> alternarMenuParedes()
-                KeyCode.R -> if (gestorMenus.menuFinAbierto) reiniciarJuego()
-                KeyCode.Q -> if (gestorMenus.menuFinAbierto) Platform.exit()
+                KeyCode.R -> if (gestorMenus.menuFinAbierto()) reiniciarJuego()
+                KeyCode.Q -> if (gestorMenus.menuFinAbierto()) Platform.exit()
                 KeyCode.ESCAPE -> cerrarMenusConEscape()
                 else -> { }
             }

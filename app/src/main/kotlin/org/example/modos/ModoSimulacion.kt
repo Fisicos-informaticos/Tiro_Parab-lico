@@ -20,13 +20,13 @@ interface ModoSimulacion {
     fun ayuda(): String
 
     /** Si la preparacion dibuja el vector de tiro (flecha, angulo y fuerza). */
-    fun dibujaVectorDeTiro(): Boolean
+    fun dibujaVectorDeTiro(): Boolean = false
 
     /** Posicion donde se coloca la pelota al pulsar; null si el punto no vale. */
     fun colocar(preparacion: Preparacion): Vector2D?
 
     /** Nueva posicion mientras se arrastra; null si el modo no mueve la pelota. */
-    fun arrastrar(preparacion: Preparacion): Vector2D?
+    fun arrastrar(preparacion: Preparacion): Vector2D? = null
 
     /** Velocidad con la que se suelta la pelota; null si aun no procede lanzar. */
     fun velocidadDeSuelta(entrada: InputHandler): Vector2D?

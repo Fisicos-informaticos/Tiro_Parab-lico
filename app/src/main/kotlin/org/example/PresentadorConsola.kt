@@ -1,12 +1,13 @@
 package org.example
 
 import org.example.modelo.Vector2D
+import org.example.simulacion.ContextoJuego
 import org.example.simulacion.Simulacion
 import kotlin.math.cos
 import kotlin.math.sin
 
 class PresentadorConsola(
-    private val simulacion: Simulacion
+    private val simulacion: ContextoJuego
 ) {
     fun mostrarEstado() {
         println()

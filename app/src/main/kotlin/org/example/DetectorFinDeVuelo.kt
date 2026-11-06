@@ -1,13 +1,13 @@
 package org.example
 
-import org.example.simulacion.Simulacion
-import org.example.ui.MenusJuego
+import org.example.simulacion.ContextoJuego
+import org.example.ui.MenuJuego
 
 /** Abre o cierra el menu final justo cuando cambia el estado de la partida. */
 class DetectorFinDeVuelo(
-    private val simulacion: Simulacion,
-    private val menus: GestorMenus,
-    private val menusJuego: MenusJuego
+    private val simulacion: ContextoJuego,
+    private val menus: CoordinadorMenus,
+    private val menusJuego: MenuJuego
 ) {
     private var estadoPrevio = simulacion.estado()
 

@@ -4,7 +4,7 @@ package org.example.modelo
  * Vector inmutable del plano. La representacion interna queda oculta: solo se
  * puede consultar a traves de metodos y se opera con los operadores del tipo.
  */
-class Vector2D(private val x: Double, private val y: Double) {
+data class Vector2D(private val x: Double, private val y: Double) {
     fun x(): Double = x
     fun y(): Double = y
 
@@ -26,11 +26,4 @@ class Vector2D(private val x: Double, private val y: Double) {
     fun conY(nuevoY: Double): Vector2D = Vector2D(x, nuevoY)
 
     fun distanciaA(other: Vector2D): Double = (this - other).magnitud()
-
-    override fun equals(other: Any?): Boolean =
-        other is Vector2D && x == other.x && y == other.y
-
-    override fun hashCode(): Int = 31 * x.hashCode() + y.hashCode()
-
-    override fun toString(): String = "Vector2D(x=$x, y=$y)"
 }

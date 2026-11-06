@@ -12,9 +12,9 @@ import org.example.modos.CondicionPrevia
 class PrevisualizadorTrayectoria(
     private val fabricaMotor: FabricaMotorFisico,
     private val ambienteActual: () -> Ambiente
-) {
+) : Previsualizador {
 
-    fun previsualizar(
+    override fun previsualizar(
         condicion: CondicionPrevia,
         tipoPelota: TipoPelota,
         paredes: List<Pared>

@@ -8,23 +8,24 @@ import org.example.modos.Preparacion
 
 /** Calcula apoyos, alturas y la vista del mundo que necesita el modo activo. */
 class PosicionPelota(
-    private val sesion: SesionPartida,
+    private val sesion: SesionJuego,
     private val motor: PhysicsEngine,
-    private val superficies: SuperficiesLanzamiento,
+    private val superficies: SuperficiesApoyo,
     private val transformador: TransformadorCoordenadas,
     private val camara: Camara,
     private val alto: Double
-) {
-    fun aMundo(punto: Vector2D): Vector2D = transformador.pantallaAMundo(punto)
+) : UbicadorPelota {
+    override fun aMundo(punto: Vector2D): Vector2D = transformador.pantallaAMundo(punto)
 
-    fun preparacionPara(puntoMundo: Vector2D): Preparacion {
-        val radio = sesion.pelota.radio()
+    override fun preparacionPara(puntoMundo: Vector2D): Preparacion {
+        val pelota = sesion.pelota()
+        val radio = pelota.radio()
         val offsetY = camara.offsetCamara().y()
         val minY = maxOf(motor.techoY(), offsetY) + radio
         val maxY = maxOf(minY, minOf(motor.sueloY(), offsetY + alto) - radio)
         return Preparacion(
             punto = puntoMundo,
-            origen = sesion.pelota.posicion(),
+            origen = pelota.posicion(),
             apoyoY = superficies.yDeApoyo(puntoMundo.x(), radio, motor.sueloY()),
             sueloY = motor.sueloY(),
             minY = minY,
@@ -32,13 +33,15 @@ class PosicionPelota(
         )
     }
 
-    fun alturaActual(): Double =
-        (motor.sueloY() - sesion.pelota.radio() - SuperficiesLanzamiento.ALTURA_APOYO_PELOTA -
-            sesion.pelota.posicion().y()).coerceAtLeast(0.0)
+    override fun alturaActual(): Double {
+        val pelota = sesion.pelota()
+        return (motor.sueloY() - pelota.radio() - SuperficiesLanzamiento.ALTURA_APOYO_PELOTA -
+            pelota.posicion().y()).coerceAtLeast(0.0)
+    }
 
-    fun apoyarEnElSueloOSuperficie() {
-        val y = superficies.yDeApoyo(sesion.posicionOrigen.x(), sesion.pelota.radio(), motor.sueloY())
-        sesion.posicionOrigen = Vector2D(sesion.posicionOrigen.x(), y)
-        sesion.pelota.fijarPosicion(sesion.posicionOrigen)
+    override fun apoyarEnElSueloOSuperficie() {
+        val pelota = sesion.pelota()
+        val y = superficies.yDeApoyo(sesion.posicionOrigen().x(), pelota.radio(), motor.sueloY())
+        sesion.reubicarPelota(Vector2D(sesion.posicionOrigen().x(), y))
     }
 }

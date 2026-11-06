@@ -8,62 +8,57 @@ import org.example.modelo.creadores.CreadorParedes
 
 /** Comandos de pausa y edicion del escenario. */
 class ComandosEdicion(
-    private val sesion: SesionPartida,
-    private val edicion: GestorEdicion,
+    private val sesion: SesionJuego,
+    private val edicion: EditorEscenario,
     private val entrada: InputHandler,
     private val motor: PhysicsEngine,
     private val creadorParedes: CreadorParedes,
-    private val superficies: SuperficiesLanzamiento,
-    private val alReiniciar: () -> Unit,
-    private val alActivarHerramienta: () -> Unit,
-    private val alAbrirEdicion: () -> Unit
-) {
-    fun alternarPausa() {
-        if (!sesion.estado.permitePausa()) return
-        sesion.pausado = !sesion.pausado
-        if (sesion.pausado) desactivarEntrada()
+    private val superficies: SuperficiesApoyo
+) : ComandosEditor {
+    override fun alternarPausa() {
+        if (!sesion.estado().permitePausa()) return
+        if (sesion.alternarPausa()) desactivarEntrada()
     }
 
-    fun alternarModoParedes() = alternarHerramienta(edicion::alternarParedes)
+    override fun alternarModoParedes(): Boolean = alternarHerramienta(edicion::alternarParedes)
 
-    fun alternarModoSuperficies() = alternarHerramienta(edicion::alternarSuperficies)
+    override fun alternarModoSuperficies(): Boolean = alternarHerramienta(edicion::alternarSuperficies)
 
-    private fun alternarHerramienta(alternar: () -> Boolean) {
-        if (sesion.pausado || !sesion.estado.permiteEditar()) return
-        if (alternar()) alActivarHerramienta()
-    }
-
-    fun agregarSuperficieLanzamiento(pared: Pared) {
-        if (!sesion.estado.permiteEditar()) return
+    override fun agregarSuperficieLanzamiento(pared: Pared) {
+        if (!sesion.estado().permiteEditar()) return
         superficies.agregar(pared)
     }
 
-    fun limpiarSuperficiesLanzamiento() {
-        if (!sesion.estado.permiteEditar()) return
+    override fun limpiarSuperficiesLanzamiento(): Boolean {
+        if (!sesion.estado().permiteEditar()) return false
         superficies.limpiar()
-        alReiniciar()
+        return true
     }
 
-    fun seleccionarTipoPared(tipo: TipoPared) {
-        if (!sesion.estado.permiteEditar()) return
+    override fun seleccionarTipoPared(tipo: TipoPared) {
+        if (!sesion.estado().permiteEditar()) return
         creadorParedes.seleccionarTipoPared(tipo)
         edicion.cancelarDibujo()
     }
 
-    fun agregarPared(pared: Pared) {
-        if (!sesion.estado.estaEnVuelo()) motor.agregarPared(pared)
+    override fun agregarPared(pared: Pared) {
+        if (!sesion.estado().estaEnVuelo()) motor.agregarPared(pared)
     }
 
-    fun limpiarParedes() {
-        if (!sesion.estado.permiteEditar()) return
+    override fun limpiarParedes() {
+        if (!sesion.estado().permiteEditar()) return
         motor.limpiarParedes()
     }
 
-    fun abrirEdicion() {
-        sesion.pausado = false
+    override fun abrirEdicion() {
+        sesion.reanudar()
         edicion.desactivar()
         entrada.reiniciar()
-        alAbrirEdicion()
+    }
+
+    private fun alternarHerramienta(alternar: () -> Boolean): Boolean {
+        if (sesion.pausado() || !sesion.estado().permiteEditar()) return false
+        return alternar()
     }
 
     private fun desactivarEntrada() {

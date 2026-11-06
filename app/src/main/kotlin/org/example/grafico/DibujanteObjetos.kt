@@ -15,10 +15,12 @@ class DibujanteObjetos(
     fun dibujarProyectil(proyectil: Proyectil, camara: Vector2D) {
         DibujoPelota.dibujar(
             gc,
-            proyectil.tipo(),
-            proyectil.forma(),
-            proyectil.angulo(),
-            proyectil.posicion() - camara
+            VistaPelota(
+                tipo = proyectil.tipo(),
+                forma = proyectil.forma(),
+                angulo = proyectil.angulo(),
+                centro = proyectil.posicion() - camara
+            )
         )
     }
 

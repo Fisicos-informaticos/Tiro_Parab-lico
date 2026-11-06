@@ -1,33 +1,32 @@
-# Graph Report - Tiro_Parab-lico  (2026-11-02)
+# Graph Report - Tiro_Parab-lico  (2026-11-06)
 
 ## Corpus Check
-- 104 files · ~24,215 words
+- 109 files · ~25,432 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 7 file(s) not represented in the graph (top: (none) 2, .properties 2, .toml 1)
 
 ## Summary
-- 1232 nodes · 2725 edges · 75 communities (13 shown, 62 thin omitted)
-- Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 31 edges (avg confidence: 0.85)
+- 1454 nodes · 3134 edges · 103 communities (19 shown, 84 thin omitted)
+- Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 32 edges (avg confidence: 0.85)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `f53adce4`
+- Built from commit: `9ed954e0`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
 ## Community Hubs (Navigation)
 - Ball Customization
-- Wall Type Configuration
+- TipoPared
 - Main Application Entry
 - MetricasTiro
 - Pared
 - Canvas Rendering Engine
-- Simulation Environment
+- Simulacion
 - Input and Coordinates
-- Trajectory Calculations
-- UI Panel State
-- Physics World Management
-- Ball Physics Properties
+- AppTest
+- EstadoPanel
+- ContextoJuego
 - Editor Mode Manager
 - MenusJuego
 - Launch Input Handler
@@ -35,19 +34,19 @@
 - PhysicsEngine
 - Proyectil
 - Simulation Scene States
-- UI Layout Components
-- Simulation Integration Tests
+- Pelota
+- SimulacionTest
 - ComandosPartida
-- Sprite Management System
-- Simulation Mode Factory
+- GestionSprites
+- ModoSimulacion
 - Physics Data Readout
-- TransformadorCoordenadas
-- Camera Control System
-- Wall Rendering Logic
+- GestorMenus
+- .componentes
+- DibujanteParedes
 - Placement Mode Logic
 - Menu and Idle States
 - Simulation State Interface
-- Rest State Detector
+- Ambiente
 - Free Fall Tests
 - PresentadorConsola
 - Coordinate Transformation Tools
@@ -55,61 +54,86 @@
 - Physics Vector Visualization
 - Wall Destruction Effects
 - Static Image Sprites
-- ResultadoSimulacion
+- UIEventListener
 - Free Fall Mode
 - Drag Input Logic
-- Simulation Component Factory
+- SesionJuego
 - Game Presenter Logic
 - Projectile Launch State
-- Control Panel UI
+- Transformaciones
 - DibujanteObjetos
-- Wall Creation Tool
 - FormaCaja
+- FormaCapsula
 - Parabolic Motion Mode
 - DibujantePantallaInicio
-- ObservadorFinSimulacion
-- Capsule Collision Shape
-- Gravedades
-- MecanicaTiro
+- ComandosEdicion
+- MenusJuego.kt
+- DetectorReposo
+- FormaPoligono
 - Sprite Lifecycle Manager
-- Physics Simulation Step
-- SuperficiesLanzamiento
-- MenuFinJuego
+- CatalogoModos
+- Mundo
+- ComponentesSimulacion
 - Sprite Creation Factory
 - DibujanteFlechaDireccion
-- Simulation Coordinate Mapping
-- Debug Testing
-- Diagnostic Utilities
+- .componentes
+- HerramientaParedes
+- ResolutorColisiones
 - Documentation Generation
-- IntegradorVuelo
+- PanelControl
 - UI Style Definitions
 - Project Name
 - DibujantePanelInfo
-- DibujoVectoresFisica
+- DibujanteEntorno
+- FabricaMotorFisico
+- Obstaculo
+- Renderable
+- Metricas
+- EditorEscenario
+- ConstructorParedes
+- CreadorParedes
+- MecanicaTiro
+- .crear
+- ComandosEditor
+- SuperficiesLanzamiento
+- Mecanica
+- ResolutorColisiones.kt
+- EnSuelo
+- UbicadorPelota
+- EnVuelo
+- Gravedades
+- CalculadoraTrayectoria
+- ComandosJuego
+- FabricaModos
+- SuperficiesApoyo
+- TransformadorCoordenadasSimulacion
+- EntradaConsola
+- DbgTest.kt
+- Diag.kt
 
 ## God Nodes (most connected - your core abstractions)
-1. `Vector2D` - 307 edges
-2. `Simulacion` - 169 edges
-3. `Pared` - 103 edges
-4. `TipoPelota` - 63 edges
-5. `Proyectil` - 50 edges
-6. `Pelota` - 48 edges
-7. `TipoPared` - 45 edges
-8. `MainApp` - 42 edges
-9. `LecturaModo` - 39 edges
-10. `AppTest` - 37 edges
+1. `Vector2D` - 333 edges
+2. `Simulacion` - 119 edges
+3. `Pared` - 118 edges
+4. `ContextoJuego` - 105 edges
+5. `TipoPelota` - 75 edges
+6. `Pelota` - 55 edges
+7. `Proyectil` - 51 edges
+8. `TipoPared` - 48 edges
+9. `ComponentesSimulacion` - 44 edges
+10. `MainApp` - 42 edges
 
 ## Surprising Connections (you probably didn't know these)
-- `MotorFisico` --calls--> `ResolutorColisiones`  [INFERRED]
-  app/src/main/kotlin/org/example/fisica/MotorFisico.kt → app/src/main/kotlin/org/example/fisica/ResolutorColisiones.kt
-- `CanvasRenderer` --calls--> `DibujanteFlechaDireccion`  [INFERRED]
-  app/src/main/kotlin/org/example/grafico/CanvasRenderer.kt → app/src/main/kotlin/org/example/grafico/DibujanteFlechaDireccion.kt
-- `CanvasRenderer` --calls--> `DibujanteObjetos`  [INFERRED]
-  app/src/main/kotlin/org/example/grafico/CanvasRenderer.kt → app/src/main/kotlin/org/example/grafico/DibujanteObjetos.kt
-- `CanvasRenderer` --calls--> `DibujantePanelInfo`  [INFERRED]
-  app/src/main/kotlin/org/example/grafico/CanvasRenderer.kt → app/src/main/kotlin/org/example/grafico/DibujantePanelInfo.kt
-- `CanvasRenderer` --calls--> `DibujantePantallaInicio`  [INFERRED]
-  app/src/main/kotlin/org/example/grafico/CanvasRenderer.kt → app/src/main/kotlin/org/example/grafico/DibujantePantallaInicio.kt
+- `App` --calls--> `EntradaConsola`  [INFERRED]
+  app/src/main/kotlin/org/example/App.kt → app/src/main/kotlin/org/example/EntradaConsola.kt
+- `App` --calls--> `PresentadorConsola`  [INFERRED]
+  app/src/main/kotlin/org/example/App.kt → app/src/main/kotlin/org/example/PresentadorConsola.kt
+- `CatalogoModos` --calls--> `ModoCaidaLibre`  [INFERRED]
+  app/src/main/kotlin/org/example/modos/CatalogoModos.kt → app/src/main/kotlin/org/example/modos/ModoCaidaLibre.kt
+- `CatalogoModos` --calls--> `ModoTiroParabolico`  [INFERRED]
+  app/src/main/kotlin/org/example/modos/CatalogoModos.kt → app/src/main/kotlin/org/example/modos/ModoTiroParabolico.kt
+- `ConstructorEstadoPanel` --references--> `CoordinadorMenus`  [EXTRACTED]
+  app/src/main/kotlin/org/example/ConstructorEstadoPanel.kt → app/src/main/kotlin/org/example/CoordinadorMenus.kt
 
 ## Import Cycles
 - None detected.
@@ -117,79 +141,103 @@
 ## Hyperedges (group relationships)
 - **Graphify Tooling Suite** — gemini_graphify, gemini_graphify_out_graph_json, gemini_graphify_out_wiki_index_md, gemini_graphify_out_graph_report_md [EXTRACTED 1.00]
 
-## Communities (75 total, 62 thin omitted)
+## Communities (103 total, 84 thin omitted)
 
 ### Community 0 - "Ball Customization"
-Cohesion: 0.06
+Cohesion: 0.05
 Nodes (19): DecoracionBeisbol, DecoracionBloque, DecoracionBoliche, DecoracionFutbol, DecoracionPelota, DecoracionPoliedro, DecoracionRugby, DecoracionTenis (+11 more)
 
-### Community 1 - "Wall Type Configuration"
-Cohesion: 0.05
-Nodes (8): Obstaculo, TipoPared, ACERO, CARTON, HORMIGON, LADRILLO, MADERA, UIEventListener
+### Community 1 - "TipoPared"
+Cohesion: 0.10
+Nodes (6): TipoPared, ACERO, CARTON, HORMIGON, LADRILLO, MADERA
 
 ### Community 2 - "Main Application Entry"
 Cohesion: 0.09
 Nodes (4): BucleJuego, AnimationTimer, LanzadorJuego, MainApp
 
-### Community 10 - "Physics World Management"
-Cohesion: 0.10
-Nodes (3): MotorFisico, Tierra, FormaCirculo
+### Community 3 - "MetricasTiro"
+Cohesion: 0.05
+Nodes (6): MetricasTiro, ObservadorFinSimulacion, ObservadoresFin, RegistroObservadoresFin, ResultadoSimulacion, MenuFinJuego
 
-### Community 13 - "MenusJuego"
+### Community 7 - "Input and Coordinates"
 Cohesion: 0.09
-Nodes (3): DetectorFinDeVuelo, GestorMenus, MenusJuego
+Nodes (4): InputListener, Penetracion, Vector2D, CondicionPrevia
+
+### Community 8 - "AppTest"
+Cohesion: 0.12
+Nodes (3): MotorFisico, Tierra, AppTest
+
+### Community 14 - "Launch Input Handler"
+Cohesion: 0.09
+Nodes (4): InputHandler, CaidaLibre, TiroParabolico, ControladorCamara
 
 ### Community 15 - "GeneradorEntorno"
-Cohesion: 0.07
-Nodes (6): DibujanteEntorno, Arbol, Brizna, GeneradorEntorno, Meta, Nube
+Cohesion: 0.12
+Nodes (5): Arbol, Brizna, GeneradorEntorno, Meta, Nube
 
-### Community 17 - "Proyectil"
+### Community 19 - "Pelota"
+Cohesion: 0.06
+Nodes (3): Pelota, IntegradorVuelo, SesionPartida
+
+### Community 25 - "GestorMenus"
 Cohesion: 0.05
-Nodes (7): ResolutorColisiones, Hud, Mundo, Renderable, Renderer, Penetracion, Proyectil
+Nodes (4): CoordinadorMenus, DetectorFinDeVuelo, GestorMenus, MenuJuego
 
-### Community 18 - "Simulation Scene States"
-Cohesion: 0.10
-Nodes (3): EscenaEstado, EnVuelo, Inactivo
-
-### Community 31 - "Rest State Detector"
-Cohesion: 0.10
-Nodes (4): Ambiente, DetectorDeReposo, FabricaDetectoresReposo, DetectorReposo
-
-### Community 33 - "PresentadorConsola"
+### Community 26 - ".componentes"
 Cohesion: 0.13
-Nodes (3): App, EntradaConsola, PresentadorConsola
+Nodes (3): Camara, CamaraSimulacion, PosicionPelota
 
-### Community 42 - "Simulation Component Factory"
-Cohesion: 0.18
-Nodes (7): FabricaAmbiente, FabricaTierra, FabricaMotorFisico, FabricaMotorFisicoPredeterminada, ComponentesSimulacion, FabricaSimulacion, PrevisualizadorTrayectoria
+### Community 31 - "Ambiente"
+Cohesion: 0.13
+Nodes (3): Ambiente, FabricaAmbiente, FabricaTierra
 
-### Community 48 - "FormaCaja"
-Cohesion: 0.07
-Nodes (7): TipoColision, CAJA, CAPSULA, CIRCULO, POLIGONO, FormaCaja, FormaPoligono
+### Community 48 - "FormaCapsula"
+Cohesion: 0.09
+Nodes (7): TipoColision, CAJA, CAPSULA, CIRCULO, POLIGONO, FormaCapsula, FormaCirculo
+
+### Community 53 - "DetectorReposo"
+Cohesion: 0.20
+Nodes (3): DetectorDeReposo, FabricaDetectoresReposo, DetectorReposo
+
+### Community 58 - "ComponentesSimulacion"
+Cohesion: 0.13
+Nodes (5): ComponentesSimulacion, ControlCamara, Efectos, Integrador, Previsualizador
 
 ### Community 65 - "Documentation Generation"
 Cohesion: 0.50
 Nodes (4): graphify, graphify-out/graph.json, graphify-out/GRAPH_REPORT.md, graphify-out/wiki/index.md
 
+### Community 74 - "FabricaMotorFisico"
+Cohesion: 0.28
+Nodes (3): FabricaMotorFisico, FabricaMotorFisicoPredeterminada, PrevisualizadorTrayectoria
+
+### Community 76 - "Renderable"
+Cohesion: 0.25
+Nodes (3): Hud, Renderable, Renderer
+
+### Community 87 - "ResolutorColisiones.kt"
+Cohesion: 0.36
+Nodes (3): FabricaResolutor, FabricaResolutorPredeterminada, ResolutorFisico
+
 ## Knowledge Gaps
 - **21 isolated node(s):** `CARTON`, `MADERA`, `LADRILLO`, `HORMIGON`, `ACERO` (+16 more)
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 323 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
-- **62 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 414 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **84 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `Vector2D` connect `Input and Coordinates` to `Ball Customization`, `Wall Type Configuration`, `Main Application Entry`, `Pared`, `Canvas Rendering Engine`, `Simulation Environment`, `Trajectory Calculations`, `Physics World Management`, `Ball Physics Properties`, `Editor Mode Manager`, `MenusJuego`, `Launch Input Handler`, `GeneradorEntorno`, `Proyectil`, `Simulation Scene States`, `Simulation Integration Tests`, `ComandosPartida`, `Sprite Management System`, `Simulation Mode Factory`, `Physics Data Readout`, `TransformadorCoordenadas`, `Camera Control System`, `Wall Rendering Logic`, `Placement Mode Logic`, `Menu and Idle States`, `Simulation State Interface`, `Rest State Detector`, `Free Fall Tests`, `PresentadorConsola`, `Coordinate Transformation Tools`, `Drawing Context Wrapper`, `Physics Vector Visualization`, `Static Image Sprites`, `Free Fall Mode`, `Drag Input Logic`, `Simulation Component Factory`, `Game Presenter Logic`, `Projectile Launch State`, `DibujanteObjetos`, `Wall Creation Tool`, `FormaCaja`, `Parabolic Motion Mode`, `Capsule Collision Shape`, `MecanicaTiro`, `Sprite Lifecycle Manager`, `Physics Simulation Step`, `Unit Testing Framework`, `Sprite Creation Factory`, `DibujanteFlechaDireccion`, `Simulation Coordinate Mapping`, `Debug Testing`, `Diagnostic Utilities`, `IntegradorVuelo`, `DibujoVectoresFisica`?**
-  _High betweenness centrality (0.527) - this node is a cross-community bridge._
-- **Are the 13 inferred relationships involving `Simulacion` (e.g. with `ComandosEdicion` and `ComandosPartida`) actually correct?**
-  _`Simulacion` has 13 INFERRED edges - model-reasoned connections that need verification._
+- **Why does `Vector2D` connect `Input and Coordinates` to `Ball Customization`, `Main Application Entry`, `Pared`, `Canvas Rendering Engine`, `Simulacion`, `AppTest`, `ContextoJuego`, `Editor Mode Manager`, `MenusJuego`, `Launch Input Handler`, `Proyectil`, `Simulation Scene States`, `Pelota`, `SimulacionTest`, `ComandosPartida`, `GestionSprites`, `ModoSimulacion`, `Physics Data Readout`, `.componentes`, `DibujanteParedes`, `Placement Mode Logic`, `Menu and Idle States`, `Simulation State Interface`, `Ambiente`, `Free Fall Tests`, `PresentadorConsola`, `Coordinate Transformation Tools`, `Drawing Context Wrapper`, `Physics Vector Visualization`, `Static Image Sprites`, `Free Fall Mode`, `Drag Input Logic`, `SesionJuego`, `Game Presenter Logic`, `Projectile Launch State`, `Transformaciones`, `DibujanteObjetos`, `FormaCaja`, `FormaCapsula`, `Parabolic Motion Mode`, `MenusJuego.kt`, `DetectorReposo`, `FormaPoligono`, `Sprite Lifecycle Manager`, `Mundo`, `ComponentesSimulacion`, `Unit Testing Framework`, `Sprite Creation Factory`, `DibujanteFlechaDireccion`, `.componentes`, `HerramientaParedes`, `ResolutorColisiones`, `DibujanteEntorno`, `FabricaMotorFisico`, `Obstaculo`, `EditorEscenario`, `MecanicaTiro`, `.crear`, `.estado`, `Mecanica`, `ResolutorColisiones.kt`, `EnSuelo`, `UbicadorPelota`, `CalculadoraTrayectoria`, `TransformadorCoordenadasSimulacion`, `.previsualizarTrayectoria`, `DbgTest.kt`, `Diag.kt`?**
+  _High betweenness centrality (0.552) - this node is a cross-community bridge._
 - **What connects `CARTON`, `MADERA`, `LADRILLO` to the rest of the system?**
   _21 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Ball Customization` be split into smaller, more focused modules?**
-  _Cohesion score 0.05706760316066725 - nodes in this community are weakly interconnected._
-- **Why does `Simulacion` connect `Simulation Environment` to `Ball Customization`, `Wall Type Configuration`, `Main Application Entry`, `MetricasTiro`, `Pared`, `Input and Coordinates`, `UI Panel State`, `Ball Physics Properties`, `Editor Mode Manager`, `MenusJuego`, `Launch Input Handler`, `PhysicsEngine`, `Simulation Scene States`, `Simulation Integration Tests`, `ComandosPartida`, `Simulation Mode Factory`, `TransformadorCoordenadas`, `Camera Control System`, `Menu and Idle States`, `Simulation State Interface`, `Free Fall Tests`, `PresentadorConsola`, `Coordinate Transformation Tools`, `Wall Destruction Effects`, `Simulation Component Factory`, `Game Presenter Logic`, `Projectile Launch State`, `Wall Creation Tool`, `Parabolic Motion Mode`, `ObservadorFinSimulacion`, `Capsule Collision Shape`, `Gravedades`, `MecanicaTiro`, `SuperficiesLanzamiento`, `Unit Testing Framework`, `Debug Testing`, `Diagnostic Utilities`, `IntegradorVuelo`, `.distanciaRecorrida`?**
-  _High betweenness centrality (0.243) - this node is a cross-community bridge._
-- **Should `Wall Type Configuration` be split into smaller, more focused modules?**
-  _Cohesion score 0.048625792811839326 - nodes in this community are weakly interconnected._
-- **Why does `Pared` connect `Pared` to `Ball Customization`, `Wall Type Configuration`, `Coordinate Transformation Tools`, `Canvas Rendering Engine`, `Wall Destruction Effects`, `Input and Coordinates`, `Trajectory Calculations`, `Unit Testing Framework`, `Simulation Component Factory`, `Physics World Management`, `Editor Mode Manager`, `Wall Creation Tool`, `PhysicsEngine`, `Proyectil`, `Physics Simulation Step`, `SuperficiesLanzamiento`, `Wall Rendering Logic`, `Rest State Detector`?**
-  _High betweenness centrality (0.108) - this node is a cross-community bridge._
+  _Cohesion score 0.051228070175438595 - nodes in this community are weakly interconnected._
+- **Why does `ContextoJuego` connect `ContextoJuego` to `Ball Customization`, `TipoPared`, `MetricasTiro`, `Pared`, `Simulacion`, `EstadoPanel`, `Launch Input Handler`, `Simulation Scene States`, `Pelota`, `ModoSimulacion`, `Physics Data Readout`, `GestorMenus`, `Menu and Idle States`, `Simulation State Interface`, `PresentadorConsola`, `Wall Destruction Effects`, `Game Presenter Logic`, `Projectile Launch State`, `EnSuelo`, `EnVuelo`?**
+  _High betweenness centrality (0.146) - this node is a cross-community bridge._
+- **Should `TipoPared` be split into smaller, more focused modules?**
+  _Cohesion score 0.09956709956709957 - nodes in this community are weakly interconnected._
+- **Why does `Simulacion` connect `Simulacion` to `Ball Customization`, `TipoPared`, `Main Application Entry`, `MetricasTiro`, `Pared`, `Input and Coordinates`, `ContextoJuego`, `Launch Input Handler`, `PhysicsEngine`, `SimulacionTest`, `.componentes`, `Free Fall Tests`, `Wall Destruction Effects`, `SesionJuego`, `Game Presenter Logic`, `ComponentesSimulacion`, `Unit Testing Framework`, `.componentes`, `Metricas`, `EditorEscenario`, `CreadorParedes`, `ComandosEditor`, `.estado`, `Mecanica`, `UbicadorPelota`, `Gravedades`, `ComandosJuego`, `FabricaModos`, `SuperficiesApoyo`, `.reiniciar`, `.pelota`, `.previsualizarTrayectoria`, `DbgTest.kt`, `Diag.kt`?**
+  _High betweenness centrality (0.122) - this node is a cross-community bridge._
+- **Should `Main Application Entry` be split into smaller, more focused modules?**
+  _Cohesion score 0.08695652173913043 - nodes in this community are weakly interconnected._
