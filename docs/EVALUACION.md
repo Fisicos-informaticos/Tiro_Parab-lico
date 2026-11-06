@@ -3,20 +3,20 @@
 
 > Documento **generado automáticamente** por la cátedra de Programación II (RepoSense + análisis de calidad POO/SOLID). **No editar a mano**: se regenera en cada evaluación.
 > Rama evaluada: `main`. Análisis **heurístico** (regex + métricas): es una criba para orientar la revisión, **no una nota**.
-> Generado: 2026-11-02.
+> Generado: 2026-11-06.
 
 ## 1. Veredicto
 
 | Aspecto | Resultado |
 |---|---|
-| Índice de calidad POO/SOLID | **4/100** |
+| Índice de calidad POO/SOLID | **66/100** |
 | Código (LOC) | 3,963 |
 | Archivos de código | 49 |
-| Clases (bien usadas) | 67 (18 OK) |
+| Clases (bien usadas) | 67 (19 OK) |
 | Código dentro de clases (%POO) | 98% |
 | Funciones fuera de clases | 0 |
 | Duplicación lógica | 1.3% |
-| Señales S/O/L/I/D | 26/7/2/0/12 |
+| Señales S/O/L/I/D | 18/0/2/0/14 |
 
 > Este informe **describe** lo que el análisis midió con los criterios ya establecidos de la materia. No es una nota.
 
@@ -27,7 +27,7 @@ Criterios de `CRITERIOS-CALIDAD.md`. **Aprobar** se juega con el perfil `estanda
 | Semáforo | Resultado |
 |---|---|
 | Aprobar (`estandar`) | **no cumple** — 3/4 |
-| Destacar (`exigente`) | **no cumple** — 3/5 |
+| Destacar (`exigente`) | **no cumple** — 4/5 |
 
 **Criterios para aprobar**
 
@@ -36,7 +36,7 @@ Criterios de `CRITERIOS-CALIDAD.md`. **Aprobar** se juega con el perfil `estanda
 | Código dentro de clases (%POO) | ≥ 85% | 98% | sí |
 | Duplicación lógica | ≤ 10% | 1.3% | sí |
 | Funciones fuera de clases | ≤ 1 | 0 | sí |
-| Señales POO/SOLID críticas | ninguna | Clase demasiado grande (SRP), Baja cohesión (LCOM), Acoplamiento alto (CBO), Switch sobre tipos (OCP), Override vacío / 'no implementado' (LSP) | no |
+| Señales POO/SOLID críticas | ninguna | Clase demasiado grande (SRP), Baja cohesión (LCOM), Acoplamiento alto (CBO), Override vacío / 'no implementado' (LSP) | no |
 
 **Criterios para destacar**
 
@@ -45,8 +45,8 @@ Criterios de `CRITERIOS-CALIDAD.md`. **Aprobar** se juega con el perfil `estanda
 | Código dentro de clases (%POO) | ≥ 95% | 98% | sí |
 | Duplicación lógica | ≤ 5% | 1.3% | sí |
 | Funciones fuera de clases | ≤ 1 | 0 | sí |
-| Señales POO/SOLID críticas | ninguna | Clase demasiado grande (SRP), Baja cohesión (LCOM), Acoplamiento alto (CBO), Switch sobre tipos (OCP), Override vacío / 'no implementado' (LSP) | no |
-| Índice de calidad POO/SOLID | ≥ 60 | 4/100 | no |
+| Señales POO/SOLID críticas | ninguna | Clase demasiado grande (SRP), Baja cohesión (LCOM), Acoplamiento alto (CBO), Override vacío / 'no implementado' (LSP) | no |
+| Índice de calidad POO/SOLID | ≥ 60 | 66/100 | sí |
 
 ### Cómo se calcula el %POO (y por qué no sube solo)
 
@@ -70,11 +70,10 @@ Reúne lo que el análisis marcó y lo que todavía falta para cada semáforo. C
 
 | Falla | Tu resultado | Requisito | Archivos |
 |---|---|---|---|
-| Señales POO/SOLID críticas | Clase demasiado grande (SRP), Baja cohesión (LCOM), Acoplamiento alto (CBO), Switch sobre tipos (OCP), Override vacío / 'no implementado' (LSP) | Aprobar: ninguna<br>Destacar: ninguna | `app/src/main/kotlin/org/example/App.kt`, `app/src/main/kotlin/org/example/MainApp.kt`, `app/src/main/kotlin/org/example/entrada/DragInputHandler.kt`, `app/src/main/kotlin/org/example/fisica/MotorFisico.kt`, `app/src/main/kotlin/org/example/grafico/CanvasRenderer.kt`, `app/src/main/kotlin/org/example/grafico/DibujoPelota.kt` (+12 más) |
-| Índice de calidad POO/SOLID | 4/100 | Destacar: ≥ 60 | — |
+| Señales POO/SOLID críticas | Clase demasiado grande (SRP), Baja cohesión (LCOM), Acoplamiento alto (CBO), Override vacío / 'no implementado' (LSP) | Aprobar: ninguna<br>Destacar: ninguna | `app/src/main/kotlin/org/example/MainApp.kt`, `app/src/main/kotlin/org/example/entrada/DragInputHandler.kt`, `app/src/main/kotlin/org/example/fisica/MotorFisico.kt`, `app/src/main/kotlin/org/example/grafico/CanvasRenderer.kt`, `app/src/main/kotlin/org/example/grafico/DibujoPelota.kt`, `app/src/main/kotlin/org/example/grafico/GeneradorEntorno.kt` (+3 más) |
 | Métodos/funciones largos o con muchos parámetros | **4** método(s)/función(es) largos o con muchos parámetros | Sin señales | `app/src/main/kotlin/org/example/MainApp.kt`, `app/src/main/kotlin/org/example/grafico/CanvasRenderer.kt`, `app/src/main/kotlin/org/example/grafico/DibujoPelota.kt` |
-| Dependencia de concretos y falta de abstracciones (DIP) | **12** dependencia(s) de concretos sin abstracciones | Sin señales | `app/src/main/kotlin/org/example/App.kt`, `app/src/main/kotlin/org/example/MainApp.kt`, `app/src/main/kotlin/org/example/grafico/CanvasRenderer.kt`, `app/src/main/kotlin/org/example/grafico/DibujoPelota.kt`, `app/src/main/kotlin/org/example/modelo/TipoPared.kt`, `app/src/main/kotlin/org/example/modelo/TipoPelota.kt` (+6 más) |
-| Clase sin métodos (solo datos) | **17** clase(s) sin métodos (solo datos) | Sin señales | `app/src/main/kotlin/org/example/coordenadas/TransformadorCoordenadas.kt`, `app/src/main/kotlin/org/example/coordenadas/TransformadorCoordenadasSimulacion.kt`, `app/src/main/kotlin/org/example/entrada/InputHandler.kt`, `app/src/main/kotlin/org/example/fisica/Ambiente.kt`, `app/src/main/kotlin/org/example/fisica/Tierra.kt`, `app/src/main/kotlin/org/example/grafico/ContextoDibujo.kt` (+11 más) |
+| Dependencia de concretos y falta de abstracciones (DIP) | **14** dependencia(s) de concretos sin abstracciones | Sin señales | `app/src/main/kotlin/org/example/MainApp.kt`, `app/src/main/kotlin/org/example/fisica/MotorFisico.kt`, `app/src/main/kotlin/org/example/grafico/DibujoPelota.kt`, `app/src/main/kotlin/org/example/grafico/GeneradorEntorno.kt`, `app/src/main/kotlin/org/example/modelo/TipoPelota.kt`, `app/src/main/kotlin/org/example/modelo/colision/FormasColision.kt` (+6 más) |
+| Clase sin métodos (solo datos) | **11** clase(s) sin métodos (solo datos) | Sin señales | `app/src/main/kotlin/org/example/coordenadas/TransformadorCoordenadasSimulacion.kt`, `app/src/main/kotlin/org/example/fisica/Tierra.kt`, `app/src/main/kotlin/org/example/modelo/Pelota.kt`, `app/src/main/kotlin/org/example/modelo/colision/FormaColision.kt`, `app/src/main/kotlin/org/example/modelo/colision/FormasColision.kt`, `app/src/main/kotlin/org/example/modos/CaidaLibre.kt` (+5 más) |
 | Campos públicos (encapsulación) | **22** clase(s) con campos públicos | Sin señales | `app/src/main/kotlin/org/example/MainApp.kt`, `app/src/main/kotlin/org/example/entrada/DragInputHandler.kt`, `app/src/main/kotlin/org/example/entrada/InputHandler.kt`, `app/src/main/kotlin/org/example/fisica/Ambiente.kt`, `app/src/main/kotlin/org/example/fisica/Tierra.kt`, `app/src/main/kotlin/org/example/grafico/GeneradorEntorno.kt` (+13 más) |
 
 ## 4. Aspectos evaluados
@@ -85,7 +84,7 @@ Cada aspecto indica **qué mide**, **por qué importa** y **tu resultado**. Cuan
 
 - **Qué mide:** Un resumen numérico (0-100) que combina la riqueza de clases bien usadas con la penalización por señales POO/SOLID y duplicación, y luego aplica topes duros.
 - **Por qué importa:** Ordena y prioriza la revisión: un índice bajo indica varias señales que conviene mirar juntas.
-- **Tu resultado:** índice **4/100**
+- **Tu resultado:** índice **66/100**
 
 ### 2. Duplicación lógica (DRY) (duplicacion) — sin señales
 
@@ -110,7 +109,7 @@ Cada aspecto indica **qué mide**, **por qué importa** y **tu resultado**. Cuan
 
 - **Qué mide:** Clases con demasiadas líneas o métodos de LÓGICA. No cuentan los getters/setters triviales ni la cantidad de campos por sí sola.
 - **Por qué importa:** Una clase que hace de todo cambia por muchos motivos y cuesta entenderla y probarla.
-- **Tu resultado:** **8** clase(s) demasiado grande(s)
+- **Tu resultado:** **6** clase(s) demasiado grande(s)
 - **Para investigar la causa:**
     - ¿La clase creció por acumulación de responsabilidades?
     - ¿Qué partes de la clase se usan siempre juntas y cuáles no?
@@ -144,9 +143,9 @@ Cada aspecto indica **qué mide**, **por qué importa** y **tu resultado**. Cuan
 
 ### 9. Acoplamiento alto (CBO) (acoplamiento) — con señales
 
-- **Qué mide:** Cuánto depende una clase de otros tipos del proyecto.
+- **Qué mide:** Cuánto depende una clase de otros tipos del proyecto. No cuentan los tipos de la plataforma (biblioteca estándar, DOM, motor Godot) ni los métodos/propiedades propias.
 - **Por qué importa:** Piezas muy enlazadas hacen que un cambio se propague y que sea difícil reemplazar partes.
-- **Tu resultado:** **14** clase(s) muy acoplada(s)
+- **Tu resultado:** **3** clase(s) muy acoplada(s)
 - **Para investigar la causa:**
     - ¿La clase conoce detalles internos de muchas otras?
     - ¿Se puede cambiar una parte sin tocar las demás?
@@ -158,15 +157,11 @@ Cada aspecto indica **qué mide**, **por qué importa** y **tu resultado**. Cuan
 - **Por qué importa:** Jerarquías muy profundas vuelven difícil saber de dónde viene cada comportamiento.
 - **Tu resultado:** **0** clase(s) con herencia profunda
 
-### 11. Switch sobre tipos (OCP) (ocp) — con señales
+### 11. Switch sobre tipos (OCP) (ocp) — sin señales
 
-- **Qué mide:** Chequeos repetidos de tipo (`instanceof`/`is`/`typeof`) que equivalen a un switch sobre el tipo.
+- **Qué mide:** Cadenas de dispatch por tipo (`else if ... is` / `else if ... instanceof`, `switch` sobre tipo o `typeof`). Un `is Tipo variable` aislado (pattern matching / cast seguro) NO cuenta como switch.
 - **Por qué importa:** Cada tipo nuevo obliga a tocar varios lugares, en vez de extender con una implementación nueva.
-- **Tu resultado:** **7** clase(s) con switch sobre tipos
-- **Para investigar la causa:**
-    - ¿Qué operación se resuelve preguntando el tipo?
-    - ¿Qué se toca cada vez que aparece un tipo o caso nuevo?
-    - ¿El comportamiento podría vivir en la propia jerarquía de tipos?
+- **Tu resultado:** **0** clase(s) con switch sobre tipos
 
 ### 12. Interfaz con demasiados métodos (ISP) (isp) — sin señales
 
@@ -186,9 +181,9 @@ Cada aspecto indica **qué mide**, **por qué importa** y **tu resultado**. Cuan
 
 ### 14. Dependencia de concretos y falta de abstracciones (DIP) (dip) — con señales
 
-- **Qué mide:** Instanciación directa de clases concretas y ausencia de interfaces o clases abstractas pese al acoplamiento.
+- **Qué mide:** Instanciación directa de clases **propias** concretas y ausencia de interfaces o clases abstractas pese al acoplamiento. No cuentan los structs ni los nodos/tipos del motor.
 - **Por qué importa:** Depender de implementaciones concretas dificulta cambiar o probar una parte sin arrastrar las demás.
-- **Tu resultado:** **12** dependencia(s) de concretos sin abstracciones
+- **Tu resultado:** **14** dependencia(s) de concretos sin abstracciones
 - **Para investigar la causa:**
     - ¿La clase crea por dentro a sus colaboradores en vez de recibirlos?
     - ¿Hay puntos de variación que convendría expresar como abstracción?
@@ -198,7 +193,7 @@ Cada aspecto indica **qué mide**, **por qué importa** y **tu resultado**. Cuan
 
 - **Qué mide:** Clases que solo acumulan campos y no tienen comportamiento.
 - **Por qué importa:** Separar datos de comportamiento reparte por el proyecto la lógica que debería estar cerca de esos datos.
-- **Tu resultado:** **17** clase(s) sin métodos (solo datos)
+- **Tu resultado:** **11** clase(s) sin métodos (solo datos)
 - **Para investigar la causa:**
     - ¿Dónde vive el comportamiento que opera sobre esos datos?
     - ¿La clase representa un concepto del dominio o un contenedor técnico?
