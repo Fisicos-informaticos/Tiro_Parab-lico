@@ -1,16 +1,18 @@
 package org.example.coordenadas
 
 import org.example.modelo.Vector2D
-import org.example.simulacion.Simulacion
 
 /**
- * Adaptador que expone el offset de cámara de la simulación como transformador.
- * Esto evita que la simulación conozca detalles de UI y sigue DIP.
+ * Adaptador que expone el estado de la camara como transformador de coordenadas.
+ * Depende de [Camara], no de la simulacion concreta, de modo que ambas piezas
+ * pueden evolucionar por separado (DIP).
  */
 class TransformadorCoordenadasSimulacion(
-    private val simulacion: Simulacion
+    private val camara: Camara
 ) : TransformadorCoordenadas {
-    override val ancho: Double get() = simulacion.ancho
-    override val alto: Double get() = simulacion.alto
-    override val offsetCamara: Vector2D get() = simulacion.offsetCamara
+    override fun ancho(): Double = camara.ancho()
+
+    override fun alto(): Double = camara.alto()
+
+    override fun offsetCamara(): Vector2D = camara.offsetCamara()
 }

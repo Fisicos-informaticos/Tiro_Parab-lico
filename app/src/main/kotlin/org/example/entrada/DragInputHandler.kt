@@ -5,39 +5,37 @@ import kotlin.math.atan2
 
 class DragInputHandler : InputHandler {
 
-    private var _posicionInicial: Vector2D? = null
-    private var _posicionActual: Vector2D? = null
+    private var posicionInicial: Vector2D? = null
+    private var posicionActual: Vector2D? = null
 
-    override val posicionInicial: Vector2D? get() = _posicionInicial
-    override val posicionActual: Vector2D? get() = _posicionActual
+    override fun posicionInicial(): Vector2D? = posicionInicial
 
-    override val estaArrastrando: Boolean
-        get() = _posicionInicial != null && _posicionActual != null
+    override fun posicionActual(): Vector2D? = posicionActual
 
-    override val vectorLanzamiento: Vector2D?
-        get() {
-            val inicio = _posicionInicial ?: return null
-            val actual = _posicionActual ?: return null
-            return inicio - actual
-        }
+    override fun estaArrastrando(): Boolean =
+        posicionInicial != null && posicionActual != null
 
-    override val anguloLanzamiento: Double
-        get() {
-            val v = vectorLanzamiento ?: return 0.0
-            return Math.toDegrees(atan2(-v.y, v.x))
-        }
+    override fun vectorLanzamiento(): Vector2D? {
+        val inicio = posicionInicial ?: return null
+        val actual = posicionActual ?: return null
+        return inicio - actual
+    }
 
-    override val fuerzaLanzamiento: Double
-        get() = vectorLanzamiento?.magnitud ?: 0.0
+    override fun anguloLanzamiento(): Double {
+        val v = vectorLanzamiento() ?: return 0.0
+        return Math.toDegrees(atan2(-v.y(), v.x()))
+    }
+
+    override fun fuerzaLanzamiento(): Double = vectorLanzamiento()?.magnitud() ?: 0.0
 
     override fun iniciarArrastre(posicion: Vector2D) {
-        _posicionInicial = posicion
-        _posicionActual = posicion
+        posicionInicial = posicion
+        posicionActual = posicion
     }
 
     override fun actualizarArrastre(posicion: Vector2D) {
-        if (estaArrastrando) {
-            _posicionActual = posicion
+        if (estaArrastrando()) {
+            posicionActual = posicion
         }
     }
 
@@ -46,7 +44,7 @@ class DragInputHandler : InputHandler {
     }
 
     override fun reiniciar() {
-        _posicionInicial = null
-        _posicionActual = null
+        posicionInicial = null
+        posicionActual = null
     }
 }

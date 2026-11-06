@@ -23,10 +23,47 @@ object GeneradorEntorno {
     private const val ALTURA_NUBE_MINIMA = 24.0
     private const val ALTURA_NUBE_MAXIMA = 144.0
 
-    data class Brizna(val x: Double, val alto: Double, val ancho: Double, val brillo: Double)
-    data class Arbol(val x: Double, val escala: Double, val claro: Boolean)
-    data class Nube(val x: Double, val y: Double, val escala: Double, val opacidad: Double)
-    data class Meta(val x: Double)
+    /** Una brizna de cesped colocada en el mundo. */
+    data class Brizna(
+        private val x: Double,
+        private val alto: Double,
+        private val ancho: Double,
+        private val brillo: Double
+    ) {
+        fun x(): Double = x
+        fun alto(): Double = alto
+        fun ancho(): Double = ancho
+        fun brillo(): Double = brillo
+    }
+
+    /** Un arbol del decorado, con su escala y su tono de copa. */
+    data class Arbol(
+        private val x: Double,
+        private val escala: Double,
+        private val claro: Boolean
+    ) {
+        fun x(): Double = x
+        fun escala(): Double = escala
+        fun claro(): Boolean = claro
+    }
+
+    /** Una nube con su posicion, tamano y opacidad. */
+    data class Nube(
+        private val x: Double,
+        private val y: Double,
+        private val escala: Double,
+        private val opacidad: Double
+    ) {
+        fun x(): Double = x
+        fun y(): Double = y
+        fun escala(): Double = escala
+        fun opacidad(): Double = opacidad
+    }
+
+    /** Poste de meta que se repite a lo largo del mapa. */
+    data class Meta(private val x: Double) {
+        fun x(): Double = x
+    }
 
     /** Hash entero de difusion: el mismo indice siempre da el mismo valor en [0, 1). */
     fun dispersion(indice: Int): Double {

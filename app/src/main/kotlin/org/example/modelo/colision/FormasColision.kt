@@ -6,24 +6,46 @@ import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.sin
 
-class FormaCirculo(override val radio: Double) : FormaColision {
-    override val tipo = TipoColision.CIRCULO
-    override val radioEnvoltura = radio
-    override fun soporte(direccionLocal: Vector2D) = radio
-    override fun contorno(pasos: Int) = List(pasos) { i ->
+class FormaCirculo(private val radio: Double) : FormaColision {
+    private val tipo = TipoColision.CIRCULO
+    private val radioEnvoltura = radio
+
+    override fun tipo(): TipoColision = tipo
+
+    override fun radioEnvoltura(): Double = radioEnvoltura
+
+    override fun radio(): Double = radio
+
+    override fun soporte(direccionLocal: Vector2D): Double = radio
+
+    override fun contorno(pasos: Int): List<Vector2D> = List(pasos) { i ->
         val a = 2.0 * PI * i / pasos
         Vector2D(cos(a) * radio, sin(a) * radio)
     }
 }
 
-class FormaCapsula(val medioLargo: Double, override val radio: Double) : FormaColision {
-    override val tipo = TipoColision.CAPSULA
-    override val radioEnvoltura = medioLargo + radio
-    override val ejePrincipal = Vector2D(1.0, 0.0)
-    override val alineable = true
+class FormaCapsula(
+    private val medioLargo: Double,
+    private val radio: Double
+) : FormaColision {
+    private val tipo = TipoColision.CAPSULA
+    private val radioEnvoltura = medioLargo + radio
+    private val ejePrincipal = Vector2D(1.0, 0.0)
+
+    override fun medioLargo(): Double = medioLargo
+
+    override fun tipo(): TipoColision = tipo
+
+    override fun radioEnvoltura(): Double = radioEnvoltura
+
+    override fun radio(): Double = radio
+
+    override fun ejePrincipal(): Vector2D = ejePrincipal
+
+    override fun alineable(): Boolean = true
 
     override fun soporte(direccionLocal: Vector2D): Double =
-        radio + medioLargo * abs(direccionLocal.x)
+        radio + medioLargo * abs(direccionLocal.x())
 
     override fun contorno(pasos: Int): List<Vector2D> {
         val lista = mutableListOf<Vector2D>()
@@ -40,15 +62,33 @@ class FormaCapsula(val medioLargo: Double, override val radio: Double) : FormaCo
     }
 }
 
-class FormaCaja(val medioAncho: Double, val medioAlto: Double) : FormaColision {
-    override val tipo = TipoColision.CAJA
-    override val radio = kotlin.math.hypot(medioAncho, medioAlto)
-    override val radioEnvoltura = radio
-    override val ejePrincipal = Vector2D(1.0, 0.0)
-    override val alineable = true
+class FormaCaja(
+    private val medioAncho: Double,
+    private val medioAlto: Double
+) : FormaColision {
+    private val tipo = TipoColision.CAJA
+    private val radio = kotlin.math.hypot(medioAncho, medioAlto)
+    private val radioEnvoltura = radio
+    private val ejePrincipal = Vector2D(1.0, 0.0)
+
+    fun medioAncho(): Double = medioAncho
+
+    override fun medioAlto(): Double = medioAlto
+
+    override fun tipo(): TipoColision = tipo
+
+    override fun radioEnvoltura(): Double = radioEnvoltura
+
+    override fun radio(): Double = radio
+
+    override fun ejePrincipal(): Vector2D = ejePrincipal
+
+    override fun alineable(): Boolean = true
+
+    override fun dibujaBrillo(): Boolean = false
 
     override fun soporte(direccionLocal: Vector2D): Double =
-        medioAncho * abs(direccionLocal.x) + medioAlto * abs(direccionLocal.y)
+        medioAncho * abs(direccionLocal.x()) + medioAlto * abs(direccionLocal.y())
 
     override fun contorno(pasos: Int): List<Vector2D> = listOf(
         Vector2D(medioAncho, medioAlto),
@@ -58,26 +98,34 @@ class FormaCaja(val medioAncho: Double, val medioAlto: Double) : FormaColision {
     )
 }
 
-class FormaPoligono(val lados: Int, override val radio: Double) : FormaColision {
-    override val tipo = TipoColision.POLIGONO
-    override val radioEnvoltura = radio
-    override val alineable = true
-
-    val vertices: List<Vector2D> = List(lados) { i ->
+class FormaPoligono(
+    private val lados: Int,
+    private val radio: Double
+) : FormaColision {
+    private val tipo = TipoColision.POLIGONO
+    private val radioEnvoltura = radio
+    private val vertices: List<Vector2D> = List(lados) { i ->
         val a = 2.0 * PI * i / lados
         Vector2D(cos(a) * radio, sin(a) * radio)
     }
 
     /** Distancia del centro al centro de una cara. */
-    val apotema: Double = radio * cos(PI / lados)
+    private val apotema: Double = radio * cos(PI / lados)
 
-    private val normales: List<Vector2D> = List(lados) { i ->
-        val siguiente = vertices[(i + 1) % lados]
-        Vector2D(siguiente.y - vertices[i].y, vertices[i].x - siguiente.x).normalizado
-    }
+    override fun vertices(): List<Vector2D> = vertices
+
+    fun apotema(): Double = apotema
+
+    override fun tipo(): TipoColision = tipo
+
+    override fun radioEnvoltura(): Double = radioEnvoltura
+
+    override fun radio(): Double = radio
+
+    override fun alineable(): Boolean = true
 
     override fun soporte(direccionLocal: Vector2D): Double =
-        vertices.maxOf { it.x * direccionLocal.x + it.y * direccionLocal.y }
+        vertices.maxOf { it.x() * direccionLocal.x() + it.y() * direccionLocal.y() }
 
     override fun contorno(pasos: Int): List<Vector2D> = vertices
 }

@@ -1,0 +1,1 @@
+{"nodes": [{"id": "readme_tiro_parabolico", "label": "Tiro_Parabolico", "file_type": "concept", "source_file": "README.md", "source_location": null, "source_url": null, "captured_at": null, "author": null, "contributor": null, "rationale": "The README defines the project as a parabolic motion simulator.", "_origin": "semantic"}], "edges": [], "hyperedges": []}

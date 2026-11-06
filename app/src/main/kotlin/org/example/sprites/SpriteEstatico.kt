@@ -5,17 +5,32 @@ import org.example.modelo.Vector2D
 import java.io.File
 
 class SpriteEstatico(
-    override val ruta: String,
-    override var posicion: Vector2D,
-    override var visible: Boolean = true
+    private val ruta: String,
+    private var posicion: Vector2D,
+    private var visible: Boolean = true
 ) : Sprite {
 
     private var imagenData: ByteArray? = null
+    private val ancho = 32.0
+    private val alto = 32.0
 
-    override val ancho: Double
-        get() = 32.0
-    override val alto: Double
-        get() = 32.0
+    override fun ruta(): String = ruta
+
+    override fun posicion(): Vector2D = posicion
+
+    override fun visible(): Boolean = visible
+
+    override fun ancho(): Double = ancho
+
+    override fun alto(): Double = alto
+
+    override fun fijarPosicion(nueva: Vector2D) {
+        posicion = nueva
+    }
+
+    override fun fijarVisible(valor: Boolean) {
+        visible = valor
+    }
 
     fun cargar(): Boolean {
         val archivo = File(ruta)
@@ -42,6 +57,6 @@ class SpriteEstatico(
         val data = imagenData ?: return
         val stream = data.inputStream()
         val img = javafx.scene.image.Image(stream)
-        contexto.dibujarImagenMundo(img, posicion.x, posicion.y, ancho, alto)
+        contexto.dibujarImagenMundo(img, posicion.x(), posicion.y(), ancho, alto)
     }
 }
