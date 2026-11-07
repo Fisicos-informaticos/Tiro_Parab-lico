@@ -272,15 +272,15 @@ xychart-beta
 | 2026-10-23 | **Sí** | Tiro_Parab-lico | 1 / 0 |
 | 2026-10-26 | **Sí** | Tiro_Parab-lico | 1 / 0 |
 
-#### Aportes fuera del calendario de clases
+#### Aportes fuera del calendario de clases — Tomas-Chokita
 
-**3 fechas fuera del calendario** · 3 commits · 0 merges
+**Tomas-Chokita — 3 fechas fuera del calendario** · 3 commits · 0 merges
 
-| Fecha | Repositorios | Commits / merges |
-|---|---|--:|
-| 2026-10-30 | Tiro_Parab-lico | 1 / 0 |
-| 2026-11-02 | Tiro_Parab-lico | 1 / 0 |
-| 2026-11-06 | Tiro_Parab-lico | 1 / 0 |
+| Alumno | Fecha | Repositorios | Commits / merges |
+|---|---|---|---|
+| Tomas-Chokita (`Tomas-Chokita`) | 2026-10-30 | Tiro_Parab-lico | 1 / 0 |
+| Tomas-Chokita (`Tomas-Chokita`) | 2026-11-02 | Tiro_Parab-lico | 1 / 0 |
+| Tomas-Chokita (`Tomas-Chokita`) | 2026-11-06 | Tiro_Parab-lico | 1 / 0 |
 
 <!-- actividad-clases:fin -->
 
