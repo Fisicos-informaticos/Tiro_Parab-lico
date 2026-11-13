@@ -8,7 +8,7 @@ import org.example.modelo.Vector2D
  * mueve en el eje Y bajo la gravedad seleccionada. El arrastre no apunta, sino
  * que fija la altura inicial (h0) desde la que se suelta.
  */
-open class ModoCaidaLibre : ModoSimulacion {
+open class ModoCaidaLibre : ModoSimulacion, ModoArrastrable {
 
     override fun nombre(): String = CatalogoModos.CAIDA_LIBRE
 

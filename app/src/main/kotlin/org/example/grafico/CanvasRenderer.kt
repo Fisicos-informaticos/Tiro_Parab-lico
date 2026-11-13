@@ -58,14 +58,11 @@ class CanvasRenderer(
     override fun dibujarLineaDireccion(inicio: Vector2D, fin: Vector2D) =
         flechaDireccion.dibujar(inicio, fin)
 
-    override fun dibujarLinea(inicio: Vector2D, fin: Vector2D, color: String, grosor: Double) =
-        objetos.dibujarLinea(inicio, fin, color, grosor)
+    override fun dibujarLinea(linea: LineaDibujo) = objetos.dibujarLinea(linea)
 
-    override fun dibujarTexto(texto: String, x: Double, y: Double, tamano: Double) =
-        objetos.dibujarTexto(texto, x, y, tamano)
+    override fun dibujarTexto(texto: TextoDibujo) = objetos.dibujarTexto(texto)
 
     override fun dibujarPanel(lineas: List<String>) = panelInfo.dibujar(lineas)
 
-    override fun dibujarImagenMundo(imagen: javafx.scene.image.Image, x: Double, y: Double, ancho: Double, alto: Double) =
-        objetos.dibujarImagen(imagen, x, y, ancho, alto, camara)
+    override fun dibujarImagenMundo(imagen: ImagenEnMundo) = objetos.dibujarImagen(imagen, camara)
 }

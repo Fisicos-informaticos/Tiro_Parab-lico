@@ -15,7 +15,27 @@ interface ContextoDibujo {
     fun offsetCamara(): Vector2D
     fun fijarOffsetCamara(nuevo: Vector2D)
 
-    fun dibujarLinea(inicio: Vector2D, fin: Vector2D, color: String, grosor: Double = 2.0)
-    fun dibujarTexto(texto: String, x: Double, y: Double, tamano: Double = 14.0)
-    fun dibujarImagenMundo(imagen: Image, x: Double, y: Double, ancho: Double, alto: Double)
+    fun dibujarLinea(linea: LineaDibujo)
+    fun dibujarTexto(texto: TextoDibujo)
+    fun dibujarImagenMundo(imagen: ImagenEnMundo)
 }
+
+data class LineaDibujo(
+    val inicio: Vector2D,
+    val fin: Vector2D,
+    val color: String,
+    val grosor: Double = 2.0
+)
+
+data class TextoDibujo(
+    val texto: String,
+    val posicion: Vector2D,
+    val tamano: Double = 14.0
+)
+
+data class ImagenEnMundo(
+    val imagen: Image,
+    val posicion: Vector2D,
+    val ancho: Double,
+    val alto: Double
+)

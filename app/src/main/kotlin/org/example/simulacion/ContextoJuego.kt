@@ -2,7 +2,7 @@ package org.example.simulacion
 
 import org.example.entrada.InputHandler
 import org.example.modelo.Pared
-import org.example.modelo.Pelota
+import org.example.modelo.Proyectil
 import org.example.modelo.TipoPelota
 import org.example.modelo.TipoPared
 import org.example.modelo.Vector2D
@@ -27,7 +27,7 @@ interface ContextoJuego {
     fun factorGravedad(): Double
     fun modo(): ModoSimulacion
     fun nombresModos(): List<String>
-    fun pelota(): Pelota
+    fun pelota(): Proyectil
     fun offsetCamara(): Vector2D
     fun tiempoVuelo(): Double
     fun distanciaRecorrida(): Double

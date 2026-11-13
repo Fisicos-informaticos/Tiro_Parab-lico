@@ -1,6 +1,7 @@
 package org.example.sprites
 
 import org.example.grafico.ContextoDibujo
+import org.example.grafico.ImagenEnMundo
 import org.example.modelo.Vector2D
 import java.io.File
 
@@ -57,6 +58,6 @@ class SpriteEstatico(
         val data = imagenData ?: return
         val stream = data.inputStream()
         val img = javafx.scene.image.Image(stream)
-        contexto.dibujarImagenMundo(img, posicion.x(), posicion.y(), ancho, alto)
+        contexto.dibujarImagenMundo(ImagenEnMundo(img, posicion, ancho, alto))
     }
 }

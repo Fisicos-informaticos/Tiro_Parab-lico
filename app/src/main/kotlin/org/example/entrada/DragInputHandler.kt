@@ -39,10 +39,6 @@ class DragInputHandler : InputHandler {
         }
     }
 
-    override fun finalizarArrastre() {
-        // El vector se conserva para usar en el lanzamiento
-    }
-
     override fun reiniciar() {
         posicionInicial = null
         posicionActual = null

@@ -22,41 +22,76 @@ class VectorRenderer(private val gc: GraphicsContext) : DibujoVectoresFisica {
     /** Flecha azul en la direccion del movimiento, proporcional a su rapidez. */
     fun dibujarVelocidad(centro: Vector2D, velocidad: Vector2D) {
         if (velocidad.magnitud() < UMBRAL_NULO) return
-        flecha(centro, velocidad, ESCALA_VELOCIDAD, COLOR_VELOCIDAD, ETIQUETA_VELOCIDAD)
+        flecha(
+            TrazoVector(
+                origen = centro,
+                magnitud = velocidad,
+                escala = ESCALA_VELOCIDAD,
+                color = COLOR_VELOCIDAD,
+                etiqueta = ETIQUETA_VELOCIDAD
+            )
+        )
     }
 
     /** Flecha roja vertical hacia abajo, proporcional a la gravedad activa. */
     fun dibujarGravedad(centro: Vector2D, gravedad: Vector2D) {
         if (gravedad.magnitud() < UMBRAL_NULO) return
-        flecha(centro, gravedad, ESCALA_GRAVEDAD, COLOR_GRAVEDAD, ETIQUETA_GRAVEDAD)
+        flecha(
+            TrazoVector(
+                origen = centro,
+                magnitud = gravedad,
+                escala = ESCALA_GRAVEDAD,
+                color = COLOR_GRAVEDAD,
+                etiqueta = ETIQUETA_GRAVEDAD
+            )
+        )
     }
 
     /**
-     * Convierte una magnitud fisica a pixeles y la pinta como flecha desde
-     * [origen]. La longitud es proporcional al valor fisico hasta [LARGO_MAXIMO],
-     * tope que evita que una flecha gigante salga del lienzo.
+     * Convierte una magnitud fisica a pixeles y la pinta como flecha. La longitud
+     * es proporcional al valor fisico hasta [LARGO_MAXIMO], tope que evita que una
+     * flecha gigante salga del lienzo.
      */
-    private fun flecha(
-        origen: Vector2D,
-        magnitud: Vector2D,
-        escala: Double,
-        color: Color,
-        etiqueta: String
-    ) {
-        val largo = (magnitud.magnitud() * escala).coerceAtMost(LARGO_MAXIMO)
-        if (largo < LARGO_MINIMO) return
+    private fun flecha(trazo: TrazoVector) {
+        val geometria = geometria(trazo) ?: return
+        dibujarLinea(trazo, geometria)
+        dibujarCabeza(trazo, geometria)
+        pintarEtiqueta(trazo, geometria)
+    }
 
-        val direccion = magnitud.normalizado()
-        val perpendicular = Vector2D(-direccion.y(), direccion.x())
-        val punta = origen + direccion * largo
-        val cabeza = (largo * FRACCION_CABEZA).coerceAtMost(CABEZA_MAXIMA)
+    private fun geometria(trazo: TrazoVector): GeometriaFlecha? {
+        val largo = (trazo.magnitud.magnitud() * trazo.escala).coerceAtMost(LARGO_MAXIMO)
+        if (largo < LARGO_MINIMO) return null
 
-        gc.stroke = color
+        val direccion = trazo.magnitud.normalizado()
+        return GeometriaFlecha(
+            punta = trazo.origen + direccion * largo,
+            direccion = direccion,
+            perpendicular = Vector2D(-direccion.y(), direccion.x()),
+            cabeza = (largo * FRACCION_CABEZA).coerceAtMost(CABEZA_MAXIMA),
+            largo = largo
+        )
+    }
+
+    private fun dibujarLinea(trazo: TrazoVector, geometria: GeometriaFlecha) {
+        gc.stroke = trazo.color
         gc.lineWidth = GROSOR_LINEA
         gc.setLineDashes()
-        gc.strokeLine(origen.x(), origen.y(), punta.x(), punta.y())
+        gc.strokeLine(
+            trazo.origen.x(),
+            trazo.origen.y(),
+            geometria.punta.x(),
+            geometria.punta.y()
+        )
+    }
 
-        gc.fill = color
+    private fun dibujarCabeza(trazo: TrazoVector, geometria: GeometriaFlecha) {
+        val punta = geometria.punta
+        val direccion = geometria.direccion
+        val perpendicular = geometria.perpendicular
+        val cabeza = geometria.cabeza
+
+        gc.fill = trazo.color
         gc.fillPolygon(
             doubleArrayOf(
                 punta.x(),
@@ -70,30 +105,36 @@ class VectorRenderer(private val gc: GraphicsContext) : DibujoVectoresFisica {
             ),
             3
         )
-
-        pintarEtiqueta(
-            etiqueta,
-            origen + direccion * (largo * POSICION_ETIQUETA),
-            perpendicular,
-            color
-        )
     }
 
     /** Rotulo del vector a un lado del eje, para no tapar la punta. */
-    private fun pintarEtiqueta(
-        texto: String,
-        punto: Vector2D,
-        perpendicular: Vector2D,
-        color: Color
-    ) {
-        gc.fill = color
+    private fun pintarEtiqueta(trazo: TrazoVector, geometria: GeometriaFlecha) {
+        val punto = trazo.origen + geometria.direccion *
+            (geometria.largo * POSICION_ETIQUETA)
+        gc.fill = trazo.color
         gc.font = Font.font("Monospace", TAMANO_ETIQUETA)
         gc.fillText(
-            texto,
-            punto.x() + perpendicular.x() * DESPLAZAMIENTO_ETIQUETA,
-            punto.y() + perpendicular.y() * DESPLAZAMIENTO_ETIQUETA
+            trazo.etiqueta,
+            punto.x() + geometria.perpendicular.x() * DESPLAZAMIENTO_ETIQUETA,
+            punto.y() + geometria.perpendicular.y() * DESPLAZAMIENTO_ETIQUETA
         )
     }
+
+    private class TrazoVector(
+        val origen: Vector2D,
+        val magnitud: Vector2D,
+        val escala: Double,
+        val color: Color,
+        val etiqueta: String
+    )
+
+    private class GeometriaFlecha(
+        val punta: Vector2D,
+        val direccion: Vector2D,
+        val perpendicular: Vector2D,
+        val cabeza: Double,
+        val largo: Double
+    )
 
     companion object {
         /** Pixeles de flecha por pixeles/segundo de rapidez. */

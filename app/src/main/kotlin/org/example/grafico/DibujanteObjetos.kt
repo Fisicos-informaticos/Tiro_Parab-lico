@@ -1,7 +1,6 @@
 package org.example.grafico
 
 import javafx.scene.canvas.GraphicsContext
-import javafx.scene.image.Image
 import javafx.scene.paint.Color
 import javafx.scene.text.Font
 import org.example.modelo.Proyectil
@@ -13,15 +12,7 @@ class DibujanteObjetos(
     private val colorTexto: Color
 ) {
     fun dibujarProyectil(proyectil: Proyectil, camara: Vector2D) {
-        DibujoPelota.dibujar(
-            gc,
-            VistaPelota(
-                tipo = proyectil.tipo(),
-                forma = proyectil.forma(),
-                angulo = proyectil.angulo(),
-                centro = proyectil.posicion() - camara
-            )
-        )
+        VistaPelota.desde(proyectil, camara).dibujar(gc)
     }
 
     fun dibujarPuntoLanzamiento(posicion: Vector2D, radio: Double) {
@@ -38,20 +29,26 @@ class DibujanteObjetos(
         )
     }
 
-    fun dibujarLinea(inicio: Vector2D, fin: Vector2D, color: String, grosor: Double) {
-        gc.stroke = Color.web(color)
-        gc.lineWidth = grosor
+    fun dibujarLinea(linea: LineaDibujo) {
+        gc.stroke = Color.web(linea.color)
+        gc.lineWidth = linea.grosor
         gc.setLineDashes()
-        gc.strokeLine(inicio.x(), inicio.y(), fin.x(), fin.y())
+        gc.strokeLine(linea.inicio.x(), linea.inicio.y(), linea.fin.x(), linea.fin.y())
     }
 
-    fun dibujarTexto(texto: String, x: Double, y: Double, tamano: Double) {
+    fun dibujarTexto(texto: TextoDibujo) {
         gc.fill = colorTexto
-        gc.font = Font.font("Monospace", tamano)
-        gc.fillText(texto, x, y)
+        gc.font = Font.font("Monospace", texto.tamano)
+        gc.fillText(texto.texto, texto.posicion.x(), texto.posicion.y())
     }
 
-    fun dibujarImagen(imagen: Image, x: Double, y: Double, ancho: Double, alto: Double, camara: Vector2D) {
-        gc.drawImage(imagen, x - camara.x(), y - camara.y(), ancho, alto)
+    fun dibujarImagen(imagen: ImagenEnMundo, camara: Vector2D) {
+        gc.drawImage(
+            imagen.imagen,
+            imagen.posicion.x() - camara.x(),
+            imagen.posicion.y() - camara.y(),
+            imagen.ancho,
+            imagen.alto
+        )
     }
 }

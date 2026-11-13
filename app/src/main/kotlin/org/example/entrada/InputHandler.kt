@@ -5,7 +5,6 @@ import org.example.modelo.Vector2D
 interface InputHandler {
     fun iniciarArrastre(posicion: Vector2D)
     fun actualizarArrastre(posicion: Vector2D)
-    fun finalizarArrastre()
     fun reiniciar()
 
     fun estaArrastrando(): Boolean

@@ -5,17 +5,45 @@ import javafx.scene.paint.Color
 import javafx.scene.paint.CycleMethod
 import javafx.scene.paint.RadialGradient
 import javafx.scene.paint.Stop
+import org.example.modelo.Proyectil
 import org.example.modelo.TipoPelota
 import org.example.modelo.Vector2D
 import org.example.modelo.colision.FormaColision
 
-data class VistaPelota(
-    val tipo: TipoPelota,
-    val forma: FormaColision,
-    val angulo: Double,
-    val centro: Vector2D,
-    val escala: Double = 1.0
-)
+/**
+ * Instantanea de dibujo de una pelota. El estado queda oculto: solo se consulta
+ * mediante metodos y la propia vista sabe pintarse, de modo que los dibujantes
+ * no manipulan sus datos desde fuera.
+ */
+class VistaPelota(
+    private val tipo: TipoPelota,
+    private val forma: FormaColision,
+    private val angulo: Double,
+    private val centro: Vector2D,
+    private val escala: Double = 1.0
+) {
+    fun tipo(): TipoPelota = tipo
+
+    fun forma(): FormaColision = forma
+
+    fun angulo(): Double = angulo
+
+    fun centro(): Vector2D = centro
+
+    fun escala(): Double = escala
+
+    fun dibujar(gc: GraphicsContext) = DibujoPelota.dibujar(gc, this)
+
+    companion object {
+        /** Vista de un proyectil ya desplazado por la camara. */
+        fun desde(proyectil: Proyectil, camara: Vector2D): VistaPelota = VistaPelota(
+            tipo = proyectil.tipo(),
+            forma = proyectil.forma(),
+            angulo = proyectil.angulo(),
+            centro = proyectil.posicion() - camara
+        )
+    }
+}
 
 /**
  * Dibuja una pelota con la forma y los colores de su tipo. El GraphicsContext debe
@@ -25,30 +53,41 @@ data class VistaPelota(
 object DibujoPelota {
 
     fun dibujar(gc: GraphicsContext, vista: VistaPelota) {
-        val radio = vista.forma.radio()
-        val contorno = vista.forma.contorno()
+        val contorno = vista.forma().contorno()
 
         gc.save()
-        gc.translate(vista.centro.x(), vista.centro.y())
-        gc.scale(vista.escala, vista.escala)
-        gc.rotate(Math.toDegrees(vista.angulo))
+        transformar(gc, vista)
+        dibujarCuerpo(gc, vista, contorno)
+        dibujarDecoracion(gc, vista, contorno)
+        dibujarContorno(gc, vista, contorno)
+        gc.restore()
+    }
 
+    private fun transformar(gc: GraphicsContext, vista: VistaPelota) {
+        gc.translate(vista.centro().x(), vista.centro().y())
+        gc.scale(vista.escala(), vista.escala())
+        gc.rotate(Math.toDegrees(vista.angulo()))
+    }
+
+    private fun dibujarCuerpo(gc: GraphicsContext, vista: VistaPelota, contorno: List<Vector2D>) {
         GeometriaPelota.trazar(gc, contorno)
-        gc.fill = cuerpoDe(vista.tipo, radio)
+        gc.fill = cuerpoDe(vista.tipo(), vista.forma().radio())
         gc.fill()
+    }
 
+    private fun dibujarDecoracion(gc: GraphicsContext, vista: VistaPelota, contorno: List<Vector2D>) {
         gc.save()
         GeometriaPelota.trazar(gc, contorno)
         gc.clip()
-        decorar(gc, vista.tipo, vista.forma)
+        decorar(gc, vista.tipo(), vista.forma())
         gc.restore()
+    }
 
+    private fun dibujarContorno(gc: GraphicsContext, vista: VistaPelota, contorno: List<Vector2D>) {
         GeometriaPelota.trazar(gc, contorno)
-        gc.stroke = PaletaPelota.tono(vista.tipo.color(), -0.45)
+        gc.stroke = PaletaPelota.tono(vista.tipo().color(), -0.45)
         gc.lineWidth = 1.2
         gc.stroke()
-
-        gc.restore()
     }
 
     private fun cuerpoDe(tipo: TipoPelota, radio: Double): RadialGradient {

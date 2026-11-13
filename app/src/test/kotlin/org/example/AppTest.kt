@@ -1,6 +1,9 @@
 package org.example
 
+import org.example.fisica.Ambiente
 import org.example.fisica.CalculadoraTrayectoria
+import org.example.fisica.FabricaDetectoresReposo
+import org.example.fisica.FabricaResolutorPredeterminada
 import org.example.fisica.MotorFisico
 import org.example.fisica.Tierra
 import org.example.grafico.GeneradorEntorno
@@ -22,6 +25,14 @@ import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class AppTest {
+    private fun crearMotor(ambiente: Ambiente, paredes: List<Pared> = emptyList()): MotorFisico =
+        MotorFisico(
+            ambiente,
+            paredes,
+            FabricaDetectoresReposo.crear(ambiente),
+            FabricaResolutorPredeterminada()
+        )
+
     @Test
     fun alcancePara45Grados() {
         val v0 = 20.0
@@ -47,7 +58,7 @@ class AppTest {
         val pelota = Pelota(Vector2D(50.0, sueloY - 1.0), TipoPelota.GOMA)
         pelota.fijarVelocidad(Vector2D(10.0, 10.0))
         val ambiente = Tierra()
-        val motor = MotorFisico(ambiente)
+        val motor = crearMotor(ambiente)
 
         repeat(20) { motor.simularPaso(pelota, 0.05) }
 
@@ -76,7 +87,7 @@ class AppTest {
         val pared = Pared(Vector2D(100.0, 100.0), Vector2D(100.0, 300.0))
         val pelota = Pelota(Vector2D(80.0, 200.0), TipoPelota.GOMA, FormaCirculo(10.0), 1.0, 1.0)
         pelota.fijarVelocidad(Vector2D(100.0, 0.0))
-        val motor = MotorFisico(Tierra(gravedad = Vector2D(0.0, 0.0)), listOf(pared))
+        val motor = crearMotor(Tierra(gravedad = Vector2D(0.0, 0.0)), listOf(pared))
 
         motor.simularPaso(pelota, 0.1)
 
@@ -89,7 +100,7 @@ class AppTest {
         val pared = Pared(Vector2D(100.0, 100.0), Vector2D(100.0, 300.0), TipoPared.ACERO)
         val pelota = Pelota(Vector2D(0.0, 200.0), TipoPelota.GOMA, FormaCirculo(10.0), 1.0, 0.8)
         pelota.fijarVelocidad(Vector2D(1000.0, 0.0))
-        val motor = MotorFisico(Tierra(gravedad = Vector2D(0.0, 0.0)), listOf(pared))
+        val motor = crearMotor(Tierra(gravedad = Vector2D(0.0, 0.0)), listOf(pared))
 
         motor.simularPaso(pelota, 0.1)
 
@@ -100,7 +111,7 @@ class AppTest {
     @Test
     fun paredesSePuedenAgregarYEliminar() {
         val pared = Pared(Vector2D(0.0, 0.0), Vector2D(50.0, 50.0))
-        val motor = MotorFisico(Tierra(gravedad = Vector2D(0.0, 0.0)))
+        val motor = crearMotor(Tierra(gravedad = Vector2D(0.0, 0.0)))
 
         motor.agregarPared(pared)
         assertEquals(listOf(pared), motor.obtenerParedes())
@@ -235,7 +246,7 @@ class AppTest {
     @Test
     fun ningunaPelotaAtraviesaElSuelo() {
         for (tipo in TipoPelota.entries) {
-            val motor = MotorFisico(Tierra(1000.0, 650.0, Vector2D(0.0, 1500.0)))
+            val motor = crearMotor(Tierra(1000.0, 650.0, Vector2D(0.0, 1500.0)))
             val pelota = Pelota(Vector2D(100.0, 40.0), tipo)
             repeat(1500) { motor.simularPaso(pelota, 1.0 / 60.0) }
 
@@ -254,7 +265,7 @@ class AppTest {
     fun ningunaPelotaAtraviesaLaPared() {
         val pared = Pared(Vector2D(300.0, -500.0), Vector2D(300.0, 2000.0), TipoPared.ACERO)
         for (tipo in TipoPelota.entries) {
-            val motor = MotorFisico(
+            val motor = crearMotor(
                 Tierra(1000.0, 650.0, Vector2D(0.0, 0.0)),
                 listOf(pared)
             )
@@ -269,7 +280,7 @@ class AppTest {
 
     @Test
     fun elArrastreFrenaLaPelotaDeTenis() {
-        val motor = MotorFisico(Tierra(gravedad = Vector2D(0.0, 0.0)))
+        val motor = crearMotor(Tierra(gravedad = Vector2D(0.0, 0.0)))
         val pelota = Pelota(Vector2D(50.0, 300.0), TipoPelota.TENIS)
         pelota.fijarVelocidad(Vector2D(1200.0, 0.0))
 
@@ -282,7 +293,7 @@ class AppTest {
     @Test
     fun laPelotaPesadaRecorreMasQueLaLigera() {
         val distancia = { tipo: TipoPelota ->
-            val motor = MotorFisico(Tierra(1000.0, 650.0, Vector2D(0.0, 900.0)))
+            val motor = crearMotor(Tierra(1000.0, 650.0, Vector2D(0.0, 900.0)))
             val pelota = Pelota(Vector2D(50.0, 40.0), tipo)
             pelota.fijarVelocidad(Vector2D(1400.0, -200.0))
             var recorrida = 0.0
@@ -303,7 +314,7 @@ class AppTest {
     @Test
     fun laPelotaDeGomaRuedaMasLejosQueLaDeRugby() {
         val recorrido = { tipo: TipoPelota ->
-            val motor = MotorFisico(Tierra(1000.0, 650.0, Vector2D(0.0, 0.0)))
+            val motor = crearMotor(Tierra(1000.0, 650.0, Vector2D(0.0, 0.0)))
             val pelota = Pelota(Vector2D(50.0, motor.sueloY() - 20.0), tipo)
             pelota.fijarVelocidad(Vector2D(900.0, 0.0))
             repeat(60) { motor.simularPaso(pelota, 1.0 / 60.0) }
@@ -432,7 +443,7 @@ class AppTest {
     @Test
     fun unaParedRotaDesapareceYLaPelotaLaAtraviesa() {
         val pared = Pared(Vector2D(300.0, 0.0), Vector2D(300.0, 400.0), TipoPared.CARTON)
-        val motor = MotorFisico(
+        val motor = crearMotor(
             Tierra(1000.0, 650.0, Vector2D(0.0, 0.0)),
             listOf(pared)
         )
@@ -450,7 +461,7 @@ class AppTest {
     @Test
     fun elAceroRebotaLaPelotaYSeQuedaEnPie() {
         val pared = Pared(Vector2D(300.0, 0.0), Vector2D(300.0, 400.0), TipoPared.ACERO)
-        val motor = MotorFisico(
+        val motor = crearMotor(
             Tierra(1000.0, 650.0, Vector2D(0.0, 0.0)),
             listOf(pared)
         )
@@ -489,7 +500,7 @@ class AppTest {
     fun unaPelotaQuietaSobreUnaParedTerminaElTiro() {
         val ambiente = Tierra()
         val pared = Pared(Vector2D(400.0, 500.0), Vector2D(600.0, 500.0), TipoPared.ACERO)
-        val motor = MotorFisico(ambiente, listOf(pared))
+        val motor = crearMotor(ambiente, listOf(pared))
         val pelota = Pelota(Vector2D(500.0, 300.0), TipoPelota.BOLICHE)
 
         repeat(900) { motor.simularPaso(pelota, 1.0 / 60.0) }
@@ -505,7 +516,7 @@ class AppTest {
     fun rozarUnaParedVerticalEnElAireNoCuentaComoApoyo() {
         val ambiente = Tierra()
         val pared = Pared(Vector2D(600.0, 600.0), Vector2D(600.0, 100.0), TipoPared.ACERO)
-        val motor = MotorFisico(ambiente, listOf(pared))
+        val motor = crearMotor(ambiente, listOf(pared))
         val x = 600.0 - pared.grosor() / 2.0 - 10.0
         val pelota = Pelota(Vector2D(x, 400.0), TipoPelota.GOMA, FormaCirculo(10.0))
         pelota.fijarVelocidad(Vector2D(0.0, -450.0))

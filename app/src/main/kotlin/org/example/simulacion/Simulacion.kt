@@ -1,17 +1,13 @@
 package org.example.simulacion
 
-import org.example.coordenadas.Camara
 import org.example.entrada.InputHandler
 import org.example.entrada.InputListener
-import org.example.fisica.PhysicsEngine
 import org.example.fisica.Tierra
 import org.example.modelo.Pared
-import org.example.modelo.Pelota
+import org.example.modelo.Proyectil
 import org.example.modelo.TipoPelota
 import org.example.modelo.TipoPared
 import org.example.modelo.Vector2D
-import org.example.modelo.creadores.CreadorParedes
-import org.example.modos.FabricaModos
 import org.example.modos.LecturaModo
 import org.example.modos.ModoSimulacion
 
@@ -21,46 +17,35 @@ import org.example.modos.ModoSimulacion
  * dependencias se reciben ya construidas a traves de puertos (DIP); la unica
  * clase que conoce implementaciones concretas es [FabricaSimulacion].
  */
-class Simulacion(
+class Simulacion internal constructor(
     private val ancho: Double,
     private val alto: Double,
-    private val entrada: InputHandler,
-    private val camara: Camara,
-    private val motor: PhysicsEngine,
-    private val creadorParedes: CreadorParedes,
-    private val fabricaModos: FabricaModos,
-    private val sesion: SesionJuego,
-    private val metricas: Metricas,
-    private val efectos: Efectos,
-    private val superficies: SuperficiesApoyo,
-    private val controladorCamara: ControlCamara,
-    private val edicion: EditorEscenario,
-    private val previsualizador: Previsualizador,
-    private val observadores: ObservadoresFin,
-    private val posicionPelota: UbicadorPelota,
-    private val mecanica: Mecanica,
-    private val comandosEdicion: ComandosEditor,
-    private val comandosPartida: ComandosJuego
+    componentes: ComponentesSimulacion
 ) : InputListener, ContextoJuego {
+
+    private val entrada = componentes.entrada()
+    private val camara = componentes.camara()
+    private val motor = componentes.motor()
+    private val creadorParedes = componentes.creadorParedes()
+    private val fabricaModos = componentes.fabricaModos()
+    private val sesion = componentes.sesion()
+    private val metricas = componentes.metricas()
+    private val efectos = componentes.efectos()
+    private val superficies = componentes.superficies()
+    private val controladorCamara = componentes.controladorCamara()
+    private val edicion = componentes.edicion()
+    private val previsualizador = componentes.previsualizador()
+    private val observadores = componentes.observadores()
+    private val posicionPelota = componentes.posicionPelota()
+    private val mecanica = componentes.mecanica()
+    private val comandosEdicion = componentes.comandosEdicion()
+    private val comandosPartida = componentes.comandosPartida()
 
     constructor(
         ancho: Double = 1000.0,
         alto: Double = 650.0,
         entrada: InputHandler? = null
     ) : this(ancho, alto, FabricaSimulacion.componentes(ancho, alto, entrada))
-
-    internal constructor(
-        ancho: Double,
-        alto: Double,
-        componentes: ComponentesSimulacion
-    ) : this(
-        ancho, alto, componentes.entrada(), componentes.camara(), componentes.motor(),
-        componentes.creadorParedes(), componentes.fabricaModos(), componentes.sesion(),
-        componentes.metricas(), componentes.efectos(), componentes.superficies(),
-        componentes.controladorCamara(), componentes.edicion(), componentes.previsualizador(),
-        componentes.observadores(), componentes.posicionPelota(), componentes.mecanica(),
-        componentes.comandosEdicion(), componentes.comandosPartida()
-    )
 
     companion object {
         const val DT_FISICA = 1.0 / 60.0
@@ -92,7 +77,7 @@ class Simulacion(
     override fun factorGravedad(): Double = sesion.factorGravedad()
     override fun modo(): ModoSimulacion = sesion.modo()
     override fun nombresModos(): List<String> = fabricaModos.nombres()
-    override fun pelota(): Pelota = sesion.pelota()
+    override fun pelota(): Proyectil = sesion.pelota()
     override fun offsetCamara(): Vector2D = camara.offsetCamara()
     override fun tiempoVuelo(): Double = metricas.tiempoVuelo()
     override fun distanciaRecorrida(): Double = metricas.distanciaRecorrida()

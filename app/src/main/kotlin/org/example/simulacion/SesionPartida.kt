@@ -1,6 +1,7 @@
 package org.example.simulacion
 
 import org.example.modelo.Pelota
+import org.example.modelo.Proyectil
 import org.example.modelo.TipoPelota
 import org.example.modelo.Vector2D
 import org.example.modos.ModoSimulacion
@@ -23,7 +24,7 @@ class SesionPartida(
     private var tipoPelotaActual: TipoPelota = tipoPelotaInicial
     private var factorGravedadActual: Double = Gravedades.factorPorDefecto()
     private var modoActual: ModoSimulacion = modoInicial
-    private var proyectil: Pelota = Pelota(puntoInicial, tipoPelotaInicial)
+    private var proyectil: Proyectil = Pelota(puntoInicial, tipoPelotaInicial)
     private var origen: Vector2D = puntoInicial
 
     override fun estado(): EstadoSimulacion = estadoActual
@@ -54,7 +55,7 @@ class SesionPartida(
 
     override fun modo(): ModoSimulacion = modoActual
 
-    override fun pelota(): Pelota = proyectil
+    override fun pelota(): Proyectil = proyectil
 
     override fun posicionInicial(): Vector2D = puntoInicial
 

@@ -15,5 +15,10 @@ interface FabricaMotorFisico {
 class FabricaMotorFisicoPredeterminada : FabricaMotorFisico {
 
     override fun crear(ambiente: Ambiente, paredes: List<Pared>): PhysicsEngine =
-        MotorFisico(ambiente, paredes)
+        MotorFisico(
+            ambiente,
+            paredes,
+            FabricaDetectoresReposo.crear(ambiente),
+            FabricaResolutorPredeterminada()
+        )
 }

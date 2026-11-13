@@ -56,30 +56,49 @@ class DibujanteParedes(private val gc: GraphicsContext) {
     private fun dibujarGrietas(pared: Pared, inicio: Vector2D, fin: Vector2D) {
         if (pared.danio() <= UMBRAL_GRIETAS) return
 
-        val largo = pared.longitud()
-        if (largo <= 0.0) return
-
-        val direccion = (fin - inicio) / largo
-        val perpendicular = Vector2D(-direccion.y(), direccion.x())
-        val medio = pared.grosor() / 2.0
-        val semilla = semillaDe(pared)
-
+        val geometria = geometriaGrietas(pared, inicio, fin) ?: return
         gc.stroke = COLOR_GRIETA
-        gc.lineWidth = max(1.0, pared.grosor() * 0.16)
+        gc.lineWidth = max(1.0, geometria.grosor * 0.16)
         gc.setLineDashes()
 
-        val numero = ceil(pared.danio() * GRIETAS_MAXIMAS).toInt()
-        for (i in 1..numero) {
-            val t = 0.12 + 0.76 * fraccion(semilla + i * 0.41)
-            val centro = inicio + direccion * (largo * t)
-            val desvio = (fraccion(semilla + i * 0.77) - 0.5) * pared.grosor() * 1.4
-            gc.strokeLine(
-                centro.x() - perpendicular.x() * medio,
-                centro.y() - perpendicular.y() * medio,
-                centro.x() + perpendicular.x() * medio + direccion.x() * desvio,
-                centro.y() + perpendicular.y() * medio + direccion.y() * desvio
-            )
+        repeat(geometria.cantidad) { indice ->
+            dibujarGrieta(geometria, indice + 1)
         }
+    }
+
+    private fun geometriaGrietas(
+        pared: Pared,
+        inicio: Vector2D,
+        fin: Vector2D
+    ): GeometriaGrietas? {
+        val largo = pared.longitud()
+        if (largo <= 0.0) return null
+        val direccion = (fin - inicio) / largo
+        return GeometriaGrietas(
+            inicio = inicio,
+            direccion = direccion,
+            perpendicular = Vector2D(-direccion.y(), direccion.x()),
+            longitud = largo,
+            medio = pared.grosor() / 2.0,
+            grosor = pared.grosor(),
+            semilla = semillaDe(pared),
+            cantidad = ceil(pared.danio() * GRIETAS_MAXIMAS).toInt()
+        )
+    }
+
+    private fun dibujarGrieta(geometria: GeometriaGrietas, indice: Int) {
+        val t = 0.12 + 0.76 * fraccion(geometria.semilla + indice * 0.41)
+        val centro = geometria.inicio + geometria.direccion * (geometria.longitud * t)
+        val desvio =
+            (fraccion(geometria.semilla + indice * 0.77) - 0.5) * geometria.grosor * 1.4
+        gc.strokeLine(
+            centro.x() - geometria.perpendicular.x() * geometria.medio,
+            centro.y() - geometria.perpendicular.y() * geometria.medio,
+            centro.x() + geometria.perpendicular.x() * geometria.medio +
+                geometria.direccion.x() * desvio,
+            centro.y() + geometria.perpendicular.y() * geometria.medio +
+                geometria.direccion.y() * desvio
+        )
     }
 
     private fun colorDe(valor: Int): Color =
@@ -108,4 +127,15 @@ class DibujanteParedes(private val gc: GraphicsContext) {
         const val UMBRAL_GRIETAS = 0.05
         const val GRIETAS_MAXIMAS = 5.0
     }
+
+    private data class GeometriaGrietas(
+        val inicio: Vector2D,
+        val direccion: Vector2D,
+        val perpendicular: Vector2D,
+        val longitud: Double,
+        val medio: Double,
+        val grosor: Double,
+        val semilla: Double,
+        val cantidad: Int
+    )
 }

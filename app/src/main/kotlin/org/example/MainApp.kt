@@ -18,6 +18,7 @@ import org.example.simulacion.FabricaSimulacion
 import org.example.simulacion.Simulacion
 import org.example.sprites.FabricaSpriteEstatica
 import org.example.sprites.SpriteManager
+import org.example.ui.ConfiguracionPanelSimulacion
 import org.example.ui.MenusJuego
 import org.example.ui.PanelControl
 import org.example.ui.UIEventListener
@@ -71,10 +72,12 @@ class MainApp : Application(), UIEventListener {
 
     private fun crearPanelControl(): PanelControl = PanelControl(
         this,
-        simulacion.nombresModos(),
-        simulacion.modo().nombre(),
-        Simulacion.gravedades(),
-        Simulacion.GRAVEDAD_POR_DEFECTO
+        ConfiguracionPanelSimulacion(
+            modos = simulacion.nombresModos(),
+            modoInicial = simulacion.modo().nombre(),
+            gravedades = Simulacion.gravedades(),
+            gravedadInicial = Simulacion.GRAVEDAD_POR_DEFECTO
+        )
     )
 
     private fun crearMenus() {

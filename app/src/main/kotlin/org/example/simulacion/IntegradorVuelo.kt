@@ -1,7 +1,7 @@
 package org.example.simulacion
 
 import org.example.fisica.PhysicsEngine
-import org.example.modelo.Pelota
+import org.example.modelo.Proyectil
 import org.example.modelo.Vector2D
 import kotlin.math.min
 
@@ -16,7 +16,7 @@ class IntegradorVuelo(
 ) : Integrador {
 
     override fun avanzar(
-        pelota: Pelota,
+        pelota: Proyectil,
         deltaTime: Double,
         posicionOrigen: Vector2D,
         alturaActual: () -> Double
@@ -35,7 +35,7 @@ class IntegradorVuelo(
     }
 
     private fun registrarPaso(
-        pelota: Pelota,
+        pelota: Proyectil,
         paso: Double,
         posicionAnterior: Vector2D,
         posicionOrigen: Vector2D,

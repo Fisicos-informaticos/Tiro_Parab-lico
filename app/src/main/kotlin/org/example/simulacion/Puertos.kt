@@ -2,7 +2,7 @@ package org.example.simulacion
 
 import org.example.entrada.InputHandler
 import org.example.modelo.Pared
-import org.example.modelo.Pelota
+import org.example.modelo.Proyectil
 import org.example.modelo.TipoPelota
 import org.example.modelo.Vector2D
 import org.example.modos.CondicionPrevia
@@ -23,7 +23,7 @@ interface SesionJuego {
     fun tipoPelota(): TipoPelota
     fun factorGravedad(): Double
     fun modo(): ModoSimulacion
-    fun pelota(): Pelota
+    fun pelota(): Proyectil
     fun posicionInicial(): Vector2D
     fun posicionOrigen(): Vector2D
     fun cambiarTipoPelota(tipo: TipoPelota)
@@ -66,7 +66,7 @@ interface SuperficiesApoyo {
 
 interface ControlCamara {
     fun reiniciar()
-    fun actualizar(deltaTime: Double, entrada: InputHandler, pelota: Pelota)
+    fun actualizar(deltaTime: Double, entrada: InputHandler, pelota: Proyectil)
 }
 
 interface EditorEscenario {
@@ -99,7 +99,7 @@ interface ObservadoresFin {
 
 interface Integrador {
     fun avanzar(
-        pelota: Pelota,
+        pelota: Proyectil,
         deltaTime: Double,
         posicionOrigen: Vector2D,
         alturaActual: () -> Double

@@ -4,6 +4,7 @@ import org.example.entrada.InputHandler
 import org.example.modelo.Pelota
 import org.example.modelo.TipoPelota
 import org.example.modelo.Vector2D
+import org.example.modos.ModoArrastrable
 
 /** Reglas de colocacion, apuntado, lanzamiento y vuelo de la pelota. */
 class MecanicaTiro(
@@ -25,7 +26,8 @@ class MecanicaTiro(
     override fun continuarApuntado(punto: Vector2D) {
         if (!entrada.estaArrastrando()) return
         entrada.actualizarArrastre(punto)
-        val nuevaPosicion = sesion.modo().arrastrar(posicion.preparacionPara(posicion.aMundo(punto))) ?: return
+        val modoArrastrable = sesion.modo() as? ModoArrastrable ?: return
+        val nuevaPosicion = modoArrastrable.arrastrar(posicion.preparacionPara(posicion.aMundo(punto)))
         sesion.reubicarPelota(nuevaPosicion)
     }
 

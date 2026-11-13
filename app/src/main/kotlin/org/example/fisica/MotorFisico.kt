@@ -10,8 +10,8 @@ import kotlin.math.exp
 class MotorFisico(
     private var ambiente: Ambiente,
     paredes: List<Pared> = emptyList(),
-    private val detectorReposo: DetectorDeReposo = FabricaDetectoresReposo.crear(ambiente),
-    fabricaResolutor: FabricaResolutor = FabricaResolutorPredeterminada()
+    private val detectorReposo: DetectorDeReposo,
+    fabricaResolutor: FabricaResolutor
 ) : PhysicsEngine {
     private val listaParedes = paredes.toMutableList()
     private val resolutor: ResolutorFisico = fabricaResolutor.crear(listaParedes, ambiente)

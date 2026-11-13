@@ -2,7 +2,7 @@ package org.example.simulacion
 
 import org.example.coordenadas.Camara
 import org.example.entrada.InputHandler
-import org.example.modelo.Pelota
+import org.example.modelo.Proyectil
 import org.example.modelo.Vector2D
 import kotlin.math.exp
 
@@ -17,7 +17,7 @@ class ControladorCamara(
         camara.fijarOffsetCamara(Vector2D(0.0, 0.0))
     }
 
-    override fun actualizar(deltaTime: Double, entrada: InputHandler, pelota: Pelota) {
+    override fun actualizar(deltaTime: Double, entrada: InputHandler, pelota: Proyectil) {
         // Mientras se arrastra, el mapa quieto es lo que mantiene sincronizados
         // el puntero y la pelota (decisivo en caida libre, que la mueve).
         if (entrada.estaArrastrando()) return

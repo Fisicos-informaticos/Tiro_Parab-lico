@@ -1,7 +1,7 @@
 package org.example.modos
 
 import org.example.entrada.InputHandler
-import org.example.modelo.Pelota
+import org.example.modelo.Proyectil
 import org.example.modelo.Vector2D
 import java.util.Locale
 
@@ -25,9 +25,6 @@ interface ModoSimulacion {
     /** Posicion donde se coloca la pelota al pulsar; null si el punto no vale. */
     fun colocar(preparacion: Preparacion): Vector2D?
 
-    /** Nueva posicion mientras se arrastra; null si el modo no mueve la pelota. */
-    fun arrastrar(preparacion: Preparacion): Vector2D? = null
-
     /** Velocidad con la que se suelta la pelota; null si aun no procede lanzar. */
     fun velocidadDeSuelta(entrada: InputHandler): Vector2D?
 
@@ -48,6 +45,15 @@ interface ModoSimulacion {
         fun formatear(valor: Double, cifras: Int): String =
             String.format(Locale.US, "%.${cifras}f", valor)
     }
+}
+
+/**
+ * Capacidad opcional de los modos que reubican la pelota mientras se arrastra.
+ * Se separa de [ModoSimulacion] para que los modos que no la necesitan no
+ * hereden una operacion que no pueden cumplir (ISP/LSP).
+ */
+interface ModoArrastrable {
+    fun arrastrar(preparacion: Preparacion): Vector2D
 }
 
 /**
@@ -129,7 +135,7 @@ class CondicionPrevia(
     fun velocidad(): Vector2D = velocidad
 
     /** Coloca la pelota de prueba con esta condicion inicial. */
-    fun aplicarA(pelota: Pelota) {
+    fun aplicarA(pelota: Proyectil) {
         pelota.fijarPosicion(posicion)
         pelota.fijarVelocidad(velocidad)
     }
