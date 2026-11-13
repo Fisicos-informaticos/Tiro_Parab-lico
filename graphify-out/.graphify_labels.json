@@ -1,6 +1,4 @@
 {
-  "2": "Main Application Entry",
-  "5": "Canvas Rendering Engine",
   "7": "Input and Coordinates",
   "12": "Editor Mode Manager",
   "18": "Simulation Scene States",
@@ -10,7 +8,6 @@
   "32": "Free Fall Tests",
   "36": "Physics Vector Visualization",
   "37": "Wall Destruction Effects",
-  "40": "Free Fall Mode",
   "41": "Drag Input Logic",
   "43": "Game Presenter Logic",
   "44": "Projectile Launch State",

@@ -1,6 +1,4 @@
 {
-  "2": "Main Application Entry",
-  "5": "Canvas Rendering Engine",
   "7": "Input and Coordinates",
   "12": "Editor Mode Manager",
   "18": "Simulation Scene States",
@@ -14,7 +12,6 @@
   "41": "Drag Input Logic",
   "43": "Game Presenter Logic",
   "44": "Projectile Launch State",
-  "59": "Unit Testing Framework",
   "65": "Documentation Generation",
   "66": "Gradle Wrapper Scripts",
   "68": "UI Style Definitions",

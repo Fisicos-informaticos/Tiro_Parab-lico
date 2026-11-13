@@ -32,10 +32,14 @@ internal class MenuPelotas(
 
     private fun crearMenu(): VBox {
         val menu = ConstructorMenu.construir(
-            titulo = "ELIGE TU PELOTA",
-            subtitulo = "Cada tipo tiene su masa, rebote, rozamiento y forma de colision",
-            ayuda = "Pulsa B o ESC para cerrar",
-            contenido = ConstructorMenu.rejillaTipos(TipoPelota.entries.toList()) { crearBoton(it) }
+            ConstructorMenu.EspecificacionMenu(
+                titulo = "ELIGE TU PELOTA",
+                subtitulo = "Cada tipo tiene su masa, rebote, rozamiento y forma de colision",
+                ayuda = "Pulsa B o ESC para cerrar",
+                contenido = ConstructorMenu.rejillaTipos(TipoPelota.entries.toList()) {
+                    crearBoton(it)
+                }
+            )
         )
         grupo.selectToggle(botones[tipoPelotaActual()])
         marcarSeleccion()
@@ -48,11 +52,14 @@ internal class MenuPelotas(
         val textos = crearTextos(tipo, forma)
 
         val boton = ConstructorMenu.botonMenu(
-            previa,
-            textos,
-            ConstructorMenu.ANCHO_BOTON_MENU,
-            alCerrarMenus
-        ) { escucha.seleccionarPelota(tipo) }
+            ConstructorMenu.EspecificacionBotonMenu(
+                previa = previa,
+                textos = textos,
+                ancho = ConstructorMenu.ANCHO_BOTON_MENU,
+                alCerrarMenus = alCerrarMenus,
+                accion = { escucha.seleccionarPelota(tipo) }
+            )
+        )
         boton.tooltip = Tooltip(tipo.descripcion())
         botones[tipo] = boton
         return boton
@@ -75,11 +82,13 @@ internal class MenuPelotas(
 
     private fun crearTextos(tipo: TipoPelota, forma: FormaColision) =
         ConstructorMenu.textos(
-            nombre = tipo.nombre(),
-            datos = "masa ${"%.2f".format(tipo.masa())} kg · rebote " +
-                "${"%.2f".format(tipo.coeficienteRestitucion())}",
-            extra = "rozamiento ${"%.1f".format(tipo.coeficienteFriccion())} · " +
-                forma.tipo().etiqueta()
+            ConstructorMenu.EspecificacionTextos(
+                nombre = tipo.nombre(),
+                datos = "masa ${"%.2f".format(tipo.masa())} kg · rebote " +
+                    "${"%.2f".format(tipo.coeficienteRestitucion())}",
+                extra = "rozamiento ${"%.1f".format(tipo.coeficienteFriccion())} · " +
+                    forma.tipo().etiqueta()
+            )
         )
 
     private fun marcarSeleccion() {

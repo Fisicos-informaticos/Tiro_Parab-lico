@@ -15,40 +15,30 @@ class IntegradorVuelo(
     private val efectos: Efectos
 ) : Integrador {
 
-    override fun avanzar(
-        pelota: Proyectil,
-        deltaTime: Double,
-        posicionOrigen: Vector2D,
-        alturaActual: () -> Double
-    ): Boolean {
-        var restante = deltaTime
+    override fun avanzar(contexto: ContextoVuelo): Boolean {
+        var restante = contexto.deltaTime
         while (restante > PASO_MINIMO) {
             val paso = min(restante, Simulacion.DT_FISICA)
-            val antes = pelota.posicion()
-            registrarPaso(pelota, paso, antes, posicionOrigen, alturaActual)
+            registrarPaso(PasoIntegracion(contexto, paso, contexto.proyectil.posicion()))
             restante -= paso
 
             // El reloj se detiene en el instante exacto en que la pelota para.
-            if (motor.estaEnReposo(pelota)) return true
+            if (motor.estaEnReposo(contexto.proyectil)) return true
         }
         return metricas.tiempoVuelo() >= TIEMPO_MAXIMO_VUELO
     }
 
-    private fun registrarPaso(
-        pelota: Proyectil,
-        paso: Double,
-        posicionAnterior: Vector2D,
-        posicionOrigen: Vector2D,
-        alturaActual: () -> Double
-    ) {
-        val paredesRotas = motor.simularPaso(pelota, paso)
+    private fun registrarPaso(paso: PasoIntegracion) {
+        val contexto = paso.contexto
+        val pelota = contexto.proyectil
+        val paredesRotas = motor.simularPaso(pelota, paso.deltaTime)
         metricas.registrarRoturas(paredesRotas.size)
         efectos.agregarRoturas(paredesRotas, Simulacion.DURACION_ROTURA)
 
-        metricas.sumarDistancia(pelota.posicion().distanciaA(posicionAnterior))
-        metricas.avanzarTiempo(paso)
-        metricas.registrarAltura(alturaActual())
-        metricas.registrarAlcance(pelota.posicion().x() - posicionOrigen.x())
+        metricas.sumarDistancia(pelota.posicion().distanciaA(paso.posicionAnterior))
+        metricas.avanzarTiempo(paso.deltaTime)
+        metricas.registrarAltura(contexto.alturaActual())
+        metricas.registrarAlcance(pelota.posicion().x() - contexto.posicionOrigen.x())
     }
 
     private companion object {
@@ -58,3 +48,9 @@ class IntegradorVuelo(
         const val PASO_MINIMO = 1e-9
     }
 }
+
+private data class PasoIntegracion(
+    val contexto: ContextoVuelo,
+    val deltaTime: Double,
+    val posicionAnterior: Vector2D
+)

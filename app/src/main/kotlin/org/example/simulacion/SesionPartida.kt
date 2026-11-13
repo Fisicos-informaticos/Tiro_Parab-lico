@@ -1,9 +1,9 @@
 package org.example.simulacion
 
-import org.example.modelo.Pelota
 import org.example.modelo.Proyectil
 import org.example.modelo.TipoPelota
 import org.example.modelo.Vector2D
+import org.example.modelo.creadores.FabricaProyectiles
 import org.example.modos.ModoSimulacion
 
 /**
@@ -15,7 +15,8 @@ import org.example.modos.ModoSimulacion
 class SesionPartida(
     alto: Double,
     tipoPelotaInicial: TipoPelota,
-    modoInicial: ModoSimulacion
+    modoInicial: ModoSimulacion,
+    private val fabricaProyectiles: FabricaProyectiles
 ) : SesionJuego {
     private val puntoInicial: Vector2D = Vector2D(50.0, alto - 60.0)
 
@@ -24,7 +25,7 @@ class SesionPartida(
     private var tipoPelotaActual: TipoPelota = tipoPelotaInicial
     private var factorGravedadActual: Double = Gravedades.factorPorDefecto()
     private var modoActual: ModoSimulacion = modoInicial
-    private var proyectil: Proyectil = Pelota(puntoInicial, tipoPelotaInicial)
+    private var proyectil: Proyectil = fabricaProyectiles.crear(puntoInicial, tipoPelotaInicial)
     private var origen: Vector2D = puntoInicial
 
     override fun estado(): EstadoSimulacion = estadoActual
@@ -64,7 +65,7 @@ class SesionPartida(
     /** Cambia el material y deja una pelota nueva lista en el origen. */
     override fun cambiarTipoPelota(tipo: TipoPelota) {
         tipoPelotaActual = tipo
-        proyectil = Pelota(origen, tipo)
+        proyectil = fabricaProyectiles.crear(origen, tipo)
     }
 
     override fun cambiarModo(nuevo: ModoSimulacion) {
@@ -78,7 +79,7 @@ class SesionPartida(
     /** Coloca una pelota nueva en el punto de salida elegido. */
     override fun colocarPelota(posicion: Vector2D) {
         origen = posicion
-        proyectil = Pelota(posicion, tipoPelotaActual)
+        proyectil = fabricaProyectiles.crear(posicion, tipoPelotaActual)
     }
 
     /** Desplaza la pelota y su origen conservando el cuerpo actual. */

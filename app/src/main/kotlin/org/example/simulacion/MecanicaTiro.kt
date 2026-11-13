@@ -49,8 +49,13 @@ class MecanicaTiro(
 
     override fun avanzarVuelo(deltaTime: Double): Boolean =
         integrador.avanzar(
-            sesion.pelota(), deltaTime, sesion.posicionOrigen()
-        ) { posicion.alturaActual() }
+            ContextoVuelo(
+                proyectil = sesion.pelota(),
+                deltaTime = deltaTime,
+                posicionOrigen = sesion.posicionOrigen(),
+                alturaActual = { posicion.alturaActual() }
+            )
+        )
 
     override fun reiniciar() {
         posicion.apoyarEnElSueloOSuperficie()

@@ -29,10 +29,14 @@ internal class MenuParedes(
 
     private fun crearMenu(): VBox {
         val menu = ConstructorMenu.construir(
-            titulo = "ELIGE EL TIPO DE PARED",
-            subtitulo = "Cada material aguanta distinto y solo lo rompen ciertas pelotas",
-            ayuda = "Pulsa W o ESC para cerrar",
-            contenido = ConstructorMenu.rejillaTipos(TipoPared.entries.toList()) { crearBoton(it) }
+            ConstructorMenu.EspecificacionMenu(
+                titulo = "ELIGE EL TIPO DE PARED",
+                subtitulo = "Cada material aguanta distinto y solo lo rompen ciertas pelotas",
+                ayuda = "Pulsa W o ESC para cerrar",
+                contenido = ConstructorMenu.rejillaTipos(TipoPared.entries.toList()) {
+                    crearBoton(it)
+                }
+            )
         )
         grupo.selectToggle(botones[tipoParedActual()])
         marcarSeleccion()
@@ -44,11 +48,14 @@ internal class MenuParedes(
         val textos = crearTextos(tipo)
 
         val boton = ConstructorMenu.botonMenu(
-            previa,
-            textos,
-            ConstructorMenu.ANCHO_BOTON_PARED,
-            alCerrarMenus
-        ) { escucha.seleccionarTipoPared(tipo) }
+            ConstructorMenu.EspecificacionBotonMenu(
+                previa = previa,
+                textos = textos,
+                ancho = ConstructorMenu.ANCHO_BOTON_PARED,
+                alCerrarMenus = alCerrarMenus,
+                accion = { escucha.seleccionarTipoPared(tipo) }
+            )
+        )
         boton.tooltip = Tooltip(tipo.descripcion())
         botones[tipo] = boton
         return boton
@@ -70,10 +77,12 @@ internal class MenuParedes(
     }
 
     private fun crearTextos(tipo: TipoPared) = ConstructorMenu.textos(
-        nombre = tipo.nombre(),
-        datos = "grosor ${tipo.grosor().toInt()} px · aguanta ${textoResistencia(tipo)}",
-        extra = tipo.textoRompible(),
-        anchoExtra = ConstructorMenu.ANCHO_BOTON_PARED
+        ConstructorMenu.EspecificacionTextos(
+            nombre = tipo.nombre(),
+            datos = "grosor ${tipo.grosor().toInt()} px · aguanta ${textoResistencia(tipo)}",
+            extra = tipo.textoRompible(),
+            anchoExtra = ConstructorMenu.ANCHO_BOTON_PARED
+        )
     )
 
     private fun textoResistencia(tipo: TipoPared): String =

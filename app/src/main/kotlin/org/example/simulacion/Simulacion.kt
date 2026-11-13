@@ -23,23 +23,23 @@ class Simulacion internal constructor(
     componentes: ComponentesSimulacion
 ) : InputListener, ContextoJuego {
 
-    private val entrada = componentes.entrada()
-    private val camara = componentes.camara()
-    private val motor = componentes.motor()
-    private val creadorParedes = componentes.creadorParedes()
-    private val fabricaModos = componentes.fabricaModos()
-    private val sesion = componentes.sesion()
-    private val metricas = componentes.metricas()
-    private val efectos = componentes.efectos()
-    private val superficies = componentes.superficies()
-    private val controladorCamara = componentes.controladorCamara()
-    private val edicion = componentes.edicion()
-    private val previsualizador = componentes.previsualizador()
-    private val observadores = componentes.observadores()
-    private val posicionPelota = componentes.posicionPelota()
-    private val mecanica = componentes.mecanica()
-    private val comandosEdicion = componentes.comandosEdicion()
-    private val comandosPartida = componentes.comandosPartida()
+    private val entrada = componentes.control.entrada
+    private val camara = componentes.fisica.camara
+    private val motor = componentes.fisica.motor
+    private val creadorParedes = componentes.fisica.creadorParedes
+    private val fabricaModos = componentes.partida.fabricaModos
+    private val sesion = componentes.partida.sesion
+    private val metricas = componentes.partida.metricas
+    private val efectos = componentes.partida.efectos
+    private val superficies = componentes.partida.superficies
+    private val controladorCamara = componentes.control.servicios.controladorCamara
+    private val edicion = componentes.control.servicios.edicion
+    private val previsualizador = componentes.control.servicios.previsualizador
+    private val observadores = componentes.control.servicios.observadores
+    private val posicionPelota = componentes.control.servicios.posicionPelota
+    private val mecanica = componentes.control.servicios.mecanica
+    private val comandosEdicion = componentes.control.comandos.edicion
+    private val comandosPartida = componentes.control.comandos.partida
 
     constructor(
         ancho: Double = 1000.0,

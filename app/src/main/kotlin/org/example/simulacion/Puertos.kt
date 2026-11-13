@@ -98,13 +98,15 @@ interface ObservadoresFin {
 }
 
 interface Integrador {
-    fun avanzar(
-        pelota: Proyectil,
-        deltaTime: Double,
-        posicionOrigen: Vector2D,
-        alturaActual: () -> Double
-    ): Boolean
+    fun avanzar(contexto: ContextoVuelo): Boolean
 }
+
+data class ContextoVuelo(
+    val proyectil: Proyectil,
+    val deltaTime: Double,
+    val posicionOrigen: Vector2D,
+    val alturaActual: () -> Double
+)
 
 interface UbicadorPelota {
     fun aMundo(punto: Vector2D): Vector2D

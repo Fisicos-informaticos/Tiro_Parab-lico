@@ -13,6 +13,13 @@ import javafx.scene.layout.VBox
 
 /** Piezas de maquetacion compartidas por las secciones del panel lateral. */
 internal object ConstructorPanel {
+    data class EspecificacionCombo(
+        val opciones: List<String>,
+        val seleccionada: String,
+        val ayuda: String,
+        val alCambiar: (String?) -> Unit
+    )
+
     fun seccion(titulo: String, contenido: List<Node>): VBox =
         SeccionControl(titulo, contenido).raiz()
 
@@ -39,17 +46,12 @@ internal object ConstructorPanel {
         }
     }
 
-    fun combo(
-        opciones: List<String>,
-        seleccionada: String,
-        ayuda: String,
-        alCambiar: (String?) -> Unit
-    ): ComboBox<String> = ComboBox<String>().apply {
-        items = FXCollections.observableArrayList(opciones)
-        value = seleccionada
-        tooltip = Tooltip(ayuda)
+    fun combo(especificacion: EspecificacionCombo): ComboBox<String> = ComboBox<String>().apply {
+        items = FXCollections.observableArrayList(especificacion.opciones)
+        value = especificacion.seleccionada
+        tooltip = Tooltip(especificacion.ayuda)
         maxWidth = Double.MAX_VALUE
-        setOnAction { alCambiar(value) }
+        setOnAction { especificacion.alCambiar(value) }
     }
 
     fun etiquetaDetalle(): Label = Label().also { it.style = EstilosUI.DETALLE }

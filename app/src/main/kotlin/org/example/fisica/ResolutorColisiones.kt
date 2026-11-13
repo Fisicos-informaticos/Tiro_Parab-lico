@@ -3,6 +3,7 @@ package org.example.fisica
 import org.example.modelo.Pared
 import org.example.modelo.Proyectil
 import org.example.modelo.Vector2D
+import org.example.modelo.colision.DatosContactoPlano
 import org.example.modelo.colision.Penetracion
 import kotlin.math.exp
 
@@ -64,7 +65,9 @@ class ResolutorColisiones(
         val normal =
             if (distancia > EPSILON) delta.normalizado() else normalDeRespaldo(p, pared)
         val cara = puntoMasCercano + normal * (pared.grosor() / 2.0)
-        val contacto = p.forma().contactoPlano(cara, p.posicion(), p.angulo(), normal) ?: return false
+        val contacto = p.forma().contactoPlano(
+            DatosContactoPlano(cara, p.posicion(), p.angulo(), normal)
+        ) ?: return false
 
         val velocidadNormal = p.velocidad().x() * normal.x() + p.velocidad().y() * normal.y()
         if (velocidadNormal < 0.0 && pared.registrarImpacto(energiaDeImpacto(p, velocidadNormal), p.tipo())) {
@@ -82,7 +85,9 @@ class ResolutorColisiones(
 
     private fun resolverColisionSuelo(p: Proyectil, deltaTime: Double) {
         val punto = Vector2D(p.posicion().x(), ambiente.sueloY())
-        val contacto = p.forma().contactoPlano(punto, p.posicion(), p.angulo(), NORMAL_ARRIBA) ?: return
+        val contacto = p.forma().contactoPlano(
+            DatosContactoPlano(punto, p.posicion(), p.angulo(), NORMAL_ARRIBA)
+        ) ?: return
 
         aplicarImpacto(p, contacto)
         separar(p, contacto)
@@ -91,7 +96,9 @@ class ResolutorColisiones(
 
     private fun resolverColisionTecho(p: Proyectil, deltaTime: Double) {
         val punto = Vector2D(p.posicion().x(), ambiente.techoY())
-        val contacto = p.forma().contactoPlano(punto, p.posicion(), p.angulo(), NORMAL_ABAJO) ?: return
+        val contacto = p.forma().contactoPlano(
+            DatosContactoPlano(punto, p.posicion(), p.angulo(), NORMAL_ABAJO)
+        ) ?: return
 
         aplicarImpacto(p, contacto)
         separar(p, contacto)

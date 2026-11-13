@@ -12,10 +12,11 @@ import kotlin.math.sin
 /** Dibuja muros, superficies de lanzamiento, su dano y la previsualizacion. */
 class DibujanteParedes(private val gc: GraphicsContext) {
 
-    fun dibujar(pared: Pared, camara: Vector2D) = dibujar(pared, camara, null, null)
+    fun dibujar(pared: Pared, camara: Vector2D) =
+        dibujar(pared, camara, EstiloDibujoPared())
 
     fun dibujarSuperficie(pared: Pared, camara: Vector2D) =
-        dibujar(pared, camara, Color.DODGERBLUE, 3.0)
+        dibujar(pared, camara, EstiloDibujoPared(Color.DODGERBLUE, 3.0))
 
     fun dibujarTemporal(pared: Pared, camara: Vector2D) {
         val inicio = pared.inicio() - camara
@@ -31,17 +32,16 @@ class DibujanteParedes(private val gc: GraphicsContext) {
     private fun dibujar(
         pared: Pared,
         camara: Vector2D,
-        colorOverride: Color?,
-        grosorExtra: Double?
+        estilo: EstiloDibujoPared
     ) {
         val inicio = pared.inicio() - camara
         val fin = pared.fin() - camara
 
-        val colorBase = colorOverride ?: colorDe(pared.tipo().color())
-        val colorBordeBase = colorOverride ?: colorDe(pared.tipo().colorBorde())
+        val colorBase = estilo.colorOverride ?: colorDe(pared.tipo().color())
+        val colorBordeBase = estilo.colorOverride ?: colorDe(pared.tipo().colorBorde())
 
         gc.stroke = mezclar(colorBordeBase, COLOR_DANO, pared.danio() * 0.6)
-        gc.lineWidth = pared.grosor() + (grosorExtra ?: 2.0)
+        gc.lineWidth = pared.grosor() + (estilo.grosorExtra ?: 2.0)
         gc.setLineDashes()
         gc.strokeLine(inicio.x(), inicio.y(), fin.x(), fin.y())
 
@@ -137,5 +137,10 @@ class DibujanteParedes(private val gc: GraphicsContext) {
         val grosor: Double,
         val semilla: Double,
         val cantidad: Int
+    )
+
+    private data class EstiloDibujoPared(
+        val colorOverride: Color? = null,
+        val grosorExtra: Double? = null
     )
 }

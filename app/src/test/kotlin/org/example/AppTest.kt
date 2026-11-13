@@ -12,6 +12,7 @@ import org.example.modelo.Pelota
 import org.example.modelo.TipoPelota
 import org.example.modelo.TipoPared
 import org.example.modelo.Vector2D
+import org.example.modelo.colision.DatosContactoPlano
 import org.example.modelo.colision.FormaCapsula
 import org.example.modelo.colision.FormaCaja
 import org.example.modelo.colision.FormaCirculo
@@ -151,13 +152,17 @@ class AppTest {
         val centro = Vector2D(100.0, 100.0)
 
         val contacto = forma.contactoPlano(
-            Vector2D(108.0, 100.0), centro, 0.0, Vector2D(-1.0, 0.0)
+            DatosContactoPlano(Vector2D(108.0, 100.0), centro, 0.0, Vector2D(-1.0, 0.0))
         )
         assertNotNull(contacto)
         assertEquals(2.0, contacto.profundidad(), 1e-9)
         assertVectorIgual(Vector2D(-1.0, 0.0), contacto.normal())
 
-        assertNull(forma.contactoPlano(Vector2D(115.0, 100.0), centro, 0.0, Vector2D(-1.0, 0.0)))
+        assertNull(
+            forma.contactoPlano(
+                DatosContactoPlano(Vector2D(115.0, 100.0), centro, 0.0, Vector2D(-1.0, 0.0))
+            )
+        )
     }
 
     @Test
@@ -168,7 +173,9 @@ class AppTest {
 
         // Impacto de frente: solo la punta llega a la pared, 28 px del centro.
         val frontal = forma.contactoPlano(
-            centro + Vector2D(largo - 2.0, 0.0), centro, 0.0, Vector2D(-1.0, 0.0)
+            DatosContactoPlano(
+                centro + Vector2D(largo - 2.0, 0.0), centro, 0.0, Vector2D(-1.0, 0.0)
+            )
         )
         assertNotNull(frontal)
         assertEquals(2.0, frontal.profundidad(), 1e-9)
@@ -176,12 +183,16 @@ class AppTest {
 
         // La punta justa rozando ya no produce contacto.
         assertNull(
-            forma.contactoPlano(centro + Vector2D(largo, 0.0), centro, 0.0, Vector2D(-1.0, 0.0))
+            forma.contactoPlano(
+                DatosContactoPlano(centro + Vector2D(largo, 0.0), centro, 0.0, Vector2D(-1.0, 0.0))
+            )
         )
 
         // Impacto de lado: solo cuenta el grosor del tubo.
         val lateral = forma.contactoPlano(
-            centro + Vector2D(0.0, 6.0), centro, 0.0, Vector2D(0.0, -1.0)
+            DatosContactoPlano(
+                centro + Vector2D(0.0, 6.0), centro, 0.0, Vector2D(0.0, -1.0)
+            )
         )
         assertNotNull(lateral)
         assertEquals(2.0, lateral.profundidad(), 1e-9)
@@ -194,14 +205,14 @@ class AppTest {
         val centro = Vector2D(100.0, 100.0)
 
         val horizontal = forma.contactoPlano(
-            Vector2D(112.0, 100.0), centro, 0.0, Vector2D(-1.0, 0.0)
+            DatosContactoPlano(Vector2D(112.0, 100.0), centro, 0.0, Vector2D(-1.0, 0.0))
         )
         assertNotNull(horizontal)
         assertEquals(3.0, horizontal.profundidad(), 1e-9)
         assertVectorIgual(Vector2D(-1.0, 0.0), horizontal.normal())
 
         val vertical = forma.contactoPlano(
-            Vector2D(100.0, 108.0), centro, 0.0, Vector2D(0.0, -1.0)
+            DatosContactoPlano(Vector2D(100.0, 108.0), centro, 0.0, Vector2D(0.0, -1.0))
         )
         assertNotNull(vertical)
         assertEquals(2.0, vertical.profundidad(), 1e-9)
@@ -216,7 +227,9 @@ class AppTest {
         // Girada 45 grados: el suelo se alcanza en la esquina, no en el lado.
         val alcance = forma.soporte(Transformaciones.aLocal(Vector2D(0.0, 1.0), angulo))
         val contacto = forma.contactoPlano(
-            Vector2D(100.0, 100.0 + alcance - 1.0), centro, angulo, Vector2D(0.0, -1.0)
+            DatosContactoPlano(
+                Vector2D(100.0, 100.0 + alcance - 1.0), centro, angulo, Vector2D(0.0, -1.0)
+            )
         )
         assertEquals((15.0 + 10.0) / Math.sqrt(2.0), alcance, 1e-9)
         assertNotNull(contacto)
@@ -231,12 +244,22 @@ class AppTest {
         // Justo fuera de una cara: no hay contacto.
         assertNull(
             forma.contactoPlano(
-                Vector2D(100.0, 100.0 + forma.apotema() + 0.1), centro, 0.0, Vector2D(0.0, -1.0)
+                DatosContactoPlano(
+                    Vector2D(100.0, 100.0 + forma.apotema() + 0.1),
+                    centro,
+                    0.0,
+                    Vector2D(0.0, -1.0)
+                )
             )
         )
         // Dentro de una cara: la profundidad la fija el apotema.
         val contacto = forma.contactoPlano(
-            Vector2D(100.0, 100.0 + forma.apotema() - 1.0), centro, 0.0, Vector2D(0.0, -1.0)
+            DatosContactoPlano(
+                Vector2D(100.0, 100.0 + forma.apotema() - 1.0),
+                centro,
+                0.0,
+                Vector2D(0.0, -1.0)
+            )
         )
         assertNotNull(contacto)
         assertEquals(1.0, contacto.profundidad(), 1e-9)

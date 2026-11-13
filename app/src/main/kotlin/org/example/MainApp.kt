@@ -6,28 +6,27 @@ import javafx.geometry.Insets
 import javafx.geometry.Pos
 import javafx.scene.Scene
 import javafx.scene.canvas.Canvas
-import javafx.scene.input.KeyCode
 import javafx.scene.layout.StackPane
 import javafx.stage.Stage
 import org.example.grafico.FabricaRenderer
 import org.example.grafico.PresentadorJuego
 import org.example.modelo.TipoPelota
 import org.example.modelo.TipoPared
-import org.example.modelo.Vector2D
 import org.example.simulacion.FabricaSimulacion
 import org.example.simulacion.Simulacion
 import org.example.sprites.FabricaSpriteEstatica
 import org.example.sprites.SpriteManager
 import org.example.ui.ConfiguracionPanelSimulacion
+import org.example.ui.ControlEventosUI
+import org.example.ui.ControladorEventosUI
 import org.example.ui.MenusJuego
 import org.example.ui.PanelControl
-import org.example.ui.UIEventListener
 
 /**
  * Capa JavaFX: construye la ventana, los menus y reenvia los eventos al nucleo.
  * No decide nada del juego; de eso se encarga [Simulacion].
  */
-class MainApp : Application(), UIEventListener {
+class MainApp : Application(), ControlEventosUI {
 
     companion object {
         const val ANCHO_VENTANA = 1000.0
@@ -169,52 +168,7 @@ class MainApp : Application(), UIEventListener {
     }
 
     private fun configurarEventos(scene: Scene) {
-        configurarRatones()
-        configurarTeclado(scene)
-    }
-
-    private fun configurarRatones() {
-        canvas.setOnMousePressed { e ->
-            if (gestorMenus.interaccionBloqueada()) return@setOnMousePressed
-            simulacion.pulsar(Vector2D(e.x, e.y))
-            actualizarControles()
-        }
-        canvas.setOnMouseDragged { e ->
-            if (gestorMenus.interaccionBloqueada()) return@setOnMouseDragged
-            simulacion.arrastrar(Vector2D(e.x, e.y))
-        }
-        canvas.setOnMouseReleased { e ->
-            if (gestorMenus.interaccionBloqueada()) return@setOnMouseReleased
-            simulacion.soltar(Vector2D(e.x, e.y))
-            actualizarControles()
-        }
-    }
-
-    private fun configurarTeclado(scene: Scene) {
-        scene.setOnKeyPressed { e ->
-            when (e.code) {
-                KeyCode.P -> alternarModoParedes()
-                KeyCode.B -> alternarMenuPelotas()
-                KeyCode.W -> alternarMenuParedes()
-                KeyCode.R -> if (gestorMenus.menuFinAbierto()) reiniciarJuego()
-                KeyCode.Q -> if (gestorMenus.menuFinAbierto()) Platform.exit()
-                KeyCode.ESCAPE -> cerrarMenusConEscape()
-                else -> { }
-            }
-        }
-    }
-
-    private fun cerrarMenusConEscape() {
-        if (!gestorMenus.cerrarConEscape()) cerrarPausaOHerramienta()
-        actualizarControles()
-    }
-
-    private fun cerrarPausaOHerramienta() {
-        when {
-            simulacion.pausado() -> simulacion.alternarPausa()
-            simulacion.modoParedes() -> simulacion.alternarModoParedes()
-            else -> { }
-        }
+        ControladorEventosUI(simulacion, gestorMenus, this).enlazar(canvas, scene)
     }
 
     private fun reiniciarJuego() {
@@ -229,7 +183,7 @@ class MainApp : Application(), UIEventListener {
         gestorMenus.cerrarMenuFin()
     }
 
-    private fun actualizarControles() {
+    override fun actualizarControles() {
         gestorMenus.sincronizarVisibilidad()
         panelControl.refrescar(constructorEstado.crear())
     }

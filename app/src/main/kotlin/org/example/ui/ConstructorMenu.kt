@@ -20,25 +20,43 @@ internal object ConstructorMenu {
     const val ALTO_PREVIA = 44.0
     const val ANCHO_BOTON_ACCION = 200.0
 
-    fun construir(
-        titulo: String,
-        subtitulo: String,
-        ayuda: String,
-        contenido: Node
-    ): VBox {
-        val etiquetaTitulo = Label(titulo).also { it.style = EstilosUI.TITULO }
-        val etiquetaSubtitulo = Label(subtitulo).also {
-            it.alignment = Pos.CENTER
-            it.style = EstilosUI.SUBTITULO
-        }
-        val etiquetaAyuda = Label(ayuda).also {
-            it.alignment = Pos.CENTER
-            it.style = EstilosUI.AYUDA
-        }
+    data class EspecificacionMenu(
+        val titulo: String,
+        val subtitulo: String,
+        val ayuda: String,
+        val contenido: Node
+    )
 
-        val menu = VBox(14.0, etiquetaTitulo, etiquetaSubtitulo, contenido, etiquetaAyuda)
+    data class EspecificacionBotonMenu(
+        val previa: Canvas,
+        val textos: VBox,
+        val ancho: Double,
+        val alCerrarMenus: () -> Unit,
+        val accion: () -> Unit
+    )
+
+    data class EspecificacionTextos(
+        val nombre: String,
+        val datos: String,
+        val extra: String,
+        val anchoExtra: Double? = null
+    )
+
+    fun construir(especificacion: EspecificacionMenu): VBox {
+        val menu = VBox(
+            14.0,
+            Label(especificacion.titulo).also { it.style = EstilosUI.TITULO },
+            etiquetaCentrada(especificacion.subtitulo, EstilosUI.SUBTITULO),
+            especificacion.contenido,
+            etiquetaCentrada(especificacion.ayuda, EstilosUI.AYUDA)
+        )
         decorar(menu, EstilosUI.MENU)
         return menu
+    }
+
+    private fun etiquetaCentrada(texto: String, estilo: String) = Label(texto).also {
+        it.alignment = Pos.CENTER
+        it.style = estilo
     }
 
     fun decorar(menu: VBox, estilo: String) {
@@ -61,21 +79,15 @@ internal object ConstructorMenu {
         return rejilla
     }
 
-    fun botonMenu(
-        previa: Canvas,
-        textos: VBox,
-        ancho: Double,
-        alCerrarMenus: () -> Unit,
-        accion: () -> Unit
-    ): ToggleButton {
+    fun botonMenu(especificacion: EspecificacionBotonMenu): ToggleButton {
         val boton = ToggleButton()
-        boton.graphic = HBox(10.0, previa, textos)
+        boton.graphic = HBox(10.0, especificacion.previa, especificacion.textos)
         boton.alignment = Pos.CENTER_LEFT
-        boton.prefWidth = ancho
+        boton.prefWidth = especificacion.ancho
         boton.style = EstilosUI.BOTON
         boton.setOnAction {
-            accion()
-            alCerrarMenus()
+            especificacion.accion()
+            especificacion.alCerrarMenus()
         }
         return boton
     }
@@ -90,18 +102,13 @@ internal object ConstructorMenu {
     fun colorDe(valor: Int): Color =
         Color.rgb((valor shr 16) and 0xFF, (valor shr 8) and 0xFF, valor and 0xFF)
 
-    fun textos(
-        nombre: String,
-        datos: String,
-        extra: String,
-        anchoExtra: Double? = null
-    ): VBox {
-        val etiquetaNombre = Label(nombre).also { it.style = EstilosUI.NOMBRE }
-        val etiquetaDatos = Label(datos).also { it.style = EstilosUI.DETALLE }
-        val etiquetaExtra = Label(extra).also {
+    fun textos(especificacion: EspecificacionTextos): VBox {
+        val etiquetaNombre = Label(especificacion.nombre).also { it.style = EstilosUI.NOMBRE }
+        val etiquetaDatos = Label(especificacion.datos).also { it.style = EstilosUI.DETALLE }
+        val etiquetaExtra = Label(especificacion.extra).also {
             it.style = EstilosUI.AYUDA
-            if (anchoExtra != null) {
-                it.maxWidth = anchoExtra
+            if (especificacion.anchoExtra != null) {
+                it.maxWidth = especificacion.anchoExtra
                 it.isWrapText = true
             }
         }
