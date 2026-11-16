@@ -28,6 +28,9 @@ interface ModoSimulacion {
     /** Velocidad con la que se suelta la pelota; null si aun no procede lanzar. */
     fun velocidadDeSuelta(entrada: InputHandler): Vector2D?
 
+    /** Nueva posicion al arrastrar durante el apuntado; null si el modo no lo admite. */
+    fun posicionAlArrastrar(preparacion: Preparacion): Vector2D? = null
+
     /** Condiciones de la trayectoria previsualizada; null si no hay nada que ver. */
     fun condicionDePrevia(entrada: InputHandler, posicion: Vector2D): CondicionPrevia?
 

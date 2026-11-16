@@ -9,6 +9,9 @@ import javafx.scene.canvas.Canvas
 import javafx.scene.layout.StackPane
 import javafx.stage.Stage
 import org.example.grafico.FabricaRenderer
+import org.example.grafico.PintorApuntado
+import org.example.grafico.PintorInformacion
+import org.example.grafico.PintorMundo
 import org.example.grafico.PresentadorJuego
 import org.example.modelo.TipoPelota
 import org.example.modelo.TipoPared
@@ -66,7 +69,14 @@ class MainApp : Application(), ControlEventosUI {
             ANCHO_VENTANA,
             ALTO_VENTANA
         )
-        return PresentadorJuego(renderer, SpriteManager(FabricaSpriteEstatica()))
+        val sprites = SpriteManager(FabricaSpriteEstatica())
+        return PresentadorJuego(
+            renderer,
+            sprites,
+            PintorMundo(renderer, sprites),
+            PintorApuntado(renderer),
+            PintorInformacion(renderer)
+        )
     }
 
     private fun crearPanelControl(): PanelControl = PanelControl(

@@ -101,12 +101,18 @@ interface Integrador {
     fun avanzar(contexto: ContextoVuelo): Boolean
 }
 
-data class ContextoVuelo(
-    val proyectil: Proyectil,
-    val deltaTime: Double,
-    val posicionOrigen: Vector2D,
-    val alturaActual: () -> Double
-)
+class ContextoVuelo(
+    private val proyectil: Proyectil,
+    private val deltaTime: Double,
+    private val posicionOrigen: Vector2D,
+    private val alturaActual: () -> Double
+) {
+    fun proyectil(): Proyectil = proyectil
+    fun deltaTime(): Double = deltaTime
+    fun posicionOrigen(): Vector2D = posicionOrigen
+    fun alturaActual(): Double = alturaActual.invoke()
+    fun alcanceActual(): Double = proyectil.posicion().x() - posicionOrigen.x()
+}
 
 interface UbicadorPelota {
     fun aMundo(punto: Vector2D): Vector2D

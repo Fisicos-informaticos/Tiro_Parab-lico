@@ -48,30 +48,33 @@ class MenuFinJuego(private val escucha: UIEventListener) : ObservadorFinSimulaci
         raiz.isVisible = false
     }
 
-    private fun construirRaiz(): VBox {
-        val titulo = Label("LA PELOTA HA CAÍDO").also { it.style = EstilosUI.TITULO }
-        val resumen = VBox(4.0, etiquetaTiempo, etiquetaDistancia, etiquetaAltura).also {
-            it.alignment = Pos.CENTER_LEFT
-        }
-        val botonReiniciar = Button("Reiniciar simulación").also { it.prefWidth = ANCHO_BOTON }
-        val botonMenu = Button("Volver al menú").also { it.prefWidth = ANCHO_BOTON }
-        botonReiniciar.setOnAction { escucha.reiniciar() }
-        botonMenu.setOnAction { escucha.volverAlMenu() }
-        for (boton in listOf(botonReiniciar, botonMenu)) {
-            boton.maxWidth = Double.MAX_VALUE
-            boton.style = EstilosUI.BOTON
+    private fun construirRaiz(): VBox = contenedor(
+        Label("LA PELOTA HA CAÍDO").also { it.style = EstilosUI.TITULO },
+        bloqueResumen(),
+        botonAccion("Reiniciar simulación") { escucha.reiniciar() },
+        botonAccion("Volver al menú") { escucha.volverAlMenu() }
+    )
+
+    private fun bloqueResumen(): VBox = VBox(4.0, etiquetaTiempo, etiquetaDistancia, etiquetaAltura).also {
+        it.alignment = Pos.CENTER_LEFT
+    }
+
+    private fun botonAccion(texto: String, accion: () -> Unit): Button =
+        Button(texto).also {
+            it.prefWidth = ANCHO_BOTON
+            it.maxWidth = Double.MAX_VALUE
+            it.style = EstilosUI.BOTON
+            it.setOnAction { accion() }
         }
 
-        val menu = VBox(14.0, titulo, resumen, botonReiniciar, botonMenu).also {
-            it.alignment = Pos.CENTER
-            it.padding = Insets(20.0)
-            it.maxWidth = Region.USE_PREF_SIZE
-            it.maxHeight = Region.USE_PREF_SIZE
-            it.isPickOnBounds = true
-            it.style = EstilosUI.MENU_FIN
-            it.isVisible = false
-        }
-        return menu
+    private fun contenedor(vararg hijos: javafx.scene.Node): VBox = VBox(14.0, *hijos).also {
+        it.alignment = Pos.CENTER
+        it.padding = Insets(20.0)
+        it.maxWidth = Region.USE_PREF_SIZE
+        it.maxHeight = Region.USE_PREF_SIZE
+        it.isPickOnBounds = true
+        it.style = EstilosUI.MENU_FIN
+        it.isVisible = false
     }
 
     companion object {

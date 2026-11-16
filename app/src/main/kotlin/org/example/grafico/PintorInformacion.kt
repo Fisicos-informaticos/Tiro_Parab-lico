@@ -3,9 +3,9 @@ package org.example.grafico
 import org.example.simulacion.ContextoJuego
 
 /** Pinta vectores fisicos, efectos y el panel textual de la partida. */
-internal class PintorInformacion(private val renderer: Renderable) {
+internal class PintorInformacion(private val renderer: Renderable) : PintorInformacionJuego {
 
-    fun mostrar(simulacion: ContextoJuego) {
+    override fun mostrar(simulacion: ContextoJuego) {
         dibujarVectoresFisica(simulacion)
         dibujarEfectos(simulacion)
         renderer.dibujarPanel(lineasPanel(simulacion))
@@ -34,7 +34,17 @@ internal class PintorInformacion(private val renderer: Renderable) {
     }
 
     private fun lineasPanel(simulacion: ContextoJuego): List<String> {
-        val lineas = mutableListOf("Estado: ${simulacion.estado().nombre()}")
+        val lineas = mutableListOf<String>()
+        agregarResumen(simulacion, lineas)
+        agregarEstadoEdicion(simulacion, lineas)
+        lineas.addAll(
+            simulacion.estado().lineasDeEstado(simulacion.modo(), simulacion.lecturaModo())
+        )
+        return lineas
+    }
+
+    private fun agregarResumen(simulacion: ContextoJuego, lineas: MutableList<String>) {
+        lineas.add("Estado: ${simulacion.estado().nombre()}")
         lineas.add("Modo: ${simulacion.modo().nombre()}")
         lineas.add("Pelota: ${simulacion.tipoPelota().nombre()}")
         lineas.add("Colision: ${simulacion.etiquetaColision()}")
@@ -44,15 +54,14 @@ internal class PintorInformacion(private val renderer: Renderable) {
         if (simulacion.paredesDestruidas() > 0) {
             lineas.add("Rompidas: ${simulacion.paredesDestruidas()}")
         }
+    }
+
+    private fun agregarEstadoEdicion(simulacion: ContextoJuego, lineas: MutableList<String>) {
         if (simulacion.modoParedes()) {
             lineas.add("Modo pared: ${simulacion.tipoPared().nombre()}")
             lineas.add("Arrastra para dibujar")
         } else {
             lineas.add("Boton: crear pared")
         }
-        lineas.addAll(
-            simulacion.estado().lineasDeEstado(simulacion.modo(), simulacion.lecturaModo())
-        )
-        return lineas
     }
 }

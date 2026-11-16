@@ -5,9 +5,9 @@ import org.example.simulacion.ContextoJuego
 import org.example.simulacion.Simulacion
 
 /** Pinta la pelota y las ayudas visuales de preparacion del tiro. */
-internal class PintorApuntado(private val renderer: Renderable) {
+internal class PintorApuntado(private val renderer: Renderable) : PintorApuntadoJuego {
 
-    fun pelotaEnEspera(simulacion: ContextoJuego) {
+    override fun pelotaEnEspera(simulacion: ContextoJuego) {
         if (simulacion.modoParedes()) return
 
         renderer.dibujarPuntoLanzamiento(
@@ -17,7 +17,7 @@ internal class PintorApuntado(private val renderer: Renderable) {
         renderer.dibujarProyectil(simulacion.pelota())
     }
 
-    fun apuntado(simulacion: ContextoJuego) {
+    override fun apuntado(simulacion: ContextoJuego) {
         val modo = simulacion.modo()
         val origen = simulacion.pelota().posicion() - simulacion.offsetCamara()
         renderer.dibujarPuntoLanzamiento(origen, simulacion.pelota().radio())

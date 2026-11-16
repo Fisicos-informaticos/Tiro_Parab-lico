@@ -11,35 +11,29 @@ import org.example.modelo.Vector2D
 import org.example.modos.LecturaModo
 import org.example.modos.ModoSimulacion
 
-/**
- * Nucleo del simulador: coordina las reglas del tiro, la fisica, la camara y el
- * estado de la partida sin conocer ninguna presentacion concreta. Todas sus
- * dependencias se reciben ya construidas a traves de puertos (DIP); la unica
- * clase que conoce implementaciones concretas es [FabricaSimulacion].
- */
 class Simulacion internal constructor(
     private val ancho: Double,
     private val alto: Double,
     componentes: ComponentesSimulacion
 ) : InputListener, ContextoJuego {
 
-    private val entrada = componentes.control.entrada
-    private val camara = componentes.fisica.camara
-    private val motor = componentes.fisica.motor
-    private val creadorParedes = componentes.fisica.creadorParedes
-    private val fabricaModos = componentes.partida.fabricaModos
-    private val sesion = componentes.partida.sesion
-    private val metricas = componentes.partida.metricas
-    private val efectos = componentes.partida.efectos
-    private val superficies = componentes.partida.superficies
-    private val controladorCamara = componentes.control.servicios.controladorCamara
-    private val edicion = componentes.control.servicios.edicion
-    private val previsualizador = componentes.control.servicios.previsualizador
-    private val observadores = componentes.control.servicios.observadores
-    private val posicionPelota = componentes.control.servicios.posicionPelota
-    private val mecanica = componentes.control.servicios.mecanica
-    private val comandosEdicion = componentes.control.comandos.edicion
-    private val comandosPartida = componentes.control.comandos.partida
+    private val entrada = componentes.control().entrada()
+    private val camara = componentes.fisica().camara()
+    private val motor = componentes.fisica().motor()
+    private val creadorParedes = componentes.fisica().creadorParedes()
+    private val fabricaModos = componentes.partida().fabricaModos()
+    private val sesion = componentes.partida().sesion()
+    private val metricas = componentes.partida().metricas()
+    private val efectos = componentes.partida().efectos()
+    private val superficies = componentes.partida().superficies()
+    private val controladorCamara = componentes.control().servicios().controladorCamara()
+    private val edicion = componentes.control().servicios().edicion()
+    private val previsualizador = componentes.control().servicios().previsualizador()
+    private val observadores = componentes.control().servicios().observadores()
+    private val posicionPelota = componentes.control().servicios().posicionPelota()
+    private val mecanica = componentes.control().servicios().mecanica()
+    private val comandosEdicion = componentes.control().comandos().edicion()
+    private val comandosPartida = componentes.control().comandos().partida()
 
     constructor(
         ancho: Double = 1000.0,

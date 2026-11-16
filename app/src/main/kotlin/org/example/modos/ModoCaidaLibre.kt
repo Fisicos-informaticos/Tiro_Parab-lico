@@ -9,6 +9,7 @@ import org.example.modelo.Vector2D
  * que fija la altura inicial (h0) desde la que se suelta.
  */
 open class ModoCaidaLibre : ModoSimulacion, ModoArrastrable {
+    override fun posicionAlArrastrar(preparacion: Preparacion): Vector2D = arrastrar(preparacion)
 
     override fun nombre(): String = CatalogoModos.CAIDA_LIBRE
 

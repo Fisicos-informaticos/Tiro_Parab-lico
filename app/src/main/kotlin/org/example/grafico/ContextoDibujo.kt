@@ -3,12 +3,6 @@ package org.example.grafico
 import javafx.scene.image.Image
 import org.example.modelo.Vector2D
 
-/**
- * Puerto minimo de dibujo para lo que solo necesita pintar encima del mundo
- * (sprites, estelas, textos). Los decorados dependen de esta interface y no de
- * la pantalla completa. La camara se consulta y se fija con metodos para no
- * exponer estado mutable.
- */
 interface ContextoDibujo {
     fun ancho(): Double
     fun alto(): Double
@@ -20,22 +14,40 @@ interface ContextoDibujo {
     fun dibujarImagenMundo(imagen: ImagenEnMundo)
 }
 
-data class LineaDibujo(
-    val inicio: Vector2D,
-    val fin: Vector2D,
-    val color: String,
-    val grosor: Double = 2.0
-)
+class LineaDibujo(
+    private val inicio: Vector2D,
+    private val fin: Vector2D,
+    private val color: String,
+    private val grosor: Double = 2.0
+) {
+    fun inicio(): Vector2D = inicio
+    fun fin(): Vector2D = fin
+    fun color(): String = color
+    fun grosor(): Double = grosor
+    fun longitud(): Double = inicio.distanciaA(fin)
+}
 
-data class TextoDibujo(
-    val texto: String,
-    val posicion: Vector2D,
-    val tamano: Double = 14.0
-)
+class TextoDibujo(
+    private val texto: String,
+    private val posicion: Vector2D,
+    private val tamano: Double = 14.0
+) {
+    fun texto(): String = texto
+    fun posicion(): Vector2D = posicion
+    fun tamano(): Double = tamano
+    fun en(nuevaPosicion: Vector2D): TextoDibujo = TextoDibujo(texto, nuevaPosicion, tamano)
+}
 
-data class ImagenEnMundo(
-    val imagen: Image,
-    val posicion: Vector2D,
-    val ancho: Double,
-    val alto: Double
-)
+class ImagenEnMundo(
+    private val imagen: Image,
+    private val posicion: Vector2D,
+    private val ancho: Double,
+    private val alto: Double
+) {
+    fun imagen(): Image = imagen
+    fun posicion(): Vector2D = posicion
+    fun ancho(): Double = ancho
+    fun alto(): Double = alto
+    fun ocupa(x: Double, y: Double): Boolean =
+        x >= posicion.x() && x <= posicion.x() + ancho && y >= posicion.y() && y <= posicion.y() + alto
+}

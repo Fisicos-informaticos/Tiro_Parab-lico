@@ -7,8 +7,8 @@ import org.example.sprites.GestionSprites
 internal class PintorMundo(
     private val renderer: Renderable,
     private val sprites: GestionSprites
-) {
-    fun pintar(simulacion: ContextoJuego) {
+) : PintorMundoJuego {
+    override fun pintar(simulacion: ContextoJuego) {
         renderer.fijarOffsetCamara(simulacion.offsetCamara())
 
         renderer.limpiar()

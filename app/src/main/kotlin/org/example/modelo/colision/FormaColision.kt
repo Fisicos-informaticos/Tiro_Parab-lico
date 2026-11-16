@@ -16,11 +16,23 @@ enum class TipoColision(private val etiqueta: String) {
 }
 
 data class DatosContactoPlano(
-    val puntoMundo: Vector2D,
-    val centro: Vector2D,
-    val angulo: Double,
-    val normalMundo: Vector2D
-)
+    private val puntoMundo: Vector2D,
+    private val centro: Vector2D,
+    private val angulo: Double,
+    private val normalMundo: Vector2D
+) {
+    fun puntoMundo(): Vector2D = puntoMundo
+    fun centro(): Vector2D = centro
+    fun angulo(): Double = angulo
+    fun normalMundo(): Vector2D = normalMundo
+
+    fun haciaPlano(): Vector2D =
+        Transformaciones.aLocal(-normalMundo(), angulo()).normalizado()
+
+    fun separacion(): Double =
+        (centro() - puntoMundo()).x() * normalMundo().x() +
+            (centro() - puntoMundo()).y() * normalMundo().y()
+}
 
 /**
  * Resultado de una colision. Ademas de consultarse, sabe como separar al cuerpo
@@ -82,12 +94,8 @@ interface FormaColision {
      * libre. Devuelve null si el cuerpo no llega a tocarlo.
      */
     fun contactoPlano(datos: DatosContactoPlano): Penetracion? {
-        val haciaPlano = Transformaciones.aLocal(-datos.normalMundo, datos.angulo).normalizado()
-        val delta = datos.centro - datos.puntoMundo
-        val separacion =
-            delta.x() * datos.normalMundo.x() + delta.y() * datos.normalMundo.y()
-        val profundidad = soporte(haciaPlano) - separacion
-        return if (profundidad > 0.0) Penetracion(profundidad, datos.normalMundo) else null
+        val profundidad = soporte(datos.haciaPlano()) - datos.separacion()
+        return if (profundidad > 0.0) Penetracion(profundidad, datos.normalMundo()) else null
     }
 
     /** Polilinea del contorno en coordenadas locales, usada para dibujar la forma. */

@@ -21,34 +21,54 @@ internal object ConstructorMenu {
     const val ANCHO_BOTON_ACCION = 200.0
 
     data class EspecificacionMenu(
-        val titulo: String,
-        val subtitulo: String,
-        val ayuda: String,
-        val contenido: Node
-    )
+        private val titulo: String,
+        private val subtitulo: String,
+        private val ayuda: String,
+        private val contenido: Node
+    ) {
+        fun titulo(): String = titulo
+        fun subtitulo(): String = subtitulo
+        fun ayuda(): String = ayuda
+        fun contenido(): Node = contenido
+        fun tieneSubtitulo(): Boolean = subtitulo().isNotBlank()
+    }
 
     data class EspecificacionBotonMenu(
-        val previa: Canvas,
-        val textos: VBox,
-        val ancho: Double,
-        val alCerrarMenus: () -> Unit,
-        val accion: () -> Unit
-    )
+        private val previa: Canvas,
+        private val textos: VBox,
+        private val ancho: Double,
+        private val alCerrarMenus: () -> Unit,
+        private val accion: () -> Unit
+    ) {
+        fun previa(): Canvas = previa
+        fun textos(): VBox = textos
+        fun ancho(): Double = ancho
+        fun ejecutar() {
+            accion()
+            alCerrarMenus()
+        }
+    }
 
     data class EspecificacionTextos(
-        val nombre: String,
-        val datos: String,
-        val extra: String,
-        val anchoExtra: Double? = null
-    )
+        private val nombre: String,
+        private val datos: String,
+        private val extra: String,
+        private val anchoExtra: Double? = null
+    ) {
+        fun nombre(): String = nombre
+        fun datos(): String = datos
+        fun extra(): String = extra
+        fun anchoExtra(): Double? = anchoExtra
+        fun detalleCompleto(): String = listOf(datos(), extra()).filter { it.isNotBlank() }.joinToString(" · ")
+    }
 
     fun construir(especificacion: EspecificacionMenu): VBox {
         val menu = VBox(
             14.0,
-            Label(especificacion.titulo).also { it.style = EstilosUI.TITULO },
-            etiquetaCentrada(especificacion.subtitulo, EstilosUI.SUBTITULO),
-            especificacion.contenido,
-            etiquetaCentrada(especificacion.ayuda, EstilosUI.AYUDA)
+            Label(especificacion.titulo()).also { it.style = EstilosUI.TITULO },
+            etiquetaCentrada(especificacion.subtitulo(), EstilosUI.SUBTITULO),
+            especificacion.contenido(),
+            etiquetaCentrada(especificacion.ayuda(), EstilosUI.AYUDA)
         )
         decorar(menu, EstilosUI.MENU)
         return menu
@@ -81,14 +101,11 @@ internal object ConstructorMenu {
 
     fun botonMenu(especificacion: EspecificacionBotonMenu): ToggleButton {
         val boton = ToggleButton()
-        boton.graphic = HBox(10.0, especificacion.previa, especificacion.textos)
+        boton.graphic = HBox(10.0, especificacion.previa(), especificacion.textos())
         boton.alignment = Pos.CENTER_LEFT
-        boton.prefWidth = especificacion.ancho
+        boton.prefWidth = especificacion.ancho()
         boton.style = EstilosUI.BOTON
-        boton.setOnAction {
-            especificacion.accion()
-            especificacion.alCerrarMenus()
-        }
+        boton.setOnAction { especificacion.ejecutar() }
         return boton
     }
 
@@ -103,12 +120,12 @@ internal object ConstructorMenu {
         Color.rgb((valor shr 16) and 0xFF, (valor shr 8) and 0xFF, valor and 0xFF)
 
     fun textos(especificacion: EspecificacionTextos): VBox {
-        val etiquetaNombre = Label(especificacion.nombre).also { it.style = EstilosUI.NOMBRE }
-        val etiquetaDatos = Label(especificacion.datos).also { it.style = EstilosUI.DETALLE }
-        val etiquetaExtra = Label(especificacion.extra).also {
+        val etiquetaNombre = Label(especificacion.nombre()).also { it.style = EstilosUI.NOMBRE }
+        val etiquetaDatos = Label(especificacion.datos()).also { it.style = EstilosUI.DETALLE }
+        val etiquetaExtra = Label(especificacion.extra()).also {
             it.style = EstilosUI.AYUDA
-            if (especificacion.anchoExtra != null) {
-                it.maxWidth = especificacion.anchoExtra
+            especificacion.anchoExtra()?.let { ancho ->
+                it.maxWidth = ancho
                 it.isWrapText = true
             }
         }

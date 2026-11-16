@@ -60,12 +60,12 @@ class VectorRenderer(private val gc: GraphicsContext) : DibujoVectoresFisica {
     }
 
     private fun geometria(trazo: TrazoVector): GeometriaFlecha? {
-        val largo = (trazo.magnitud.magnitud() * trazo.escala).coerceAtMost(LARGO_MAXIMO)
+        val largo = (trazo.magnitud().magnitud() * trazo.escala()).coerceAtMost(LARGO_MAXIMO)
         if (largo < LARGO_MINIMO) return null
 
-        val direccion = trazo.magnitud.normalizado()
+        val direccion = trazo.magnitud().normalizado()
         return GeometriaFlecha(
-            punta = trazo.origen + direccion * largo,
+            punta = trazo.origen() + direccion * largo,
             direccion = direccion,
             perpendicular = Vector2D(-direccion.y(), direccion.x()),
             cabeza = (largo * FRACCION_CABEZA).coerceAtMost(CABEZA_MAXIMA),
@@ -74,67 +74,88 @@ class VectorRenderer(private val gc: GraphicsContext) : DibujoVectoresFisica {
     }
 
     private fun dibujarLinea(trazo: TrazoVector, geometria: GeometriaFlecha) {
-        gc.stroke = trazo.color
+        gc.stroke = trazo.color()
         gc.lineWidth = GROSOR_LINEA
         gc.setLineDashes()
         gc.strokeLine(
-            trazo.origen.x(),
-            trazo.origen.y(),
-            geometria.punta.x(),
-            geometria.punta.y()
+            trazo.origen().x(),
+            trazo.origen().y(),
+            geometria.punta().x(),
+            geometria.punta().y()
         )
     }
 
     private fun dibujarCabeza(trazo: TrazoVector, geometria: GeometriaFlecha) {
-        val punta = geometria.punta
-        val direccion = geometria.direccion
-        val perpendicular = geometria.perpendicular
-        val cabeza = geometria.cabeza
+        val puntosX = puntosCabezaX(geometria)
+        val puntosY = puntosCabezaY(geometria)
+        gc.fill = trazo.color()
+        gc.fillPolygon(puntosX, puntosY, 3)
+    }
 
-        gc.fill = trazo.color
-        gc.fillPolygon(
-            doubleArrayOf(
-                punta.x(),
-                punta.x() - direccion.x() * cabeza + perpendicular.x() * ANCHO_CABEZA,
-                punta.x() - direccion.x() * cabeza - perpendicular.x() * ANCHO_CABEZA
-            ),
-            doubleArrayOf(
-                punta.y(),
-                punta.y() - direccion.y() * cabeza + perpendicular.y() * ANCHO_CABEZA,
-                punta.y() - direccion.y() * cabeza - perpendicular.y() * ANCHO_CABEZA
-            ),
-            3
+    private fun puntosCabezaX(geometria: GeometriaFlecha): DoubleArray {
+        val punta = geometria.punta()
+        val direccion = geometria.direccion()
+        val perpendicular = geometria.perpendicular()
+        val baseX = punta.x() - direccion.x() * geometria.cabeza()
+        return doubleArrayOf(
+            punta.x(),
+            baseX + perpendicular.x() * ANCHO_CABEZA,
+            baseX - perpendicular.x() * ANCHO_CABEZA
+        )
+    }
+
+    private fun puntosCabezaY(geometria: GeometriaFlecha): DoubleArray {
+        val punta = geometria.punta()
+        val direccion = geometria.direccion()
+        val perpendicular = geometria.perpendicular()
+        val baseY = punta.y() - direccion.y() * geometria.cabeza()
+        return doubleArrayOf(
+            punta.y(),
+            baseY + perpendicular.y() * ANCHO_CABEZA,
+            baseY - perpendicular.y() * ANCHO_CABEZA
         )
     }
 
     /** Rotulo del vector a un lado del eje, para no tapar la punta. */
     private fun pintarEtiqueta(trazo: TrazoVector, geometria: GeometriaFlecha) {
-        val punto = trazo.origen + geometria.direccion *
-            (geometria.largo * POSICION_ETIQUETA)
-        gc.fill = trazo.color
+        val punto = trazo.origen() + geometria.direccion() *
+            (geometria.largo() * POSICION_ETIQUETA)
+        gc.fill = trazo.color()
         gc.font = Font.font("Monospace", TAMANO_ETIQUETA)
         gc.fillText(
-            trazo.etiqueta,
-            punto.x() + geometria.perpendicular.x() * DESPLAZAMIENTO_ETIQUETA,
-            punto.y() + geometria.perpendicular.y() * DESPLAZAMIENTO_ETIQUETA
+            trazo.etiqueta(),
+            punto.x() + geometria.perpendicular().x() * DESPLAZAMIENTO_ETIQUETA,
+            punto.y() + geometria.perpendicular().y() * DESPLAZAMIENTO_ETIQUETA
         )
     }
 
     private class TrazoVector(
-        val origen: Vector2D,
-        val magnitud: Vector2D,
-        val escala: Double,
-        val color: Color,
-        val etiqueta: String
-    )
+        private val origen: Vector2D,
+        private val magnitud: Vector2D,
+        private val escala: Double,
+        private val color: Color,
+        private val etiqueta: String
+    ) {
+        fun origen(): Vector2D = origen
+        fun magnitud(): Vector2D = magnitud
+        fun escala(): Double = escala
+        fun color(): Color = color
+        fun etiqueta(): String = etiqueta
+    }
 
     private class GeometriaFlecha(
-        val punta: Vector2D,
-        val direccion: Vector2D,
-        val perpendicular: Vector2D,
-        val cabeza: Double,
-        val largo: Double
-    )
+        private val punta: Vector2D,
+        private val direccion: Vector2D,
+        private val perpendicular: Vector2D,
+        private val cabeza: Double,
+        private val largo: Double
+    ) {
+        fun punta(): Vector2D = punta
+        fun direccion(): Vector2D = direccion
+        fun perpendicular(): Vector2D = perpendicular
+        fun cabeza(): Double = cabeza
+        fun largo(): Double = largo
+    }
 
     companion object {
         /** Pixeles de flecha por pixeles/segundo de rapidez. */

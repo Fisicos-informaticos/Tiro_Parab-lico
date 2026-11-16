@@ -52,28 +52,41 @@ object FabricaSimulacion {
     }
 
     private fun crearFisica(ancho: Double, alto: Double): ComponentesFisica {
-        val camara = CamaraSimulacion(ancho, alto)
-        val transformador = TransformadorCoordenadasSimulacion(camara)
         val fabricaAmbiente = FabricaTierra()
         val ambiente = fabricaAmbiente.crear(ancho, alto, gravedadPorDefecto())
         val fabricaMotorFisico = FabricaMotorFisicoPredeterminada()
         val motor = fabricaMotorFisico.crear(ambiente)
-        val creadorParedes = ConstructorParedes(motor, TipoPared.porDefecto())
-        val herramienta = HerramientaCreacionParedes(
-            transformador,
-            creadorParedes,
-            Simulacion.LONGITUD_MINIMA_PARED
+        val base = BaseFisica(
+            camara = CamaraSimulacion(ancho, alto),
+            fabricaAmbiente = fabricaAmbiente,
+            ambiente = ambiente,
+            fabricaMotorFisico = fabricaMotorFisico,
+            motor = motor,
+            creadorParedes = ConstructorParedes(motor, TipoPared.porDefecto())
         )
-        return ComponentesFisica(
-            camara,
-            transformador,
-            ambiente,
-            fabricaAmbiente,
-            fabricaMotorFisico,
-            motor,
-            creadorParedes,
-            herramienta
-        )
+        return base.ensamblar()
+    }
+
+    private data class BaseFisica(
+        private val camara: CamaraSimulacion,
+        private val fabricaAmbiente: FabricaTierra,
+        private val ambiente: org.example.fisica.Ambiente,
+        private val fabricaMotorFisico: FabricaMotorFisicoPredeterminada,
+        private val motor: org.example.fisica.PhysicsEngine,
+        private val creadorParedes: ConstructorParedes
+    ) {
+        fun ensamblar(): ComponentesFisica {
+            val transformador = TransformadorCoordenadasSimulacion(camara)
+            val herramienta = HerramientaCreacionParedes(
+                transformador,
+                creadorParedes,
+                Simulacion.LONGITUD_MINIMA_PARED
+            )
+            return ComponentesFisica(
+                camara, transformador, ambiente, fabricaAmbiente,
+                fabricaMotorFisico, motor, creadorParedes, herramienta
+            )
+        }
     }
 
     private fun crearPartida(alto: Double): ComponentesPartida {

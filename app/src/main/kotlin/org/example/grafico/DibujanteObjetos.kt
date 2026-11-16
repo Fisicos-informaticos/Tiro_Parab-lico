@@ -30,25 +30,25 @@ class DibujanteObjetos(
     }
 
     fun dibujarLinea(linea: LineaDibujo) {
-        gc.stroke = Color.web(linea.color)
-        gc.lineWidth = linea.grosor
+        gc.stroke = Color.web(linea.color())
+        gc.lineWidth = linea.grosor()
         gc.setLineDashes()
-        gc.strokeLine(linea.inicio.x(), linea.inicio.y(), linea.fin.x(), linea.fin.y())
+        gc.strokeLine(linea.inicio().x(), linea.inicio().y(), linea.fin().x(), linea.fin().y())
     }
 
     fun dibujarTexto(texto: TextoDibujo) {
         gc.fill = colorTexto
-        gc.font = Font.font("Monospace", texto.tamano)
-        gc.fillText(texto.texto, texto.posicion.x(), texto.posicion.y())
+        gc.font = Font.font("Monospace", texto.tamano())
+        gc.fillText(texto.texto(), texto.posicion().x(), texto.posicion().y())
     }
 
     fun dibujarImagen(imagen: ImagenEnMundo, camara: Vector2D) {
         gc.drawImage(
-            imagen.imagen,
-            imagen.posicion.x() - camara.x(),
-            imagen.posicion.y() - camara.y(),
-            imagen.ancho,
-            imagen.alto
+            imagen.imagen(),
+            imagen.posicion().x() - camara.x(),
+            imagen.posicion().y() - camara.y(),
+            imagen.ancho(),
+            imagen.alto()
         )
     }
 }

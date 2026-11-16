@@ -11,8 +11,8 @@ internal class PanelSimulacion(
 ) {
     private val comboModo: ComboBox<String> = ConstructorPanel.combo(
         ConstructorPanel.EspecificacionCombo(
-            opciones = configuracion.modos,
-            seleccionada = configuracion.modoInicial,
+            opciones = configuracion.modos(),
+            seleccionada = configuracion.modoInicialValido(),
             ayuda = "Elige el modo de simulacion",
             alCambiar = { escucha.seleccionarModo(it) }
         )
@@ -20,8 +20,8 @@ internal class PanelSimulacion(
 
     private val comboGravedad: ComboBox<String> = ConstructorPanel.combo(
         ConstructorPanel.EspecificacionCombo(
-            opciones = configuracion.gravedades,
-            seleccionada = configuracion.gravedadInicial,
+            opciones = configuracion.gravedades(),
+            seleccionada = configuracion.gravedadInicialValida(),
             ayuda = "Elige la gravedad con la que se simula el tiro",
             alCambiar = { escucha.aplicarGravedad(it) }
         )

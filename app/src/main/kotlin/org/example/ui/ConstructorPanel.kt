@@ -14,11 +14,19 @@ import javafx.scene.layout.VBox
 /** Piezas de maquetacion compartidas por las secciones del panel lateral. */
 internal object ConstructorPanel {
     data class EspecificacionCombo(
-        val opciones: List<String>,
-        val seleccionada: String,
-        val ayuda: String,
-        val alCambiar: (String?) -> Unit
-    )
+        private val opciones: List<String>,
+        private val seleccionada: String,
+        private val ayuda: String,
+        private val alCambiar: (String?) -> Unit
+    ) {
+        fun opciones(): List<String> = opciones
+        fun seleccionada(): String = seleccionada
+        fun ayuda(): String = ayuda
+        fun alCambiar(valor: String?) = alCambiar.invoke(valor)
+
+        fun seleccionInicial(): String =
+            if (seleccionada() in opciones()) seleccionada() else opciones().firstOrNull().orEmpty()
+    }
 
     fun seccion(titulo: String, contenido: List<Node>): VBox =
         SeccionControl(titulo, contenido).raiz()
@@ -47,9 +55,9 @@ internal object ConstructorPanel {
     }
 
     fun combo(especificacion: EspecificacionCombo): ComboBox<String> = ComboBox<String>().apply {
-        items = FXCollections.observableArrayList(especificacion.opciones)
-        value = especificacion.seleccionada
-        tooltip = Tooltip(especificacion.ayuda)
+        items = FXCollections.observableArrayList(especificacion.opciones())
+        value = especificacion.seleccionInicial()
+        tooltip = Tooltip(especificacion.ayuda())
         maxWidth = Double.MAX_VALUE
         setOnAction { especificacion.alCambiar(value) }
     }

@@ -4,6 +4,19 @@ import org.example.simulacion.ContextoJuego
 import org.example.simulacion.EscenaEstado
 import org.example.sprites.GestionSprites
 
+interface PintorMundoJuego {
+    fun pintar(simulacion: ContextoJuego)
+}
+
+interface PintorApuntadoJuego {
+    fun pelotaEnEspera(simulacion: ContextoJuego)
+    fun apuntado(simulacion: ContextoJuego)
+}
+
+interface PintorInformacionJuego {
+    fun mostrar(simulacion: ContextoJuego)
+}
+
 /**
  * Traduce una [ContextoJuego] a pixeles. Delega el escenario, el apuntado y la
  * informacion en pintores especializados; el estado activo decide que escena
@@ -11,12 +24,11 @@ import org.example.sprites.GestionSprites
  */
 class PresentadorJuego(
     private val renderer: Renderable,
-    private val sprites: GestionSprites
+    private val sprites: GestionSprites,
+    private val mundo: PintorMundoJuego,
+    private val apuntado: PintorApuntadoJuego,
+    private val informacion: PintorInformacionJuego
 ) : EscenaEstado {
-
-    private val mundo = PintorMundo(renderer, sprites)
-    private val apuntado = PintorApuntado(renderer)
-    private val informacion = PintorInformacion(renderer)
 
     fun sprites(): GestionSprites = sprites
 

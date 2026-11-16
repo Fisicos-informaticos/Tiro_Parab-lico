@@ -16,41 +16,41 @@ class IntegradorVuelo(
 ) : Integrador {
 
     override fun avanzar(contexto: ContextoVuelo): Boolean {
-        var restante = contexto.deltaTime
+        var restante = contexto.deltaTime()
         while (restante > PASO_MINIMO) {
             val paso = min(restante, Simulacion.DT_FISICA)
-            registrarPaso(PasoIntegracion(contexto, paso, contexto.proyectil.posicion()))
+            registrarPaso(PasoIntegracion(contexto, paso, contexto.proyectil().posicion()))
             restante -= paso
 
-            // El reloj se detiene en el instante exacto en que la pelota para.
-            if (motor.estaEnReposo(contexto.proyectil)) return true
+            if (motor.estaEnReposo(contexto.proyectil())) return true
         }
         return metricas.tiempoVuelo() >= TIEMPO_MAXIMO_VUELO
     }
 
     private fun registrarPaso(paso: PasoIntegracion) {
-        val contexto = paso.contexto
-        val pelota = contexto.proyectil
-        val paredesRotas = motor.simularPaso(pelota, paso.deltaTime)
-        metricas.registrarRoturas(paredesRotas.size)
-        efectos.agregarRoturas(paredesRotas, Simulacion.DURACION_ROTURA)
-
-        metricas.sumarDistancia(pelota.posicion().distanciaA(paso.posicionAnterior))
-        metricas.avanzarTiempo(paso.deltaTime)
-        metricas.registrarAltura(contexto.alturaActual())
-        metricas.registrarAlcance(pelota.posicion().x() - contexto.posicionOrigen.x())
+        paso.aplicar(motor, metricas, efectos)
     }
 
     private companion object {
         const val TIEMPO_MAXIMO_VUELO = 30.0
 
-        /** Resto de tiempo por debajo del cual ya no se da un paso mas. */
         const val PASO_MINIMO = 1e-9
     }
 }
 
-private data class PasoIntegracion(
-    val contexto: ContextoVuelo,
-    val deltaTime: Double,
-    val posicionAnterior: Vector2D
-)
+private class PasoIntegracion(
+    private val contexto: ContextoVuelo,
+    private val deltaTime: Double,
+    private val posicionAnterior: Vector2D
+) {
+    fun aplicar(motor: PhysicsEngine, metricas: Metricas, efectos: Efectos) {
+        val pelota = contexto.proyectil()
+        val paredesRotas = motor.simularPaso(pelota, deltaTime)
+        metricas.registrarRoturas(paredesRotas.size)
+        efectos.agregarRoturas(paredesRotas, Simulacion.DURACION_ROTURA)
+        metricas.sumarDistancia(pelota.posicion().distanciaA(posicionAnterior))
+        metricas.avanzarTiempo(deltaTime)
+        metricas.registrarAltura(contexto.alturaActual())
+        metricas.registrarAlcance(contexto.alcanceActual())
+    }
+}

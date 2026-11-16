@@ -58,25 +58,44 @@ class ResolutorColisiones(
     /** Devuelve true si el golpe deja la pared rota: entonces no hay rebote. */
     private fun resolverColisionPared(p: Proyectil, pared: Pared): Boolean {
         val puntoMasCercano = pared.puntoMasCercano(p.posicion())
-        val delta = p.posicion() - puntoMasCercano
-        val distancia = delta.magnitud()
-        if (distancia > pared.grosor() / 2.0 + p.forma().radioEnvoltura() + CORRECCION_POSICION) return false
+        val distancia = p.posicion().distanciaA(puntoMasCercano)
+        if (distancia > alcanceColisionPared(p, pared)) return false
 
-        val normal =
-            if (distancia > EPSILON) delta.normalizado() else normalDeRespaldo(p, pared)
-        val cara = puntoMasCercano + normal * (pared.grosor() / 2.0)
-        val contacto = p.forma().contactoPlano(
-            DatosContactoPlano(cara, p.posicion(), p.angulo(), normal)
-        ) ?: return false
-
-        val velocidadNormal = p.velocidad().x() * normal.x() + p.velocidad().y() * normal.y()
-        if (velocidadNormal < 0.0 && pared.registrarImpacto(energiaDeImpacto(p, velocidadNormal), p.tipo())) {
-            return true
-        }
+        val normal = normalContactoPared(p, pared, puntoMasCercano, distancia)
+        val contacto = contactoConPared(p, pared, puntoMasCercano, normal) ?: return false
+        if (debeRomperPared(p, pared, normal)) return true
 
         aplicarImpacto(p, contacto)
         separar(p, contacto)
         return false
+    }
+
+    private fun alcanceColisionPared(p: Proyectil, pared: Pared): Double =
+        pared.grosor() / 2.0 + p.forma().radioEnvoltura() + CORRECCION_POSICION
+
+    private fun normalContactoPared(
+        p: Proyectil,
+        pared: Pared,
+        puntoMasCercano: Vector2D,
+        distancia: Double
+    ): Vector2D =
+        if (distancia > EPSILON) (p.posicion() - puntoMasCercano).normalizado()
+        else normalDeRespaldo(p, pared)
+
+    private fun contactoConPared(
+        p: Proyectil,
+        pared: Pared,
+        puntoMasCercano: Vector2D,
+        normal: Vector2D
+    ): Penetracion? {
+        val cara = puntoMasCercano + normal * (pared.grosor() / 2.0)
+        return p.forma().contactoPlano(DatosContactoPlano(cara, p.posicion(), p.angulo(), normal))
+    }
+
+    private fun debeRomperPared(p: Proyectil, pared: Pared, normal: Vector2D): Boolean {
+        val velocidadNormal = p.velocidad().x() * normal.x() + p.velocidad().y() * normal.y()
+        return velocidadNormal < 0.0 &&
+            pared.registrarImpacto(energiaDeImpacto(p, velocidadNormal), p.tipo())
     }
 
     /** Energia que el golpe deposita en el muro: solo cuenta la componente normal. */

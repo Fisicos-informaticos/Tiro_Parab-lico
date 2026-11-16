@@ -37,11 +37,11 @@ class DibujanteParedes(private val gc: GraphicsContext) {
         val inicio = pared.inicio() - camara
         val fin = pared.fin() - camara
 
-        val colorBase = estilo.colorOverride ?: colorDe(pared.tipo().color())
-        val colorBordeBase = estilo.colorOverride ?: colorDe(pared.tipo().colorBorde())
+        val colorBase = estilo.colorOverride() ?: colorDe(pared.tipo().color())
+        val colorBordeBase = estilo.colorOverride() ?: colorDe(pared.tipo().colorBorde())
 
         gc.stroke = mezclar(colorBordeBase, COLOR_DANO, pared.danio() * 0.6)
-        gc.lineWidth = pared.grosor() + (estilo.grosorExtra ?: 2.0)
+        gc.lineWidth = pared.grosor() + estilo.grosorBorde()
         gc.setLineDashes()
         gc.strokeLine(inicio.x(), inicio.y(), fin.x(), fin.y())
 
@@ -58,10 +58,10 @@ class DibujanteParedes(private val gc: GraphicsContext) {
 
         val geometria = geometriaGrietas(pared, inicio, fin) ?: return
         gc.stroke = COLOR_GRIETA
-        gc.lineWidth = max(1.0, geometria.grosor * 0.16)
+        gc.lineWidth = max(1.0, geometria.grosor() * 0.16)
         gc.setLineDashes()
 
-        repeat(geometria.cantidad) { indice ->
+        repeat(geometria.cantidad()) { indice ->
             dibujarGrieta(geometria, indice + 1)
         }
     }
@@ -87,18 +87,8 @@ class DibujanteParedes(private val gc: GraphicsContext) {
     }
 
     private fun dibujarGrieta(geometria: GeometriaGrietas, indice: Int) {
-        val t = 0.12 + 0.76 * fraccion(geometria.semilla + indice * 0.41)
-        val centro = geometria.inicio + geometria.direccion * (geometria.longitud * t)
-        val desvio =
-            (fraccion(geometria.semilla + indice * 0.77) - 0.5) * geometria.grosor * 1.4
-        gc.strokeLine(
-            centro.x() - geometria.perpendicular.x() * geometria.medio,
-            centro.y() - geometria.perpendicular.y() * geometria.medio,
-            centro.x() + geometria.perpendicular.x() * geometria.medio +
-                geometria.direccion.x() * desvio,
-            centro.y() + geometria.perpendicular.y() * geometria.medio +
-                geometria.direccion.y() * desvio
-        )
+        val trazo = geometria.trazoDe(indice)
+        gc.strokeLine(trazo.first.x(), trazo.first.y(), trazo.second.x(), trazo.second.y())
     }
 
     private fun colorDe(valor: Int): Color =
@@ -129,18 +119,35 @@ class DibujanteParedes(private val gc: GraphicsContext) {
     }
 
     private data class GeometriaGrietas(
-        val inicio: Vector2D,
-        val direccion: Vector2D,
-        val perpendicular: Vector2D,
-        val longitud: Double,
-        val medio: Double,
-        val grosor: Double,
-        val semilla: Double,
-        val cantidad: Int
-    )
+        private val inicio: Vector2D,
+        private val direccion: Vector2D,
+        private val perpendicular: Vector2D,
+        private val longitud: Double,
+        private val medio: Double,
+        private val grosor: Double,
+        private val semilla: Double,
+        private val cantidad: Int
+    ) {
+        fun grosor(): Double = grosor
+        fun cantidad(): Int = cantidad
+
+        fun trazoDe(indice: Int): Pair<Vector2D, Vector2D> {
+            val t = 0.12 + 0.76 * fraccion(semilla + indice * 0.41)
+            val centro = inicio + direccion * (longitud * t)
+            val desvio = (fraccion(semilla + indice * 0.77) - 0.5) * grosor * 1.4
+            val a = centro - perpendicular * medio
+            val b = centro + perpendicular * medio + direccion * desvio
+            return a to b
+        }
+
+        private fun fraccion(valor: Double): Double = valor - kotlin.math.floor(valor)
+    }
 
     private data class EstiloDibujoPared(
-        val colorOverride: Color? = null,
-        val grosorExtra: Double? = null
-    )
+        private val colorOverride: Color? = null,
+        private val grosorExtra: Double? = null
+    ) {
+        fun colorOverride(): Color? = colorOverride
+        fun grosorBorde(): Double = (grosorExtra ?: 2.0)
+    }
 }

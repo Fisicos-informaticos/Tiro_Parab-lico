@@ -26,8 +26,8 @@ class MecanicaTiro(
     override fun continuarApuntado(punto: Vector2D) {
         if (!entrada.estaArrastrando()) return
         entrada.actualizarArrastre(punto)
-        val modoArrastrable = sesion.modo() as? ModoArrastrable ?: return
-        val nuevaPosicion = modoArrastrable.arrastrar(posicion.preparacionPara(posicion.aMundo(punto)))
+        val nuevaPosicion = sesion.modo()
+            .posicionAlArrastrar(posicion.preparacionPara(posicion.aMundo(punto))) ?: return
         sesion.reubicarPelota(nuevaPosicion)
     }
 

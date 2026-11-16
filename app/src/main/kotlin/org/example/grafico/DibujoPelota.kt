@@ -10,11 +10,6 @@ import org.example.modelo.TipoPelota
 import org.example.modelo.Vector2D
 import org.example.modelo.colision.FormaColision
 
-/**
- * Instantanea de dibujo de una pelota. El estado queda oculto: solo se consulta
- * mediante metodos y la propia vista sabe pintarse, de modo que los dibujantes
- * no manipulan sus datos desde fuera.
- */
 class VistaPelota(
     private val tipo: TipoPelota,
     private val forma: FormaColision,
@@ -35,7 +30,6 @@ class VistaPelota(
     fun dibujar(gc: GraphicsContext) = DibujoPelota.dibujar(gc, this)
 
     companion object {
-        /** Vista de un proyectil ya desplazado por la camara. */
         fun desde(proyectil: Proyectil, camara: Vector2D): VistaPelota = VistaPelota(
             tipo = proyectil.tipo(),
             forma = proyectil.forma(),
@@ -45,11 +39,6 @@ class VistaPelota(
     }
 }
 
-/**
- * Dibuja una pelota con la forma y los colores de su tipo. El GraphicsContext debe
- * llegar sin transformaciones: la funcion se encarga de situar y rotar el cuerpo para
- * que las decoraciones se pinten en su sistema de coordenadas local.
- */
 object DibujoPelota {
 
     fun dibujar(gc: GraphicsContext, vista: VistaPelota) {

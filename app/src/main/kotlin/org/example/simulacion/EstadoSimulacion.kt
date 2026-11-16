@@ -4,33 +4,20 @@ import org.example.modelo.Vector2D
 import org.example.modos.LecturaModo
 import org.example.modos.ModoSimulacion
 
-/**
- * Estados posibles del tiro. Cada estado encapsula sus reglas, sus capacidades,
- * sus reacciones y su forma de presentarse. Añadir un estado nuevo solo requiere
- * una clase nueva; ni el nucleo ni el presentador tienen que conocer los tipos
- * concretos.
- */
 sealed class EstadoSimulacion {
 
-    /** Nombre para el panel de informacion. */
     abstract fun nombre(): String
 
-    /** La simulacion esta avanzando y no admite cambios de escenario. */
     open fun estaEnVuelo(): Boolean = false
 
-    /** El mundo aun muestra la pantalla de bienvenida. */
     open fun esPantallaInicio(): Boolean = false
 
-    /** El tiro ha terminado y espera al siguiente clic. */
     open fun esEnSuelo(): Boolean = false
 
-    /** Se puede pausar o reanudar desde este estado. */
     open fun permitePausa(): Boolean = true
 
-    /** Se puede modificar el escenario o seleccionar material. */
     open fun permiteEditar(): Boolean = true
 
-    /** Hay una trayectoria de apuntado que se puede previsualizar. */
     open fun permitePrevisualizar(): Boolean = false
 
     open fun alPulsar(simulacion: ContextoJuego, punto: Vector2D) = Unit
@@ -41,19 +28,14 @@ sealed class EstadoSimulacion {
 
     open fun alActualizar(simulacion: ContextoJuego, deltaTime: Double) = Unit
 
-    /** Deja el estado listo para empezar a dibujar una pared o superficie. */
     open fun alActivarHerramienta(simulacion: ContextoJuego) = Unit
 
-    /** Abandona el apuntado o el resultado al abrir un menu de edicion. */
     open fun alAbrirEdicion(simulacion: ContextoJuego) = Unit
 
-    /** Pinta la escena propia del estado y, si procede, su informacion. */
     abstract fun dibujar(escena: EscenaEstado, simulacion: ContextoJuego)
 
-    /** Lineas del panel que dependen del estado y del modo activo. */
     abstract fun lineasDeEstado(modo: ModoSimulacion, lectura: LecturaModo): List<String>
 
-    /** Primer contacto: un clic saca la pantalla de bienvenida. */
     object PantallaInicio : EstadoSimulacion() {
         override fun nombre(): String = "PANTALLA_INICIO"
 
@@ -77,7 +59,6 @@ sealed class EstadoSimulacion {
             listOf("Haz click para comenzar")
     }
 
-    /** La pelota espera en el suelo: otro clic la coloca para el tiro. */
     object Inactivo : EstadoSimulacion() {
         override fun nombre(): String = "INACTIVO"
 
@@ -94,7 +75,6 @@ sealed class EstadoSimulacion {
             modo.lineasDeColocacion(lectura)
     }
 
-    /** Arrastrando para apuntar: el vector dibujado es el vector de tiro. */
     object Arrojando : EstadoSimulacion() {
         override fun nombre(): String = "ARROJANDO"
 
@@ -130,7 +110,6 @@ sealed class EstadoSimulacion {
             modo.lineasDeApuntado(lectura)
     }
 
-    /** La pelota vuela: la fisica manda y al detenerse se cierra el tiro. */
     object EnVuelo : EstadoSimulacion() {
         override fun nombre(): String = "EN_VUELO"
 
@@ -151,7 +130,6 @@ sealed class EstadoSimulacion {
             modo.lineasDeVuelo(lectura)
     }
 
-    /** La pelota se ha parado: el siguiente clic reinicia. */
     object EnSuelo : EstadoSimulacion() {
         override fun nombre(): String = "EN_SUELO"
 
