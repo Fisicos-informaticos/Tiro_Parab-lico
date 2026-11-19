@@ -4,7 +4,7 @@ import org.example.modelo.Vector2D
 import kotlin.math.cos
 import kotlin.math.sin
 
-object CalculadoraTrayectoria {
+class CalculadoraTrayectoria {
 
     fun calcularVelocidadInicial(v0: Double, anguloGrados: Double): Vector2D {
         val rad = Math.toRadians(anguloGrados)

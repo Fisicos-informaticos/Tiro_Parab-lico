@@ -1,0 +1,664 @@
+{
+  ".gemini/settings.json": {
+    "mtime": 1793364821.067384,
+    "seen": 1793619798.069351,
+    "ast_hash": "23da48637850e9d86e4a8296d8bd343a",
+    "semantic_hash": "23da48637850e9d86e4a8296d8bd343a",
+    "ast_empty": true
+  },
+  ".vscode/settings.json": {
+    "mtime": 1787923419.1316633,
+    "seen": 1793619798.0693588,
+    "ast_hash": "3d29a75fcf0ed7dfff86d3db8f92fc69",
+    "semantic_hash": "3d29a75fcf0ed7dfff86d3db8f92fc69",
+    "ast_empty": true
+  },
+  "app/build.gradle.kts": {
+    "mtime": 1792148490.3064032,
+    "seen": 1793619798.0693622,
+    "ast_hash": "9989311d601f8f8fb1bb89e6bb78af22",
+    "semantic_hash": "9989311d601f8f8fb1bb89e6bb78af22"
+  },
+  "app/src/main/kotlin/org/example/App.kt": {
+    "mtime": 1793620726.3251443,
+    "seen": 1793620975.697242,
+    "ast_hash": "f82a4d53b8392651635dc46d7511e36c",
+    "semantic_hash": ""
+  },
+  "app/src/main/kotlin/org/example/MainApp.kt": {
+    "mtime": 1793964090.123936,
+    "seen": 1793964129.6229043,
+    "ast_hash": "4cf9fc1a940db4f1f9de9c78d3aaf684",
+    "semantic_hash": ""
+  },
+  "app/src/main/kotlin/org/example/coordenadas/Camara.kt": {
+    "mtime": 1793358404.014547,
+    "seen": 1793619798.069568,
+    "ast_hash": "8c7bc3a374b5b620f44ffaf4ec9e03ba",
+    "semantic_hash": "8c7bc3a374b5b620f44ffaf4ec9e03ba"
+  },
+  "app/src/main/kotlin/org/example/coordenadas/TransformadorCoordenadas.kt": {
+    "mtime": 1793012542.7239423,
+    "seen": 1793619798.0696378,
+    "ast_hash": "165bdf199106535112642fc563fad2e5",
+    "semantic_hash": "165bdf199106535112642fc563fad2e5"
+  },
+  "app/src/main/kotlin/org/example/coordenadas/TransformadorCoordenadasSimulacion.kt": {
+    "mtime": 1793358407.2580428,
+    "seen": 1793619798.0697064,
+    "ast_hash": "badd241705e77f2d7f699ef01d622dab",
+    "semantic_hash": "badd241705e77f2d7f699ef01d622dab"
+  },
+  "app/src/main/kotlin/org/example/entrada/DragInputHandler.kt": {
+    "mtime": 1793012526.5635684,
+    "seen": 1793619798.0697749,
+    "ast_hash": "8ffe3236c3752398e795f1788336bb0f",
+    "semantic_hash": "8ffe3236c3752398e795f1788336bb0f"
+  },
+  "app/src/main/kotlin/org/example/entrada/InputHandler.kt": {
+    "mtime": 1793012521.0074337,
+    "seen": 1793619798.069843,
+    "ast_hash": "5805e52b4b224c45b7b2213d5dd70f00",
+    "semantic_hash": "5805e52b4b224c45b7b2213d5dd70f00"
+  },
+  "app/src/main/kotlin/org/example/entrada/InputListener.kt": {
+    "mtime": 1792753453.2119298,
+    "seen": 1793619798.0699115,
+    "ast_hash": "b89db137d12aebb1c1795df511aa19d8",
+    "semantic_hash": "b89db137d12aebb1c1795df511aa19d8"
+  },
+  "app/src/main/kotlin/org/example/fisica/Ambiente.kt": {
+    "mtime": 1793012412.5559192,
+    "seen": 1793619798.0699797,
+    "ast_hash": "770ffa8c3b682c05cef7be6747c6c9bb",
+    "semantic_hash": "770ffa8c3b682c05cef7be6747c6c9bb"
+  },
+  "app/src/main/kotlin/org/example/fisica/CalculadoraTrayectoria.kt": {
+    "mtime": 1788520094.983035,
+    "seen": 1793619798.0700474,
+    "ast_hash": "836cc55b9d9eb2862ed35869b4374766",
+    "semantic_hash": "836cc55b9d9eb2862ed35869b4374766"
+  },
+  "app/src/main/kotlin/org/example/fisica/DetectorDeReposo.kt": {
+    "mtime": 1793358381.124344,
+    "seen": 1793619798.0701144,
+    "ast_hash": "4d36d5a332d19bc040114f0ae163daea",
+    "semantic_hash": "4d36d5a332d19bc040114f0ae163daea"
+  },
+  "app/src/main/kotlin/org/example/fisica/DetectorReposo.kt": {
+    "mtime": 1793358384.4117968,
+    "seen": 1793619798.0701904,
+    "ast_hash": "8dc426d1bb956c7240c8150f6c33b735",
+    "semantic_hash": "8dc426d1bb956c7240c8150f6c33b735"
+  },
+  "app/src/main/kotlin/org/example/fisica/FabricaAmbiente.kt": {
+    "mtime": 1793358388.2749321,
+    "seen": 1793619798.070259,
+    "ast_hash": "5979b33e2657859f3ec9a430ef084a0b",
+    "semantic_hash": "5979b33e2657859f3ec9a430ef084a0b"
+  },
+  "app/src/main/kotlin/org/example/fisica/FabricaMotorFisico.kt": {
+    "mtime": 1793358392.040879,
+    "seen": 1793619798.0703266,
+    "ast_hash": "a4329921337dfb0453fe87fd78698ca6",
+    "semantic_hash": "a4329921337dfb0453fe87fd78698ca6"
+  },
+  "app/src/main/kotlin/org/example/fisica/MotorFisico.kt": {
+    "mtime": 1793964102.5429554,
+    "seen": 1793964129.622935,
+    "ast_hash": "e40dacea2f75982abdb84ac8e67c3b69",
+    "semantic_hash": ""
+  },
+  "app/src/main/kotlin/org/example/fisica/PhysicsEngine.kt": {
+    "mtime": 1793012493.7957237,
+    "seen": 1793619798.0704598,
+    "ast_hash": "b280330690a3f3dfe9a0e3df2b8c7e46",
+    "semantic_hash": "b280330690a3f3dfe9a0e3df2b8c7e46"
+  },
+  "app/src/main/kotlin/org/example/fisica/ResolutorColisiones.kt": {
+    "mtime": 1793964102.5427306,
+    "seen": 1793964129.622939,
+    "ast_hash": "64c14158e89e1fdd79ab902bd768af71",
+    "semantic_hash": ""
+  },
+  "app/src/main/kotlin/org/example/fisica/Tierra.kt": {
+    "mtime": 1793012419.6202157,
+    "seen": 1793619798.0705936,
+    "ast_hash": "2df7aa8feb4e64f7dfe67c4e320be8a8",
+    "semantic_hash": "2df7aa8feb4e64f7dfe67c4e320be8a8"
+  },
+  "app/src/main/kotlin/org/example/grafico/CanvasRenderer.kt": {
+    "mtime": 1793964090.123684,
+    "seen": 1793964129.622943,
+    "ast_hash": "0d49de2c9fc2113025b731c916be1092",
+    "semantic_hash": ""
+  },
+  "app/src/main/kotlin/org/example/grafico/ContextoDibujo.kt": {
+    "mtime": 1793013449.5825205,
+    "seen": 1793619798.070727,
+    "ast_hash": "cb17d936cc0dcc339973b3defd3b9a1f",
+    "semantic_hash": "cb17d936cc0dcc339973b3defd3b9a1f"
+  },
+  "app/src/main/kotlin/org/example/grafico/DibujanteEntorno.kt": {
+    "mtime": 1793358838.0236707,
+    "seen": 1793619798.0707943,
+    "ast_hash": "80236d4ebd72c65c3ea9f31f6dad6a50",
+    "semantic_hash": "80236d4ebd72c65c3ea9f31f6dad6a50"
+  },
+  "app/src/main/kotlin/org/example/grafico/DibujanteParedes.kt": {
+    "mtime": 1793358838.0266707,
+    "seen": 1793619798.0708616,
+    "ast_hash": "4fbc0022e89d918c0b725bbef638a3be",
+    "semantic_hash": "4fbc0022e89d918c0b725bbef638a3be"
+  },
+  "app/src/main/kotlin/org/example/grafico/DibujoPelota.kt": {
+    "mtime": 1793359155.7635913,
+    "seen": 1793619798.0709279,
+    "ast_hash": "196aaaf7407fcbe69710fc554350b276",
+    "semantic_hash": "196aaaf7407fcbe69710fc554350b276"
+  },
+  "app/src/main/kotlin/org/example/grafico/DibujoVectoresFisica.kt": {
+    "mtime": 1793358439.3623345,
+    "seen": 1793619798.0709944,
+    "ast_hash": "e07123d3a649b00be483ea079fb7c9b8",
+    "semantic_hash": "e07123d3a649b00be483ea079fb7c9b8"
+  },
+  "app/src/main/kotlin/org/example/grafico/GeneradorEntorno.kt": {
+    "mtime": 1793012985.5750606,
+    "seen": 1793619798.0710626,
+    "ast_hash": "ff4d0866b7660108aa899ad7d3242b75",
+    "semantic_hash": "ff4d0866b7660108aa899ad7d3242b75"
+  },
+  "app/src/main/kotlin/org/example/grafico/Hud.kt": {
+    "mtime": 1790946478.8358734,
+    "seen": 1793619798.07113,
+    "ast_hash": "26144377a343c0f5745800ccfaaf6405",
+    "semantic_hash": "26144377a343c0f5745800ccfaaf6405"
+  },
+  "app/src/main/kotlin/org/example/grafico/Mundo.kt": {
+    "mtime": 1792753569.5790267,
+    "seen": 1793619798.0712059,
+    "ast_hash": "7adf4d7ef2f212403a9733a614b9acb2",
+    "semantic_hash": "7adf4d7ef2f212403a9733a614b9acb2"
+  },
+  "app/src/main/kotlin/org/example/grafico/PresentadorJuego.kt": {
+    "mtime": 1793963989.4094427,
+    "seen": 1793964129.6229732,
+    "ast_hash": "0ca341aafa03fac4ab34b70901176797",
+    "semantic_hash": ""
+  },
+  "app/src/main/kotlin/org/example/grafico/Renderable.kt": {
+    "mtime": 1792753454.8479452,
+    "seen": 1793619798.0713398,
+    "ast_hash": "fcfab221317b006ec356ead8aa45c2e5",
+    "semantic_hash": "fcfab221317b006ec356ead8aa45c2e5"
+  },
+  "app/src/main/kotlin/org/example/grafico/Renderer.kt": {
+    "mtime": 1792753573.9200675,
+    "seen": 1793619798.0714066,
+    "ast_hash": "f9a00db1baa0e7669ab721a7c1f4fab6",
+    "semantic_hash": "f9a00db1baa0e7669ab721a7c1f4fab6"
+  },
+  "app/src/main/kotlin/org/example/grafico/VectorRenderer.kt": {
+    "mtime": 1793358443.169157,
+    "seen": 1793619798.0714736,
+    "ast_hash": "6814179b561400e1ea7a26a34db4e61d",
+    "semantic_hash": "6814179b561400e1ea7a26a34db4e61d"
+  },
+  "app/src/main/kotlin/org/example/herramientas/HerramientaCreacionParedes.kt": {
+    "mtime": 1793358414.8203146,
+    "seen": 1793619798.0715406,
+    "ast_hash": "7f1230e30cc0591d6a6b5490155a5359",
+    "semantic_hash": "7f1230e30cc0591d6a6b5490155a5359"
+  },
+  "app/src/main/kotlin/org/example/herramientas/HerramientaParedes.kt": {
+    "mtime": 1793358411.241699,
+    "seen": 1793619798.0716093,
+    "ast_hash": "343d407c28248df5e2dab3bd5db3c174",
+    "semantic_hash": "343d407c28248df5e2dab3bd5db3c174"
+  },
+  "app/src/main/kotlin/org/example/modelo/Obstaculo.kt": {
+    "mtime": 1793012372.5592918,
+    "seen": 1793619798.0716765,
+    "ast_hash": "2e881f99f36b49c5765f5152d32aa40f",
+    "semantic_hash": "2e881f99f36b49c5765f5152d32aa40f"
+  },
+  "app/src/main/kotlin/org/example/modelo/Pared.kt": {
+    "mtime": 1793012385.1183753,
+    "seen": 1793619798.071744,
+    "ast_hash": "de27adf25396d3e10a9c8c364023ff63",
+    "semantic_hash": "de27adf25396d3e10a9c8c364023ff63"
+  },
+  "app/src/main/kotlin/org/example/modelo/Pelota.kt": {
+    "mtime": 1793012397.7474594,
+    "seen": 1793619798.0718107,
+    "ast_hash": "a3bb32a6a5f4326b4a9ae1873e057366",
+    "semantic_hash": "a3bb32a6a5f4326b4a9ae1873e057366"
+  },
+  "app/src/main/kotlin/org/example/modelo/Proyectil.kt": {
+    "mtime": 1793012391.9384208,
+    "seen": 1793619798.0718777,
+    "ast_hash": "6c2b4374c9be55f6179026b5d3e921b6",
+    "semantic_hash": "6c2b4374c9be55f6179026b5d3e921b6"
+  },
+  "app/src/main/kotlin/org/example/modelo/TipoPared.kt": {
+    "mtime": 1793012366.3812504,
+    "seen": 1793619798.0719442,
+    "ast_hash": "6930dcad59fedde3d39445b73c1ab03a",
+    "semantic_hash": "6930dcad59fedde3d39445b73c1ab03a"
+  },
+  "app/src/main/kotlin/org/example/modelo/TipoPelota.kt": {
+    "mtime": 1793012359.558205,
+    "seen": 1793619798.0720105,
+    "ast_hash": "670fdef18a95a465afa9a215d30e1d5a",
+    "semantic_hash": "670fdef18a95a465afa9a215d30e1d5a"
+  },
+  "app/src/main/kotlin/org/example/modelo/Vector2D.kt": {
+    "mtime": 1793012331.5050159,
+    "seen": 1793619798.0720775,
+    "ast_hash": "08ceb644753ca98c53c60b0915e52444",
+    "semantic_hash": "08ceb644753ca98c53c60b0915e52444"
+  },
+  "app/src/main/kotlin/org/example/modelo/colision/FormaColision.kt": {
+    "mtime": 1793013399.1149116,
+    "seen": 1793619798.0721457,
+    "ast_hash": "6832be442298d0bbc79d05f2b79e25dc",
+    "semantic_hash": "6832be442298d0bbc79d05f2b79e25dc"
+  },
+  "app/src/main/kotlin/org/example/modelo/colision/FormasColision.kt": {
+    "mtime": 1793013399.1151397,
+    "seen": 1793619798.0722265,
+    "ast_hash": "a9a8c9a0b26b42de18e66b133668e88b",
+    "semantic_hash": "a9a8c9a0b26b42de18e66b133668e88b"
+  },
+  "app/src/main/kotlin/org/example/modelo/creadores/ConstructorParedes.kt": {
+    "mtime": 1793012407.8157132,
+    "seen": 1793619798.0722988,
+    "ast_hash": "87af3841499342cf22ff9a37af8f7fd6",
+    "semantic_hash": "87af3841499342cf22ff9a37af8f7fd6"
+  },
+  "app/src/main/kotlin/org/example/modelo/creadores/CreadorParedes.kt": {
+    "mtime": 1793012402.6034937,
+    "seen": 1793619798.0723705,
+    "ast_hash": "817645c05f9666966db4409cf1ca566f",
+    "semantic_hash": "817645c05f9666966db4409cf1ca566f"
+  },
+  "app/src/main/kotlin/org/example/modos/CatalogoModos.kt": {
+    "mtime": 1793358423.1482139,
+    "seen": 1793619798.0724416,
+    "ast_hash": "0535d6978583ddafdf8f94961519457c",
+    "semantic_hash": "0535d6978583ddafdf8f94961519457c"
+  },
+  "app/src/main/kotlin/org/example/modos/FabricaModos.kt": {
+    "mtime": 1793358418.4241629,
+    "seen": 1793619798.0725093,
+    "ast_hash": "d4a6d74120cb198df85e77631c4c443d",
+    "semantic_hash": "d4a6d74120cb198df85e77631c4c443d"
+  },
+  "app/src/main/kotlin/org/example/modos/ModoCaidaLibre.kt": {
+    "mtime": 1793963578.5362263,
+    "seen": 1793963643.0599434,
+    "ast_hash": "c6f59ba473bd51d2bc3eb6433845162c",
+    "semantic_hash": ""
+  },
+  "app/src/main/kotlin/org/example/modos/ModoSimulacion.kt": {
+    "mtime": 1793012558.837292,
+    "seen": 1793619798.072643,
+    "ast_hash": "1caff806d12a39e7943a7354b08cceae",
+    "semantic_hash": "1caff806d12a39e7943a7354b08cceae"
+  },
+  "app/src/main/kotlin/org/example/modos/ModoTiroParabolico.kt": {
+    "mtime": 1793963578.5365026,
+    "seen": 1793963643.0599475,
+    "ast_hash": "ba3f25fb7308c909ac29d7ec899b1bc3",
+    "semantic_hash": ""
+  },
+  "app/src/main/kotlin/org/example/simulacion/ControladorCamara.kt": {
+    "mtime": 1793964012.349676,
+    "seen": 1793964129.6230257,
+    "ast_hash": "78ea04edc352de312a877aff3c140322",
+    "semantic_hash": ""
+  },
+  "app/src/main/kotlin/org/example/simulacion/EfectoRotura.kt": {
+    "mtime": 1793358754.7643304,
+    "seen": 1793619798.0728438,
+    "ast_hash": "d3825853c4c17dee0a2b673dc91f70ef",
+    "semantic_hash": "d3825853c4c17dee0a2b673dc91f70ef"
+  },
+  "app/src/main/kotlin/org/example/simulacion/EscenaEstado.kt": {
+    "mtime": 1793963989.4092379,
+    "seen": 1793964129.62303,
+    "ast_hash": "7c01861fd49af07cdd6d847576ad0c9b",
+    "semantic_hash": ""
+  },
+  "app/src/main/kotlin/org/example/simulacion/EstadoSimulacion.kt": {
+    "mtime": 1793964012.351932,
+    "seen": 1793964129.6230319,
+    "ast_hash": "67b1ab650759c34fdb98d1dfd63c96a1",
+    "semantic_hash": ""
+  },
+  "app/src/main/kotlin/org/example/simulacion/FabricaSimulacion.kt": {
+    "mtime": 1793963984.4651804,
+    "seen": 1793964129.6230338,
+    "ast_hash": "c116d6df6aaa86387226308cb89acd1a",
+    "semantic_hash": ""
+  },
+  "app/src/main/kotlin/org/example/simulacion/GestorEdicion.kt": {
+    "mtime": 1793964012.3499157,
+    "seen": 1793964129.6230357,
+    "ast_hash": "bc5b9fd99b4407e8eae0a6dc1272c040",
+    "semantic_hash": ""
+  },
+  "app/src/main/kotlin/org/example/simulacion/IntegradorVuelo.kt": {
+    "mtime": 1793964012.3504703,
+    "seen": 1793964129.6230395,
+    "ast_hash": "89b2bb9e37c7df832bbb2eab93e92f90",
+    "semantic_hash": ""
+  },
+  "app/src/main/kotlin/org/example/simulacion/MetricasTiro.kt": {
+    "mtime": 1793964012.349105,
+    "seen": 1793964129.6230433,
+    "ast_hash": "f3f387e292cc62fd5df087997d6af389",
+    "semantic_hash": ""
+  },
+  "app/src/main/kotlin/org/example/simulacion/ObservadorFinSimulacion.kt": {
+    "mtime": 1792156176.9116726,
+    "seen": 1793619798.0733202,
+    "ast_hash": "5dec81f9a08c1c7e4e162c24a688e38c",
+    "semantic_hash": "5dec81f9a08c1c7e4e162c24a688e38c"
+  },
+  "app/src/main/kotlin/org/example/simulacion/PrevisualizadorTrayectoria.kt": {
+    "mtime": 1793964012.3500993,
+    "seen": 1793964129.6230495,
+    "ast_hash": "da9b6d9e4c72c173b8d1c7807620fcdc",
+    "semantic_hash": ""
+  },
+  "app/src/main/kotlin/org/example/simulacion/RegistroEfectos.kt": {
+    "mtime": 1793964012.349294,
+    "seen": 1793964129.6230533,
+    "ast_hash": "92496214d670306969d599a4172bb54a",
+    "semantic_hash": ""
+  },
+  "app/src/main/kotlin/org/example/simulacion/RegistroObservadoresFin.kt": {
+    "mtime": 1793964012.3502605,
+    "seen": 1793964129.6230555,
+    "ast_hash": "10eee0ff8aebbb87acdd761fafa45357",
+    "semantic_hash": ""
+  },
+  "app/src/main/kotlin/org/example/simulacion/ResultadoSimulacion.kt": {
+    "mtime": 1793012599.5140874,
+    "seen": 1793619798.073587,
+    "ast_hash": "702983f074f142f7ef621b70194e4334",
+    "semantic_hash": "702983f074f142f7ef621b70194e4334"
+  },
+  "app/src/main/kotlin/org/example/simulacion/Simulacion.kt": {
+    "mtime": 1793964012.3520832,
+    "seen": 1793964129.6230617,
+    "ast_hash": "34e7c696537fdeb5e025b9ce56de9054",
+    "semantic_hash": ""
+  },
+  "app/src/main/kotlin/org/example/simulacion/SuperficiesLanzamiento.kt": {
+    "mtime": 1793964012.349488,
+    "seen": 1793964129.6230636,
+    "ast_hash": "8981f7cfca80402f07a9b39ebec60420",
+    "semantic_hash": ""
+  },
+  "app/src/main/kotlin/org/example/sprites/FabricaSprite.kt": {
+    "mtime": 1793358426.3131905,
+    "seen": 1793619798.073786,
+    "ast_hash": "7b2af1479506357c38ec2a4486a16e8c",
+    "semantic_hash": "7b2af1479506357c38ec2a4486a16e8c"
+  },
+  "app/src/main/kotlin/org/example/sprites/GestionSprites.kt": {
+    "mtime": 1793358431.4703035,
+    "seen": 1793619798.0738533,
+    "ast_hash": "b552d0dcb66950b62fecb97654e75e43",
+    "semantic_hash": "b552d0dcb66950b62fecb97654e75e43"
+  },
+  "app/src/main/kotlin/org/example/sprites/Sprite.kt": {
+    "mtime": 1793012642.0728166,
+    "seen": 1793619798.0739207,
+    "ast_hash": "3462b3e5d6247c16d5c9b57cddb8dca8",
+    "semantic_hash": "3462b3e5d6247c16d5c9b57cddb8dca8"
+  },
+  "app/src/main/kotlin/org/example/sprites/SpriteEstatico.kt": {
+    "mtime": 1793012647.7949083,
+    "seen": 1793619798.0739875,
+    "ast_hash": "04f60fd55754262f7c37c0627d44c386",
+    "semantic_hash": "04f60fd55754262f7c37c0627d44c386"
+  },
+  "app/src/main/kotlin/org/example/sprites/SpriteManager.kt": {
+    "mtime": 1793358548.065226,
+    "seen": 1793619798.0740545,
+    "ast_hash": "7f69e036795ac2f2af3d8d802567b676",
+    "semantic_hash": "7f69e036795ac2f2af3d8d802567b676"
+  },
+  "app/src/main/kotlin/org/example/ui/EstadoPanel.kt": {
+    "mtime": 1793012823.2932959,
+    "seen": 1793619798.0741215,
+    "ast_hash": "9fd7ad54b00abb2946cac00880de797f",
+    "semantic_hash": "9fd7ad54b00abb2946cac00880de797f"
+  },
+  "app/src/main/kotlin/org/example/ui/EstilosUI.kt": {
+    "mtime": 1792149239.1482844,
+    "seen": 1793619798.074202,
+    "ast_hash": "0cdff169a0dae4047e676fc3b57cab75",
+    "semantic_hash": "0cdff169a0dae4047e676fc3b57cab75"
+  },
+  "app/src/main/kotlin/org/example/ui/MenuFinJuego.kt": {
+    "mtime": 1793012832.3649025,
+    "seen": 1793619798.0742705,
+    "ast_hash": "5f409b02a05184661d2a1ba38e824011",
+    "semantic_hash": "5f409b02a05184661d2a1ba38e824011"
+  },
+  "app/src/main/kotlin/org/example/ui/MenusJuego.kt": {
+    "mtime": 1793964071.314874,
+    "seen": 1793964129.6230838,
+    "ast_hash": "e337ac125378815e93e1ff0c143983d6",
+    "semantic_hash": ""
+  },
+  "app/src/main/kotlin/org/example/ui/PanelControl.kt": {
+    "mtime": 1793358988.481353,
+    "seen": 1793619798.074405,
+    "ast_hash": "5cc4b5666e202669559ad0953f66c97d",
+    "semantic_hash": "5cc4b5666e202669559ad0953f66c97d"
+  },
+  "app/src/main/kotlin/org/example/ui/SeccionControl.kt": {
+    "mtime": 1793012832.3643844,
+    "seen": 1793619798.0744712,
+    "ast_hash": "abd2796ddbb8374cf5eef1d91f815fd7",
+    "semantic_hash": "abd2796ddbb8374cf5eef1d91f815fd7"
+  },
+  "app/src/main/kotlin/org/example/ui/UIEventListener.kt": {
+    "mtime": 1793359037.6994696,
+    "seen": 1793619798.0745375,
+    "ast_hash": "d55b3103b252686c4e83344842a57ae8",
+    "semantic_hash": "d55b3103b252686c4e83344842a57ae8"
+  },
+  "app/src/test/kotlin/org/example/AppTest.kt": {
+    "mtime": 1793012971.2053034,
+    "seen": 1793619798.0746038,
+    "ast_hash": "49094b4c76959654ebb66200dd265550",
+    "semantic_hash": "49094b4c76959654ebb66200dd265550"
+  },
+  "app/src/test/kotlin/org/example/CaidaLibreTest.kt": {
+    "mtime": 1793013458.2399106,
+    "seen": 1793619798.0746675,
+    "ast_hash": "0bfe7cbe06887158c87a88dd2c300d6f",
+    "semantic_hash": "0bfe7cbe06887158c87a88dd2c300d6f"
+  },
+  "app/src/test/kotlin/org/example/DbgTest.kt": {
+    "mtime": 1793013458.240219,
+    "seen": 1793619798.0747302,
+    "ast_hash": "b4f70807a7992303b78ac87f174505ec",
+    "semantic_hash": "b4f70807a7992303b78ac87f174505ec"
+  },
+  "app/src/test/kotlin/org/example/Diag.kt": {
+    "mtime": 1793013458.2400653,
+    "seen": 1793619798.0747924,
+    "ast_hash": "adbccc06fd39b1bf81c4ef80fbd52adb",
+    "semantic_hash": "adbccc06fd39b1bf81c4ef80fbd52adb"
+  },
+  "app/src/test/kotlin/org/example/SimulacionTest.kt": {
+    "mtime": 1793013458.239665,
+    "seen": 1793619798.074855,
+    "ast_hash": "31de0e6ceb026c7f20968f3cfde39741",
+    "semantic_hash": "31de0e6ceb026c7f20968f3cfde39741"
+  },
+  "gradlew": {
+    "mtime": 1786712239.0286725,
+    "seen": 1793619798.074918,
+    "ast_hash": "65578da0358a01f31a6a78dfcf47e2bf",
+    "semantic_hash": "65578da0358a01f31a6a78dfcf47e2bf"
+  },
+  "settings.gradle.kts": {
+    "mtime": 1787920376.392147,
+    "seen": 1793619798.0749567,
+    "ast_hash": "ab817d9c8fff335793c467a0dce9599f",
+    "semantic_hash": "ab817d9c8fff335793c467a0dce9599f"
+  },
+  "GEMINI.md": {
+    "mtime": 1793364821.06716,
+    "seen": 1793619798.0749958,
+    "ast_hash": "67d88e9d0760c3ba54c75dfd9551c1c5",
+    "semantic_hash": "67d88e9d0760c3ba54c75dfd9551c1c5"
+  },
+  "README.md": {
+    "mtime": 1786711256.368105,
+    "seen": 1793619798.0750337,
+    "ast_hash": "a7799d51783708f7dc37fcacd9087d12",
+    "semantic_hash": "a7799d51783708f7dc37fcacd9087d12"
+  },
+  "app/src/main/kotlin/org/example/BucleJuego.kt": {
+    "mtime": 1793620908.9542634,
+    "seen": 1793620975.6972456,
+    "ast_hash": "f693be8e30625bf73790d7f040785e30",
+    "semantic_hash": ""
+  },
+  "app/src/main/kotlin/org/example/ConstructorEstadoPanel.kt": {
+    "mtime": 1793964160.557237,
+    "seen": 1793964179.6387942,
+    "ast_hash": "1b1406f0375e6038961afb420f2640a4",
+    "semantic_hash": ""
+  },
+  "app/src/main/kotlin/org/example/DetectorFinDeVuelo.kt": {
+    "mtime": 1793964160.5570922,
+    "seen": 1793964179.6388001,
+    "ast_hash": "cd6674ded48aa2770094ac733842d864",
+    "semantic_hash": ""
+  },
+  "app/src/main/kotlin/org/example/EntradaConsola.kt": {
+    "mtime": 1793620726.3201444,
+    "seen": 1793620975.6972532,
+    "ast_hash": "d9a99d2e9011d4b3aaa60a9ab87f9922",
+    "semantic_hash": ""
+  },
+  "app/src/main/kotlin/org/example/GestorMenus.kt": {
+    "mtime": 1793964160.5569398,
+    "seen": 1793964179.6388047,
+    "ast_hash": "1eed6a7c1f723a5695b6fdb7fdf44343",
+    "semantic_hash": ""
+  },
+  "app/src/main/kotlin/org/example/PresentadorConsola.kt": {
+    "mtime": 1793964076.3868396,
+    "seen": 1793964129.6229067,
+    "ast_hash": "f85108877de4ef75fe7f3d2623cd4448",
+    "semantic_hash": ""
+  },
+  "app/src/main/kotlin/org/example/grafico/DibujanteFlechaDireccion.kt": {
+    "mtime": 1793620619.9729104,
+    "seen": 1793620975.6973107,
+    "ast_hash": "9815ba2675e27cac3e04ca8381fed6b6",
+    "semantic_hash": ""
+  },
+  "app/src/main/kotlin/org/example/grafico/DibujanteObjetos.kt": {
+    "mtime": 1793620947.2407076,
+    "seen": 1793620975.6973128,
+    "ast_hash": "c6eb9b5ee7876898c3661f206d492bda",
+    "semantic_hash": ""
+  },
+  "app/src/main/kotlin/org/example/grafico/DibujantePanelInfo.kt": {
+    "mtime": 1793620619.9749105,
+    "seen": 1793620975.697315,
+    "ast_hash": "b99044052a7efbadd7e1e80b25cdc6f0",
+    "semantic_hash": ""
+  },
+  "app/src/main/kotlin/org/example/grafico/DibujantePantallaInicio.kt": {
+    "mtime": 1793620619.9709103,
+    "seen": 1793620975.6973171,
+    "ast_hash": "560829f4022921e688ab8663d7e44a3e",
+    "semantic_hash": ""
+  },
+  "app/src/main/kotlin/org/example/simulacion/ComandosEdicion.kt": {
+    "mtime": 1793964012.3510993,
+    "seen": 1793964129.6230197,
+    "ast_hash": "6afbf59e804a0247664edab62abab864",
+    "semantic_hash": ""
+  },
+  "app/src/main/kotlin/org/example/simulacion/ComandosPartida.kt": {
+    "mtime": 1793964012.3513186,
+    "seen": 1793964129.6230218,
+    "ast_hash": "608f6f437db3b96e91963039ef635384",
+    "semantic_hash": ""
+  },
+  "app/src/main/kotlin/org/example/simulacion/Gravedades.kt": {
+    "mtime": 1793620785.341829,
+    "seen": 1793620975.6974046,
+    "ast_hash": "6404d9214b0304e2b47371e2a3844054",
+    "semantic_hash": ""
+  },
+  "app/src/main/kotlin/org/example/simulacion/MecanicaTiro.kt": {
+    "mtime": 1793964012.3508823,
+    "seen": 1793964129.6230416,
+    "ast_hash": "114e92192a04b2f0e0324f89030fd745",
+    "semantic_hash": ""
+  },
+  "app/src/main/kotlin/org/example/simulacion/PosicionPelota.kt": {
+    "mtime": 1793964012.3506675,
+    "seen": 1793964129.6230474,
+    "ast_hash": "cfd821e6f294c0a33505d08aa429c07d",
+    "semantic_hash": ""
+  },
+  "app/src/main/kotlin/org/example/simulacion/SesionPartida.kt": {
+    "mtime": 1793964012.348798,
+    "seen": 1793964129.6230597,
+    "ast_hash": "d30049607c1276cb50bc8f2277215c30",
+    "semantic_hash": ""
+  },
+  "app/src/main/kotlin/org/example/grafico/FabricaRenderer.kt": {
+    "mtime": 1793964084.960858,
+    "seen": 1793964129.6229644,
+    "ast_hash": "63d4a2f4589c55618efbd4388d8acc7e",
+    "semantic_hash": ""
+  },
+  "app/src/main/kotlin/org/example/simulacion/ContextoJuego.kt": {
+    "mtime": 1793964060.1420038,
+    "seen": 1793964129.6230235,
+    "ast_hash": "b0d7b6c2abdb1d425b997f30ea04b1e7",
+    "semantic_hash": ""
+  },
+  "app/src/main/kotlin/org/example/simulacion/Puertos.kt": {
+    "mtime": 1793963969.979043,
+    "seen": 1793964129.6230512,
+    "ast_hash": "3ac254180b1127d0ecb659f773e1c9c9",
+    "semantic_hash": ""
+  },
+  "app/src/main/kotlin/org/example/ui/MenuJuego.kt": {
+    "mtime": 1793964064.262592,
+    "seen": 1793964129.6230817,
+    "ast_hash": "76b563b58f5be45f9f47e31dc8ab9b79",
+    "semantic_hash": ""
+  },
+  "app/src/main/kotlin/org/example/CoordinadorMenus.kt": {
+    "mtime": 1793964153.1142056,
+    "seen": 1793964179.6387975,
+    "ast_hash": "dc7429bea4832155a427d8ab56c237ef",
+    "semantic_hash": ""
+  },
+  ".opencode/package-lock.json": {
+    "mtime": 1793363415.8551617,
+    "seen": 1793620975.6974819,
+    "ast_hash": "59c0041633652d35cf3655aa2cbcc3d6",
+    "semantic_hash": ""
+  }
+}

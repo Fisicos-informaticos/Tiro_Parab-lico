@@ -6,13 +6,13 @@ package org.example.modelo
  * producirla. Una pared sin pelotas que la rompen es indestructible.
  */
 enum class TipoPared(
-    val nombre: String,
-    val descripcion: String,
-    val grosor: Double,
-    val color: Int,
-    val colorBorde: Int,
-    val resistencia: Double,
-    val pelotasQueLaRompen: Set<TipoPelota>
+    private val nombre: String,
+    private val descripcion: String,
+    private val grosor: Double,
+    private val color: Int,
+    private val colorBorde: Int,
+    private val resistencia: Double,
+    private val pelotasQueLaRompen: Set<TipoPelota>
 ) {
     CARTON(
         "Carton",
@@ -61,21 +61,35 @@ enum class TipoPared(
         emptySet()
     );
 
+    fun nombre(): String = nombre
+
+    fun descripcion(): String = descripcion
+
+    fun grosor(): Double = grosor
+
+    fun color(): Int = color
+
+    fun colorBorde(): Int = colorBorde
+
+    fun resistencia(): Double = resistencia
+
+    fun pelotasQueLaRompen(): Set<TipoPelota> = pelotasQueLaRompen
+
     /** Indestructible: ninguna pelota del catalogo puede abrirla. */
-    val indestructible: Boolean get() = pelotasQueLaRompen.isEmpty()
+    fun indestructible(): Boolean = pelotasQueLaRompen.isEmpty()
 
     /** Esa pelota daña el material (y por tanto puede acabarlo). */
     fun registraDanio(tipoPelota: TipoPelota): Boolean = tipoPelota in pelotasQueLaRompen
 
     /** Texto para los menus: que pelotas pueden abrir este tipo de pared. */
-    val textoRompible: String
-        get() = if (indestructible) {
+    fun textoRompible(): String =
+        if (indestructible()) {
             "Indestructible: no hay pelota que la rompa"
         } else {
-            "La rompe: " + pelotasQueLaRompen.joinToString(", ") { it.nombre }
+            "La rompe: " + pelotasQueLaRompen.joinToString(", ") { it.nombre() }
         }
 
     companion object {
-        val POR_DEFECTO = MADERA
+        fun porDefecto(): TipoPared = MADERA
     }
 }

@@ -1,0 +1,20 @@
+{
+  "7": "Input and Coordinates",
+  "12": "Editor Mode Manager",
+  "18": "Simulation Scene States",
+  "28": "Placement Mode Logic",
+  "29": "Menu and Idle States",
+  "30": "Simulation State Interface",
+  "32": "Free Fall Tests",
+  "36": "Physics Vector Visualization",
+  "37": "Wall Destruction Effects",
+  "41": "Drag Input Logic",
+  "43": "Game Presenter Logic",
+  "44": "Projectile Launch State",
+  "65": "Documentation Generation",
+  "66": "Gradle Wrapper Scripts",
+  "68": "UI Style Definitions",
+  "69": "Build Configuration",
+  "70": "Project Name",
+  "71": "Project Settings"
+}
