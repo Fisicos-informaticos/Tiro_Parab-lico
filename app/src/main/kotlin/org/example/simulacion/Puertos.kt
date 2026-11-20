@@ -8,11 +8,6 @@ import org.example.modelo.Vector2D
 import org.example.modos.CondicionPrevia
 import org.example.modos.ModoSimulacion
 
-/**
- * Puertos que el nucleo de simulacion usa para hablar con sus colaboradores.
- * Al depender de estas abstracciones, las clases concretas pueden sustituirse
- * (pruebas, otras fisicas, otras metricas) sin tocar la coordinacion.
- */
 interface SesionJuego {
     fun estado(): EstadoSimulacion
     fun cambiarEstado(nuevo: EstadoSimulacion)
@@ -84,11 +79,7 @@ interface EditorEscenario {
 }
 
 interface Previsualizador {
-    fun previsualizar(
-        condicion: CondicionPrevia,
-        tipoPelota: TipoPelota,
-        paredes: List<Pared>
-    ): List<Vector2D>
+    fun previsualizar(condicion: CondicionPrevia, tipoPelota: TipoPelota, paredes: List<Pared>): List<Vector2D>
 }
 
 interface ObservadoresFin {
@@ -112,6 +103,7 @@ class ContextoVuelo(
     fun posicionOrigen(): Vector2D = posicionOrigen
     fun alturaActual(): Double = alturaActual.invoke()
     fun alcanceActual(): Double = proyectil.posicion().x() - posicionOrigen.x()
+    fun esFinPorAltura(): Boolean = proyectil.posicion().y() > posicionOrigen.y() + 1e-3 && proyectil.velocidad().y() > 0
 }
 
 interface UbicadorPelota {

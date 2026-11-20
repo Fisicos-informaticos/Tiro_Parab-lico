@@ -12,16 +12,14 @@ class Tierra(
     private val techoY: Double = 0.0
 
     override fun ancho(): Double = ancho
-
     override fun alto(): Double = alto
-
     override fun gravedad(): Vector2D = gravedad
-
     override fun densidadAire(): Double = densidadAire
-
     override fun sueloY(): Double = sueloY
-
     override fun techoY(): Double = techoY
+
+    fun estaSobreSuelo(y: Double, margen: Double = 0.0): Boolean = y >= sueloY - margen
+    fun gravedadEscalada(factor: Double): Vector2D = Vector2D(0.0, GRAVEDAD_PIXELES * factor)
 
     companion object {
         const val GRAVEDAD_PIXELES = 1500.0

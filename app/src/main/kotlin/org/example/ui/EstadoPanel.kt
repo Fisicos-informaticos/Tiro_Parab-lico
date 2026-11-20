@@ -1,10 +1,5 @@
 package org.example.ui
 
-/**
- * Instantanea de solo lectura del estado de la partida que el panel necesita
- * para decidir los textos y los bloqueos de sus controles. Evita que la vista
- * tenga que conocer la simulacion completa y encapsula sus propias reglas.
- */
 class EstadoPanel(
     private val pausado: Boolean,
     private val enVuelo: Boolean,
@@ -23,42 +18,30 @@ class EstadoPanel(
     private val haySuperficies: Boolean
 ) {
     fun pausado(): Boolean = pausado
-
     fun enVuelo(): Boolean = enVuelo
-
     fun enPantallaInicio(): Boolean = enPantallaInicio
-
     fun modoParedes(): Boolean = modoParedes
-
     fun modoSuperficies(): Boolean = modoSuperficies
-
     fun menuParedesAbierto(): Boolean = menuParedesAbierto
-
     fun menuPelotasAbierto(): Boolean = menuPelotasAbierto
-
     fun menuFinAbierto(): Boolean = menuFinAbierto
-
     fun nombreTipoPared(): String = nombreTipoPared
-
     fun nombrePelota(): String = nombrePelota
-
     fun factorGravedad(): Double = factorGravedad
-
     fun nombreModo(): String = nombreModo
-
     fun ayudaModo(): String = ayudaModo
-
     fun hayParedes(): Boolean = hayParedes
-
     fun haySuperficies(): Boolean = haySuperficies
 
-    /** Con un menu abierto o en pausa el mundo no responde al raton. */
-    fun interaccionBloqueada(): Boolean =
-        pausado || menuPelotasAbierto || menuParedesAbierto || menuFinAbierto
+    fun interaccionBloqueada(): Boolean = pausado || menuPelotasAbierto || menuParedesAbierto || menuFinAbierto
 
-    /** Los controles de edicion quedan inertes tambien mientras la pelota vuela. */
     fun bloqueado(): Boolean = interaccionBloqueada() || enVuelo
 
-    /** Texto con dos decimales para mostrar la gravedad activa. */
     fun gravedadTexto(): String = String.format("%.2f", factorGravedad)
+
+    fun resumenControles(): String = buildString {
+        append(nombreModo).append(" | g=").append(gravedadTexto())
+        if (enVuelo) append(" | en vuelo")
+        if (pausado) append(" | pausa")
+    }
 }

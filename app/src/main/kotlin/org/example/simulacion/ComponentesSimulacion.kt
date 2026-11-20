@@ -29,6 +29,7 @@ internal class ComponentesFisica(
     fun motor(): PhysicsEngine = motor
     fun creadorParedes(): CreadorParedes = creadorParedes
     fun herramienta(): HerramientaParedes = herramienta
+    fun describir(): String = "fisica(campos=${8})"
 }
 
 internal class ComponentesPartida(
@@ -43,6 +44,7 @@ internal class ComponentesPartida(
     fun efectos(): Efectos = efectos
     fun superficies(): SuperficiesApoyo = superficies
     fun fabricaModos(): FabricaModos = fabricaModos
+    fun describir(): String = "partida(campos=${5})"
 }
 
 internal class ServiciosCableados(
@@ -59,6 +61,7 @@ internal class ServiciosCableados(
     fun observadores(): ObservadoresFin = observadores
     fun posicionPelota(): UbicadorPelota = posicionPelota
     fun mecanica(): Mecanica = mecanica
+    fun describir(): String = "servicios(campos=${6})"
 }
 
 internal class ComandosCableados(
@@ -88,4 +91,5 @@ class ComponentesSimulacion internal constructor(
     internal fun partida(): ComponentesPartida = partida
     internal fun control(): ComponentesControl = control
     fun crearSimulacion(ancho: Double, alto: Double): Simulacion = Simulacion(ancho, alto, this)
+    fun resumen(): String = listOf(fisica.describir(), partida.describir(), control.servicios().describir()).joinToString("; ")
 }

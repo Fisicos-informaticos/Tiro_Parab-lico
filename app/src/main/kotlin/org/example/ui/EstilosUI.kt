@@ -1,12 +1,11 @@
 package org.example.ui
 
-/**
- * Catalogo central de estilos JavaFX. Al vivir en un [object] no quedan cadenas
- * de estilo sueltas ni duplicadas entre las distintas vistas de la interfaz.
- */
+import javafx.scene.control.Button
+import javafx.scene.control.Label
+import javafx.scene.layout.Region
+
 object EstilosUI {
 
-    /** Contenedor lateral: fondo semitransparente, esquinas redondeadas y sombra. */
     const val PANEL_CONTENEDOR =
         "-fx-padding: 16 16 16 16; " +
             "-fx-background-color: rgba(18, 22, 28, 0.88); " +
@@ -16,14 +15,11 @@ object EstilosUI {
             "-fx-border-width: 1; " +
             "-fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.50), 16, 0.15, 0, 6);"
 
-    /** Titulo de cada bloque logico del panel (Simulacion, Pelotas, Obstaculos). */
     const val TITULO_SECCION =
         "-fx-text-fill: #d4e157; -fx-font-size: 12px; -fx-font-weight: bold;"
 
-    /** Etiqueta pequena que acompana a un control. */
     const val CAPTION = "-fx-text-fill: #9aa4b0; -fx-font-size: 11px;"
 
-    /** Linea divisoria entre el titulo de seccion y su contenido. */
     const val DIVISOR = "-fx-background-color: rgba(154, 164, 176, 0.28);"
 
     const val BOTON =
@@ -54,4 +50,12 @@ object EstilosUI {
     const val SUBTITULO = "-fx-text-fill: #c8ced6; -fx-font-size: 12px;"
 
     const val AYUDA = "-fx-text-fill: #9aa4b0; -fx-font-size: 12px;"
+
+    fun aplicarPanelContenedor(region: Region) {
+        region.style = PANEL_CONTENEDOR
+    }
+
+    fun aplicarBoton(button: Button, activo: Boolean) {
+        button.style = if (activo) BOTON_ACTIVO else BOTON
+    }
 }
