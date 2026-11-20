@@ -16,10 +16,8 @@ internal data class ContextoServicios(
     fun ancho(): Double = ancho
     fun alto(): Double = alto
     fun entrada(): InputHandler = entrada
-    fun gravedadActual(): Vector2D = Vector2D(
-        0.0,
-        Tierra.GRAVEDAD_PIXELES * partida().sesion().factorGravedad()
-    )
+    fun gravedadActual(): Vector2D = Vector2D(0.0, Tierra.GRAVEDAD_PIXELES * partida().sesion().factorGravedad())
+    fun descripcion(): String = "servicios ${ancho}x${alto}"
 }
 
 internal data class ContextoComandos(
@@ -37,6 +35,7 @@ internal data class ContextoComandos(
     fun alto(): Double = alto
     fun entrada(): InputHandler = entrada
     fun puedeEditar(): Boolean = partida().sesion().estado().permiteEditar()
+    fun resumen(): String = "comandos editar=${puedeEditar()}"
 }
 
 internal class EnsambladorServicios {
@@ -68,10 +67,7 @@ internal class EnsambladorServicios {
             contexto.fisica().fabricaAmbiente().crear(
                 contexto.ancho(),
                 contexto.alto(),
-                Vector2D(
-                    0.0,
-                    Tierra.GRAVEDAD_PIXELES * contexto.partida().sesion().factorGravedad()
-                )
+                Vector2D(0.0, Tierra.GRAVEDAD_PIXELES * contexto.partida().sesion().factorGravedad())
             )
         }
 
@@ -84,18 +80,11 @@ internal class EnsambladorServicios {
         contexto.alto()
     )
 
-    private fun crearMecanica(
-        contexto: ContextoServicios,
-        posicionPelota: UbicadorPelota
-    ) = MecanicaTiro(
+    private fun crearMecanica(contexto: ContextoServicios, posicionPelota: UbicadorPelota) = MecanicaTiro(
         contexto.partida().sesion(),
         contexto.entrada(),
         contexto.partida().metricas(),
-        IntegradorVuelo(
-            contexto.fisica().motor(),
-            contexto.partida().metricas(),
-            contexto.partida().efectos()
-        ),
+        IntegradorVuelo(contexto.fisica().motor(), contexto.partida().metricas(), contexto.partida().efectos()),
         posicionPelota
     )
 

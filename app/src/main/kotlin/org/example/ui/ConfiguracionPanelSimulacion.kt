@@ -8,9 +8,8 @@ class ConfiguracionPanelSimulacion(
 ) {
     fun modos(): List<String> = modos
     fun gravedades(): List<String> = gravedades
-    fun modoInicialValido(): String =
-        if (modoInicial in modos) modoInicial else modos.firstOrNull().orEmpty()
+    fun modoInicialValido(): String = if (modoInicial in modos) modoInicial else modos.firstOrNull().orEmpty()
+    fun gravedadInicialValida(): String = if (gravedadInicial in gravedades) gravedadInicial else gravedades.firstOrNull().orEmpty()
 
-    fun gravedadInicialValida(): String =
-        if (gravedadInicial in gravedades) gravedadInicial else gravedades.firstOrNull().orEmpty()
+    fun describir(): String = "modo=${modoInicialValido()} g=${gravedadInicialValida()}"
 }

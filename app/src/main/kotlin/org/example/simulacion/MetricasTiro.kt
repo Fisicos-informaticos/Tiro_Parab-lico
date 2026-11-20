@@ -1,50 +1,39 @@
 package org.example.simulacion
 
 import kotlin.math.max
+import kotlin.math.sqrt
 
-/**
- * Acumula las metricas de un tiro y sabe resumirlas al terminar. Mantiene el
- * registro separado del estado de la simulacion para que cada clase tenga una
- * unica responsabilidad.
- */
 class MetricasTiro : Metricas {
+    private var tiempoTotal = 0.0
+    private var distanciaRecorrida = 0.0
+    private var alturaMaxima = 0.0
+    private var distanciaX = 0.0
+    private var paredesDestruidas = 0
 
-    private var tiempoVuelo: Double = 0.0
-    private var distanciaRecorrida: Double = 0.0
-    private var alturaMaxima: Double = 0.0
-    private var distanciaX: Double = 0.0
-    private var paredesDestruidas: Int = 0
-
-    override fun tiempoVuelo(): Double = tiempoVuelo
-
+    override fun tiempoVuelo(): Double = tiempoTotal
     override fun distanciaRecorrida(): Double = distanciaRecorrida
-
     override fun alturaMaxima(): Double = alturaMaxima
-
     override fun distanciaX(): Double = distanciaX
-
     override fun paredesDestruidas(): Int = paredesDestruidas
 
-    /** Deja las metricas del tiro a cero, conservando el total de la partida. */
     override fun reiniciarTiro() {
-        tiempoVuelo = 0.0
+        tiempoTotal = 0.0
         distanciaRecorrida = 0.0
         alturaMaxima = 0.0
         distanciaX = 0.0
     }
 
-    /** Empieza una partida nueva: tambien borra las paredes destruidas. */
     override fun reiniciarPartida() {
         reiniciarTiro()
         paredesDestruidas = 0
     }
 
     override fun avanzarTiempo(deltaTime: Double) {
-        tiempoVuelo += deltaTime
+        tiempoTotal += deltaTime
     }
 
     override fun sumarDistancia(distancia: Double) {
-        distanciaRecorrida += distancia
+        distanciaRecorrida += sqrt(max(distancia * distancia, 0.0))
     }
 
     override fun registrarAltura(altura: Double) {
@@ -56,12 +45,11 @@ class MetricasTiro : Metricas {
     }
 
     override fun registrarRoturas(cantidad: Int) {
+        if (cantidad <= 0) return
         paredesDestruidas += cantidad
     }
 
-    override fun resultado(): ResultadoSimulacion = ResultadoSimulacion(
-        tiempoTotal = tiempoVuelo,
-        distanciaX = distanciaX,
-        alturaMaxima = alturaMaxima
-    )
+    override fun resultado(): ResultadoSimulacion = ResultadoSimulacion(tiempoTotal, distanciaX, alturaMaxima)
+
+    fun resumen(): String = "t=${String.format("%.2f", tiempoTotal)}s dX=${String.format("%.2f", distanciaX)} hMax=${String.format("%.2f", alturaMaxima)}"
 }

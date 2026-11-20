@@ -31,6 +31,7 @@ internal object ConstructorMenu {
         fun ayuda(): String = ayuda
         fun contenido(): Node = contenido
         fun tieneSubtitulo(): Boolean = subtitulo().isNotBlank()
+        fun etiquetaTitulo(): Label = Label(titulo()).also { it.style = EstilosUI.TITULO }
     }
 
     data class EspecificacionBotonMenu(
@@ -47,6 +48,7 @@ internal object ConstructorMenu {
             accion()
             alCerrarMenus()
         }
+        fun crearBoton(): ToggleButton = botonMenu(this)
     }
 
     data class EspecificacionTextos(
@@ -60,12 +62,13 @@ internal object ConstructorMenu {
         fun extra(): String = extra
         fun anchoExtra(): Double? = anchoExtra
         fun detalleCompleto(): String = listOf(datos(), extra()).filter { it.isNotBlank() }.joinToString(" · ")
+        fun construirVBox(): VBox = textos(this)
     }
 
     fun construir(especificacion: EspecificacionMenu): VBox {
         val menu = VBox(
             14.0,
-            Label(especificacion.titulo()).also { it.style = EstilosUI.TITULO },
+            especificacion.etiquetaTitulo(),
             etiquetaCentrada(especificacion.subtitulo(), EstilosUI.SUBTITULO),
             especificacion.contenido(),
             etiquetaCentrada(especificacion.ayuda(), EstilosUI.AYUDA)

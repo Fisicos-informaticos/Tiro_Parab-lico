@@ -8,7 +8,6 @@ interface ContextoDibujo {
     fun alto(): Double
     fun offsetCamara(): Vector2D
     fun fijarOffsetCamara(nuevo: Vector2D)
-
     fun dibujarLinea(linea: LineaDibujo)
     fun dibujarTexto(texto: TextoDibujo)
     fun dibujarImagenMundo(imagen: ImagenEnMundo)
@@ -25,6 +24,7 @@ class LineaDibujo(
     fun color(): String = color
     fun grosor(): Double = grosor
     fun longitud(): Double = inicio.distanciaA(fin)
+    fun esCorta(umbral: Double): Boolean = longitud() <= umbral
 }
 
 class TextoDibujo(
@@ -36,6 +36,7 @@ class TextoDibujo(
     fun posicion(): Vector2D = posicion
     fun tamano(): Double = tamano
     fun en(nuevaPosicion: Vector2D): TextoDibujo = TextoDibujo(texto, nuevaPosicion, tamano)
+    fun conTamano(nuevoTamano: Double): TextoDibujo = TextoDibujo(texto, posicion, nuevoTamano)
 }
 
 class ImagenEnMundo(
@@ -48,6 +49,5 @@ class ImagenEnMundo(
     fun posicion(): Vector2D = posicion
     fun ancho(): Double = ancho
     fun alto(): Double = alto
-    fun ocupa(x: Double, y: Double): Boolean =
-        x >= posicion.x() && x <= posicion.x() + ancho && y >= posicion.y() && y <= posicion.y() + alto
+    fun ocupa(x: Double, y: Double): Boolean = x >= posicion.x() && x <= posicion.x() + ancho && y >= posicion.y() && y <= posicion.y() + alto
 }
