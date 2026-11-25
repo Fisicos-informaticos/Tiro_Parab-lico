@@ -533,6 +533,55 @@ xychart-beta
 | 18 | 2026-11-20 | `097adc6` | dqmdz-etec | 6,651 | 20 | 97% | 5.9% | 11 |
 | 19 | 2026-11-20 | `6f63041` | dqmdz-etec | 6,651 | 20 | 97% | 5.9% | 11 |
 
+<!-- actividad-clases:inicio -->
+## Actividad en días de clase
+
+> Período evaluado **2026-08-14 → 2026-11-25** · **23 clases** (lunes, viernes) · días de clase del calendario, extendidos hasta la fecha de corte.
+>
+> `Commits` = commits de trabajo (no-merge); `Merges` = merges de PR (también son push). Los días sin actividad dicen **sin actividad**. El cuadro principal usa sólo las fechas de clase del calendario oficial.
+>
+> **Aportes fuera del calendario:** cada alumno tiene un cuadro aparte con las fechas no lectivas con actividad, desde **2026-08-14** hasta **2026-11-25** (ventana de aportes). Esas fechas no forman parte del cuadro principal, pero se muestran para no perder trabajo hecho en fines de semana, feriados o después del período.
+>
+> Se recorre `git log --all` sobre un mirror (todas las ramas y `refs/pull/*`), con deduplicación por commit. Fecha = fecha de autor en UTC-3. Los commits locales no pusheados no se ven. Si el trabajo fue en pareja y el commit es de otra persona, figura a nombre del autor del commit; para reflejarlo, usar `Co-authored-by` o una nota manual.
+>
+> Sección informativa: no modifica el semáforo de aprobación.
+
+### Tomas-Chokita
+
+**17/23 clases con actividad** · 22 commits · 2 merges
+
+| Fecha | Marca | Repositorios | Commits / merges |
+|---|:--:|---|--:|
+| 2026-08-14 | **Sí** | Tiro_Parab-lico | 4 / 0 |
+| 2026-08-21 | **Sí** | Tiro_Parab-lico | 1 / 0 |
+| 2026-08-24 | No | sin actividad | 0 / 0 |
+| 2026-08-28 | **Sí** | Tiro_Parab-lico | 1 / 0 |
+| 2026-08-31 | No | sin actividad | 0 / 0 |
+| 2026-09-04 | **Sí** | Tiro_Parab-lico | 0 / 1 |
+| 2026-09-07 | No | sin actividad | 0 / 0 |
+| 2026-09-14 | No | sin actividad | 0 / 0 |
+| 2026-09-25 | **Sí** | Tiro_Parab-lico | 1 / 0 |
+| 2026-09-28 | **Sí** | Tiro_Parab-lico | 1 / 0 |
+| 2026-10-02 | **Sí** | Tiro_Parab-lico | 2 / 0 |
+| 2026-10-05 | No | sin actividad | 0 / 0 |
+| 2026-10-09 | **Sí** | Tiro_Parab-lico | 1 / 0 |
+| 2026-10-16 | **Sí** | Tiro_Parab-lico | 2 / 1 |
+| 2026-10-19 | No | sin actividad | 0 / 0 |
+| 2026-10-23 | **Sí** | Tiro_Parab-lico | 1 / 0 |
+| 2026-10-26 | **Sí** | Tiro_Parab-lico | 1 / 0 |
+| 2026-10-30 | **Sí** | Tiro_Parab-lico | 1 / 0 |
+| 2026-11-02 | **Sí** | Tiro_Parab-lico | 1 / 0 |
+| 2026-11-06 | **Sí** | Tiro_Parab-lico | 1 / 0 |
+| 2026-11-13 | **Sí** | Tiro_Parab-lico | 2 / 0 |
+| 2026-11-16 | **Sí** | Tiro_Parab-lico | 1 / 0 |
+| 2026-11-20 | **Sí** | Tiro_Parab-lico | 1 / 0 |
+
+#### Aportes fuera del calendario de clases — Tomas-Chokita
+
+_Sin aportes fuera del calendario de clases para Tomas-Chokita._
+
+<!-- actividad-clases:fin -->
+
 ---
 _Informe generado por la cátedra. Los criterios y umbrales de medición corresponden al perfil `exigente` de `calidad.py`; el semáforo de aprobación, a `CRITERIOS-CALIDAD.md` (ver `README.md`). Ante dudas, revisá el archivo señalado._
 <!-- evaluacion:fin -->
