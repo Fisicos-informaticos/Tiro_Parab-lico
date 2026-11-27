@@ -3,14 +3,14 @@
 
 > Documento **generado automáticamente** por la cátedra de Programación II (RepoSense + análisis de calidad POO/SOLID). **No editar a mano**: se regenera en cada evaluación.
 > Rama evaluada: `main`. Análisis **heurístico** (regex + métricas): es una criba para orientar la revisión, **no una nota**.
-> Generado: 2026-11-25.
+> Generado: 2026-11-27.
 
 ## 1. Veredicto
 
 | Aspecto | Resultado |
 |---|---|
 | Índice de calidad POO/SOLID | **20/100** |
-| Commit evaluado | `6f630411cc21` (2026-11-20) |
+| Commit evaluado | `fe9e59b51ee8` (2026-11-25) |
 | Código (LOC) | 6,651 |
 | Archivos de código | 147 |
 | Clases (bien usadas) | 216 (117 OK) |
@@ -49,6 +49,15 @@ Criterios de `CRITERIOS-CALIDAD.md`. **Aprobar** se juega con el perfil `estanda
 | Funciones fuera de clases | ≤ 1 | 11 | no |
 | Señales POO/SOLID críticas | ninguna | Clase demasiado grande (SRP), Baja cohesión (LCOM), Acoplamiento alto (CBO), Interfaz con demasiados métodos (ISP) | no |
 | Índice de calidad POO/SOLID | ≥ 60 | 20/100 | no |
+
+### Última actividad en cualquier rama
+
+> Datos al cierre de la evaluación, antes de publicar este informe. Se revisan todas las ramas (`refs/heads/*`) y los heads de PR (`refs/pull/*/head`); **último commit de alumno** excluye la cuenta docente y los bots.
+
+| | Fecha (UTC-3) | Usuario | Rama | Commit | Mensaje |
+|---|---|---|---|---|---|
+| Último commit | 2026-11-25 10:40 | @dqmdz-etec | `main` | `fe9e59b5` | docs: actividad en días de clase (calendario oficial) |
+| Último commit de alumno | 2026-11-20 09:04 | @Tomas-Chokita | `Tercera_Parte` | `85e0a329` | Mega arreglos del codigo |
 
 ### Cómo se calcula el %POO (y por qué no sube solo)
 
@@ -501,14 +510,14 @@ Cada aspecto indica **qué mide**, **por qué importa** y **tu resultado**. Cuan
 
 ## 5. Evolución por commit
 
-Métricas calculadas sobre el estado de `main` en **cada commit** (19 commits con trabajo), del primero al último. La calidad usa el perfil `exigente`; el aporte de código lo mide RepoSense. El índice puede **bajar** al crecer el proyecto: se acumulan señales.
+Métricas calculadas sobre el estado de `main` en **cada commit** (20 commits con trabajo), del primero al último. La calidad usa el perfil `exigente`; el aporte de código lo mide RepoSense. El índice puede **bajar** al crecer el proyecto: se acumulan señales.
 
 ```mermaid
 xychart-beta
     title "Índice POO/SOLID a lo largo de los commits"
-    x-axis ["c2858d1", "8b18b95", "c85d16b", "54a028c", "136785a", "2ae9c59", "43d30ed", "67e527c", "5dd003d", "70a4563", "12487c1", "4f911a1", "4e0d3d8", "7c6fa99", "48d7725", "06761d7", "9e85dac", "097adc6", "6f63041"]
+    x-axis ["c2858d1", "8b18b95", "c85d16b", "54a028c", "136785a", "2ae9c59", "43d30ed", "67e527c", "5dd003d", "70a4563", "12487c1", "4f911a1", "4e0d3d8", "7c6fa99", "48d7725", "06761d7", "9e85dac", "097adc6", "6f63041", "fe9e59b"]
     y-axis "Índice" 0 --> 100
-    line [0, 0, 0, 59, 80, 80, 80, 80, 80, 80, 80, 80, 80, 81, 81, 20, 20, 20, 20]
+    line [0, 0, 0, 59, 80, 80, 80, 80, 80, 80, 80, 80, 80, 81, 81, 20, 20, 20, 20, 20]
 ```
 
 | # | Fecha | Commit | Autor | LOC | Índice | %POO | Duplic. | Sueltas |
@@ -532,55 +541,7 @@ xychart-beta
 | 17 | 2026-11-20 | `9e85dac` | dqmdz-etec | 6,651 | 20 | 97% | 5.9% | 11 |
 | 18 | 2026-11-20 | `097adc6` | dqmdz-etec | 6,651 | 20 | 97% | 5.9% | 11 |
 | 19 | 2026-11-20 | `6f63041` | dqmdz-etec | 6,651 | 20 | 97% | 5.9% | 11 |
-
-<!-- actividad-clases:inicio -->
-## Actividad en días de clase
-
-> Período evaluado **2026-08-14 → 2026-11-25** · **23 clases** (lunes, viernes) · días de clase del calendario, extendidos hasta la fecha de corte.
->
-> `Commits` = commits de trabajo (no-merge); `Merges` = merges de PR (también son push). Los días sin actividad dicen **sin actividad**. El cuadro principal usa sólo las fechas de clase del calendario oficial.
->
-> **Aportes fuera del calendario:** cada alumno tiene un cuadro aparte con las fechas no lectivas con actividad, desde **2026-08-14** hasta **2026-11-25** (ventana de aportes). Esas fechas no forman parte del cuadro principal, pero se muestran para no perder trabajo hecho en fines de semana, feriados o después del período.
->
-> Se recorre `git log --all` sobre un mirror (todas las ramas y `refs/pull/*`), con deduplicación por commit. Fecha = fecha de autor en UTC-3. Los commits locales no pusheados no se ven. Si el trabajo fue en pareja y el commit es de otra persona, figura a nombre del autor del commit; para reflejarlo, usar `Co-authored-by` o una nota manual.
->
-> Sección informativa: no modifica el semáforo de aprobación.
-
-### Tomas-Chokita
-
-**17/23 clases con actividad** · 22 commits · 2 merges
-
-| Fecha | Marca | Repositorios | Commits / merges |
-|---|:--:|---|--:|
-| 2026-08-14 | **Sí** | Tiro_Parab-lico | 4 / 0 |
-| 2026-08-21 | **Sí** | Tiro_Parab-lico | 1 / 0 |
-| 2026-08-24 | No | sin actividad | 0 / 0 |
-| 2026-08-28 | **Sí** | Tiro_Parab-lico | 1 / 0 |
-| 2026-08-31 | No | sin actividad | 0 / 0 |
-| 2026-09-04 | **Sí** | Tiro_Parab-lico | 0 / 1 |
-| 2026-09-07 | No | sin actividad | 0 / 0 |
-| 2026-09-14 | No | sin actividad | 0 / 0 |
-| 2026-09-25 | **Sí** | Tiro_Parab-lico | 1 / 0 |
-| 2026-09-28 | **Sí** | Tiro_Parab-lico | 1 / 0 |
-| 2026-10-02 | **Sí** | Tiro_Parab-lico | 2 / 0 |
-| 2026-10-05 | No | sin actividad | 0 / 0 |
-| 2026-10-09 | **Sí** | Tiro_Parab-lico | 1 / 0 |
-| 2026-10-16 | **Sí** | Tiro_Parab-lico | 2 / 1 |
-| 2026-10-19 | No | sin actividad | 0 / 0 |
-| 2026-10-23 | **Sí** | Tiro_Parab-lico | 1 / 0 |
-| 2026-10-26 | **Sí** | Tiro_Parab-lico | 1 / 0 |
-| 2026-10-30 | **Sí** | Tiro_Parab-lico | 1 / 0 |
-| 2026-11-02 | **Sí** | Tiro_Parab-lico | 1 / 0 |
-| 2026-11-06 | **Sí** | Tiro_Parab-lico | 1 / 0 |
-| 2026-11-13 | **Sí** | Tiro_Parab-lico | 2 / 0 |
-| 2026-11-16 | **Sí** | Tiro_Parab-lico | 1 / 0 |
-| 2026-11-20 | **Sí** | Tiro_Parab-lico | 1 / 0 |
-
-#### Aportes fuera del calendario de clases — Tomas-Chokita
-
-_Sin aportes fuera del calendario de clases para Tomas-Chokita._
-
-<!-- actividad-clases:fin -->
+| 20 | 2026-11-25 | `fe9e59b` | dqmdz-etec | 6,651 | 20 | 97% | 5.9% | 11 |
 
 ---
 _Informe generado por la cátedra. Los criterios y umbrales de medición corresponden al perfil `exigente` de `calidad.py`; el semáforo de aprobación, a `CRITERIOS-CALIDAD.md` (ver `README.md`). Ante dudas, revisá el archivo señalado._
