@@ -16,13 +16,14 @@ import org.example.modelo.creadores.FabricaProyectilesPredeterminada
 import org.example.modos.CatalogoModos
 
 /**
- * Punto de composicion del nucleo. Es el unico lugar que conoce las clases
- * concretas y se encarga de construirlas para que [Simulacion] reciba todo a
- * traves de sus interfaces.
+ * Punto de composicion del nucleo. Recibe fabricas pequenas por constructor para
+ * que las piezas concretas se sustituyan sin tocar el ensamblado principal.
  */
-object FabricaSimulacion {
-    private val ensambladorServicios = EnsambladorServicios()
-
+internal class FabricaSimulacion(
+    private val fisica: FabricaComponentesFisica,
+    private val partida: FabricaComponentesPartida,
+    private val ensambladorServicios: EnsambladorServicios = EnsambladorServicios()
+) {
     fun crear(ancho: Double = 1000.0, alto: Double = 650.0): Simulacion =
         componentes(ancho, alto).crearSimulacion(ancho, alto)
 
@@ -37,23 +38,54 @@ object FabricaSimulacion {
         alto: Double,
         entrada: InputHandler
     ): ComponentesSimulacion {
-        val fisica = crearFisica(ancho, alto)
-        val partida = crearPartida(alto)
-        val contextoServicios = ContextoServicios(fisica, partida, ancho, alto, entrada)
+        val componentesFisica = fisica.crear(ancho, alto)
+        val componentesPartida = partida.crear(alto)
+        val contextoServicios = ContextoServicios(componentesFisica, componentesPartida, ancho, alto, entrada)
         val servicios = ensambladorServicios.crearServicios(contextoServicios)
         val comandos = ensambladorServicios.crearComandos(
-            ContextoComandos(fisica, partida, servicios, ancho, alto, entrada)
+            ContextoComandos(componentesFisica, componentesPartida, servicios, ancho, alto, entrada)
         )
         return ComponentesSimulacion(
-            fisica,
-            partida,
+            componentesFisica,
+            componentesPartida,
             ComponentesControl(entrada, servicios, comandos)
         )
     }
 
-    private fun crearFisica(ancho: Double, alto: Double): ComponentesFisica {
+    companion object {
+        fun crear(ancho: Double = 1000.0, alto: Double = 650.0): Simulacion =
+            predeterminada.crear(ancho, alto)
+
+        fun componentes(
+            ancho: Double,
+            alto: Double,
+            entrada: InputHandler? = null
+        ): ComponentesSimulacion = predeterminada.componentes(ancho, alto, entrada)
+
+        fun gravedadPorDefecto(): Vector2D = Vector2D(
+            0.0,
+            Tierra.GRAVEDAD_PIXELES * Simulacion.factorGravedadPorDefecto()
+        )
+
+        private val predeterminada = FabricaSimulacion(
+            FabricaComponentesFisicaPredeterminada(),
+            FabricaComponentesPartidaPredeterminada()
+        )
+    }
+}
+
+internal interface FabricaComponentesFisica {
+    fun crear(ancho: Double, alto: Double): ComponentesFisica
+}
+
+internal interface FabricaComponentesPartida {
+    fun crear(alto: Double): ComponentesPartida
+}
+
+internal class FabricaComponentesFisicaPredeterminada : FabricaComponentesFisica {
+    override fun crear(ancho: Double, alto: Double): ComponentesFisica {
         val fabricaAmbiente = FabricaTierra()
-        val ambiente = fabricaAmbiente.crear(ancho, alto, gravedadPorDefecto())
+        val ambiente = fabricaAmbiente.crear(ancho, alto, FabricaSimulacion.gravedadPorDefecto())
         val fabricaMotorFisico = FabricaMotorFisicoPredeterminada()
         val motor = fabricaMotorFisico.crear(ambiente)
         val base = BaseFisica(
@@ -88,8 +120,10 @@ object FabricaSimulacion {
             )
         }
     }
+}
 
-    private fun crearPartida(alto: Double): ComponentesPartida {
+internal class FabricaComponentesPartidaPredeterminada : FabricaComponentesPartida {
+    override fun crear(alto: Double): ComponentesPartida {
         val fabricaModos = CatalogoModos
         return ComponentesPartida(
             sesion = SesionPartida(
@@ -104,9 +138,4 @@ object FabricaSimulacion {
             fabricaModos = fabricaModos
         )
     }
-
-    private fun gravedadPorDefecto(): Vector2D = Vector2D(
-        0.0,
-        Tierra.GRAVEDAD_PIXELES * Simulacion.factorGravedadPorDefecto()
-    )
 }

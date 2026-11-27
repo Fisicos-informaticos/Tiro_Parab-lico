@@ -10,12 +10,16 @@ import org.example.modelo.TipoPelota
 import org.example.modelo.Vector2D
 import org.example.modelo.colision.FormaColision
 
-/** Menu de seleccion de pelotas y su estado de seleccion. */
-internal class MenuPelotas(
-    private val escucha: UIEventListener,
+internal interface VistaMenuPelotas {
+    fun menu(): VBox
+    fun marcarActual()
+}
+
+internal class VistaMenuPelotasJavaFx(
+    private val escucha: ConfiguracionJuego,
     private val tipoPelotaActual: () -> TipoPelota,
     private val alCerrarMenus: () -> Unit
-) {
+) : VistaMenuPelotas {
     private val grupo = ToggleGroup()
     private val botones = mutableMapOf<TipoPelota, ToggleButton>()
     private val menu: VBox = crearMenu()
@@ -24,9 +28,9 @@ internal class MenuPelotas(
         grupo.selectedToggleProperty().addListener { _, _, _ -> marcarSeleccion() }
     }
 
-    fun menu(): VBox = menu
+    override fun menu(): VBox = menu
 
-    fun marcarActual() {
+    override fun marcarActual() {
         grupo.selectToggle(botones[tipoPelotaActual()])
     }
 
@@ -55,7 +59,7 @@ internal class MenuPelotas(
             ConstructorMenu.EspecificacionBotonMenu(
                 previa = previa,
                 textos = textos,
-                ancho = ConstructorMenu.ANCHO_BOTON_MENU,
+                ancho = ConstructorMenu.medidas.anchoBotonMenu,
                 alCerrarMenus = alCerrarMenus,
                 accion = { escucha.seleccionarPelota(tipo) }
             )
@@ -67,14 +71,14 @@ internal class MenuPelotas(
 
     private fun crearPrevia(tipo: TipoPelota, forma: FormaColision) =
         ConstructorMenu.previaCanvas {
-            val escala = (ConstructorMenu.ALTO_PREVIA * 0.42) / forma.radioEnvoltura()
+            val escala = (ConstructorMenu.medidas.altoPrevia * 0.42) / forma.radioEnvoltura()
             DibujoPelota.dibujar(
                 it,
                 VistaPelota(
                     tipo = tipo,
                     forma = forma,
                     angulo = 0.0,
-                    centro = Vector2D(60.0, ConstructorMenu.ALTO_PREVIA / 2.0),
+                    centro = Vector2D(60.0, ConstructorMenu.medidas.altoPrevia / 2.0),
                     escala = escala
                 )
             )
@@ -96,4 +100,15 @@ internal class MenuPelotas(
             boton.style = if (boton.isSelected) EstilosUI.BOTON_ACTIVO else EstilosUI.BOTON
         }
     }
+}
+
+internal class MenuPelotas(
+    escucha: ConfiguracionJuego,
+    tipoPelotaActual: () -> TipoPelota,
+    alCerrarMenus: () -> Unit,
+    private val vista: VistaMenuPelotas = VistaMenuPelotasJavaFx(escucha, tipoPelotaActual, alCerrarMenus)
+) {
+    fun menu(): VBox = vista.menu()
+
+    fun marcarActual() = vista.marcarActual()
 }

@@ -5,7 +5,7 @@ import javafx.scene.control.Label
 import javafx.scene.layout.VBox
 
 /** Controles de seleccion de la pelota actual. */
-internal class PanelPelotas(escucha: UIEventListener) {
+internal class PanelPelotas(escucha: AccionesJuego) {
     private val boton = Button().also {
         ConstructorPanel.prepararBoton(it) { escucha.alternarMenuPelotas() }
     }

@@ -20,19 +20,35 @@ interface Camara {
 
 /** Camara basica cuyo desplazamiento actualiza la simulacion en cada fotograma. */
 class CamaraSimulacion(
-    private val ancho: Double,
-    private val alto: Double
+    ancho: Double,
+    alto: Double
 ) : Camara {
+    private val datos = DatosCamaraSimulacion(ancho, alto)
 
-    private var offset: Vector2D = Vector2D(0.0, 0.0)
+    override fun ancho(): Double = datos.ancho
 
-    override fun ancho(): Double = ancho
+    override fun alto(): Double = datos.alto
 
-    override fun alto(): Double = alto
+    override fun offsetCamara(): Vector2D = datos.offsetCamara()
 
-    override fun offsetCamara(): Vector2D = offset
+    override fun fijarOffsetCamara(nuevo: Vector2D) = datos.fijarOffsetCamara(nuevo)
 
-    override fun fijarOffsetCamara(nuevo: Vector2D) {
-        offset = nuevo
+    private data class DatosCamaraSimulacion(
+        val ancho: Double,
+        val alto: Double
+    ) {
+        private var offset: Vector2D = Vector2D(0.0, 0.0)
+
+        fun offsetCamara(): Vector2D = offset
+
+        fun fijarOffsetCamara(nuevo: Vector2D) {
+            offset = nuevo
+        }
+
+        fun descripcion(): String = "camara(${ancho}x${alto}, offset=$offset)"
+
+        fun esValida(): Boolean = ancho > 0 && alto > 0 && offset.magnitud() >= 0
+
+        fun resumen(): String = "${ancho}x${alto} offset=${offset.x()},${offset.y()}"
     }
 }

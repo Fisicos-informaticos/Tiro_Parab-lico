@@ -2,14 +2,14 @@ package org.example.simulacion
 
 import org.example.coordenadas.Camara
 import org.example.coordenadas.TransformadorCoordenadas
-import org.example.fisica.PhysicsEngine
+import org.example.fisica.LimitesFisicos
 import org.example.modelo.Vector2D
 import org.example.modos.Preparacion
 
 /** Calcula apoyos, alturas y la vista del mundo que necesita el modo activo. */
 class PosicionPelota(
-    private val sesion: SesionJuego,
-    private val motor: PhysicsEngine,
+    private val sesion: ProyectilSesionJuego,
+    private val motor: LimitesFisicos,
     private val superficies: SuperficiesApoyo,
     private val transformador: TransformadorCoordenadas,
     private val camara: Camara,

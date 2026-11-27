@@ -6,7 +6,8 @@ import javafx.scene.layout.VBox
 
 /** Controles del modo, la gravedad y el avance de la simulacion. */
 internal class PanelSimulacion(
-    escucha: UIEventListener,
+    acciones: AccionesJuego,
+    configuracionJuego: ConfiguracionJuego,
     configuracion: ConfiguracionPanelSimulacion
 ) {
     private val comboModo: ComboBox<String> = ConstructorPanel.combo(
@@ -14,7 +15,7 @@ internal class PanelSimulacion(
             opciones = configuracion.modos(),
             seleccionada = configuracion.modoInicialValido(),
             ayuda = "Elige el modo de simulacion",
-            alCambiar = { escucha.seleccionarModo(it) }
+            alCambiar = { configuracionJuego.seleccionarModo(it) }
         )
     )
 
@@ -23,15 +24,15 @@ internal class PanelSimulacion(
             opciones = configuracion.gravedades(),
             seleccionada = configuracion.gravedadInicialValida(),
             ayuda = "Elige la gravedad con la que se simula el tiro",
-            alCambiar = { escucha.aplicarGravedad(it) }
+            alCambiar = { configuracionJuego.aplicarGravedad(it) }
         )
     )
 
     private val botonPausa = Button().also {
-        ConstructorPanel.prepararBoton(it) { escucha.alternarPausa() }
+        ConstructorPanel.prepararBoton(it) { acciones.alternarPausa() }
     }
     private val botonReiniciar = Button("Reiniciar").also {
-        ConstructorPanel.prepararBoton(it) { escucha.reiniciar() }
+        ConstructorPanel.prepararBoton(it) { acciones.reiniciar() }
     }
 
     private val etiquetaGravedad = ConstructorPanel.etiquetaDetalle()

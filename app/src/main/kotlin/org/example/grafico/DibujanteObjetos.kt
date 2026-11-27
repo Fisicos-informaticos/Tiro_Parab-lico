@@ -3,7 +3,7 @@ package org.example.grafico
 import javafx.scene.canvas.GraphicsContext
 import javafx.scene.paint.Color
 import javafx.scene.text.Font
-import org.example.modelo.Proyectil
+import org.example.modelo.ProyectilVisual
 import org.example.modelo.Vector2D
 
 /** Primitivas de dibujo de objetos sueltos: proyectil, punto, lineas y texto. */
@@ -11,7 +11,7 @@ class DibujanteObjetos(
     private val gc: GraphicsContext,
     private val colorTexto: Color
 ) {
-    fun dibujarProyectil(proyectil: Proyectil, camara: Vector2D) {
+    fun dibujarProyectil(proyectil: ProyectilVisual, camara: Vector2D) {
         VistaPelota.desde(proyectil, camara).dibujar(gc)
     }
 

@@ -15,13 +15,15 @@ object FabricaRenderer {
             gc = gc,
             ancho = ancho,
             alto = alto,
-            dibujoVectores = VectorRenderer(gc),
-            entorno = DibujanteEntorno(gc, ancho, alto),
-            paredes = DibujanteParedes(gc),
-            pantallaInicio = DibujantePantallaInicio(gc, ancho, alto),
-            flechaDireccion = DibujanteFlechaDireccion(gc, colorLinea),
-            panelInfo = DibujantePanelInfo(gc, Color.WHITE),
-            objetos = DibujanteObjetos(gc, Color.WHITE)
+            dibujantes = DibujantesCanvas(
+                dibujoVectores = VectorRenderer(gc),
+                entorno = DibujanteEntorno(gc, ancho, alto),
+                paredes = DibujanteParedes(gc),
+                pantallaInicio = DibujantePantallaInicio(gc, ancho, alto),
+                flechaDireccion = DibujanteFlechaDireccion(gc, colorLinea),
+                panelInfo = DibujantePanelInfo(gc, Color.WHITE),
+                objetos = DibujanteObjetos(gc, Color.WHITE)
+            )
         )
     }
 }

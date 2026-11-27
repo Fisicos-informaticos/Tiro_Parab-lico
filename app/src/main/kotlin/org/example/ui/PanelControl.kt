@@ -11,13 +11,15 @@ import javafx.scene.layout.VBox
  * organiza y delega el refresco.
  */
 class PanelControl(
-    escucha: UIEventListener,
+    acciones: AccionesJuego,
+    configuracionJuego: ConfiguracionJuego,
+    edicion: EdicionEscenario,
     configuracion: ConfiguracionPanelSimulacion
 ) {
 
-    private val simulacion = PanelSimulacion(escucha, configuracion)
-    private val pelotas = PanelPelotas(escucha)
-    private val obstaculos = PanelObstaculos(escucha)
+    private val simulacion = PanelSimulacion(acciones, configuracionJuego, configuracion)
+    private val pelotas = PanelPelotas(acciones)
+    private val obstaculos = PanelObstaculos(acciones, edicion)
 
     private val raiz: VBox = VBox(16.0).apply {
         style = EstilosUI.PANEL_CONTENEDOR

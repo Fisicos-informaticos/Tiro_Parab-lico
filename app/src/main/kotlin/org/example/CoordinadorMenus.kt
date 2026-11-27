@@ -5,19 +5,29 @@ package org.example
  * el panel de estado. Depender de esta interfaz evita acoplarlos a la clase
  * concreta que mantiene la visibilidad en JavaFX.
  */
-interface CoordinadorMenus {
+interface EstadoMenus {
     fun menuPelotasAbierto(): Boolean
     fun menuParedesAbierto(): Boolean
     fun menuFinAbierto(): Boolean
     fun interaccionBloqueada(): Boolean
     fun enVuelo(): Boolean
+}
+
+interface SeleccionMenus {
     fun alternarMenuPelotas()
     fun alternarMenuParedes()
     fun abrirMenuPelotas()
     fun abrirMenuParedes()
+}
+
+interface ControlCicloMenus {
     fun abrirMenuFin()
     fun cerrarMenuFin()
     fun cerrarTodosLosMenus()
     fun cerrarConEscape(): Boolean
     fun sincronizarVisibilidad()
 }
+
+interface CoordinadorMenus : EstadoMenus, SeleccionMenus, ControlCicloMenus
+
+interface ControladorMenusRoles : EstadoMenus, ControlCicloMenus

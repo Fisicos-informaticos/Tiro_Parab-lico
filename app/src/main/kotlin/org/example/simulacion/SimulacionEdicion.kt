@@ -9,7 +9,7 @@ internal class SimulacionEdicion(
     private val mecanica: Mecanica,
     private val entrada: org.example.entrada.InputHandler,
     private val observadores: ObservadoresFin,
-    private val sesion: SesionJuego
+    private val sesion: EstadoSesionJuego
 ) {
     fun modoParedes(): Boolean = edicion.modoParedes()
     fun modoSuperficies(): Boolean = edicion.modoSuperficies()

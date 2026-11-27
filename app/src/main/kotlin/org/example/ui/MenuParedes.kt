@@ -9,7 +9,7 @@ import org.example.modelo.TipoPared
 
 /** Menu de seleccion del material de las paredes. */
 internal class MenuParedes(
-    private val escucha: UIEventListener,
+    private val escucha: ConfiguracionJuego,
     private val tipoParedActual: () -> TipoPared,
     private val alCerrarMenus: () -> Unit
 ) {
@@ -51,7 +51,7 @@ internal class MenuParedes(
             ConstructorMenu.EspecificacionBotonMenu(
                 previa = previa,
                 textos = textos,
-                ancho = ConstructorMenu.ANCHO_BOTON_PARED,
+                ancho = ConstructorMenu.medidas.anchoBotonPared,
                 alCerrarMenus = alCerrarMenus,
                 accion = { escucha.seleccionarTipoPared(tipo) }
             )
@@ -62,7 +62,7 @@ internal class MenuParedes(
     }
 
     private fun crearPrevia(tipo: TipoPared) = ConstructorMenu.previaCanvas { gc ->
-        val yCentro = ConstructorMenu.ALTO_PREVIA / 2.0
+        val yCentro = ConstructorMenu.medidas.altoPrevia / 2.0
         gc.stroke = ConstructorMenu.colorDe(tipo.colorBorde())
         gc.lineWidth = tipo.grosor() + 2.0
         gc.strokeLine(4.0, yCentro, 116.0, yCentro)
@@ -72,7 +72,7 @@ internal class MenuParedes(
         if (tipo.indestructible()) {
             gc.stroke = Color.web("#f1c40f")
             gc.lineWidth = 2.0
-            gc.strokeLine(60.0, 6.0, 60.0, ConstructorMenu.ALTO_PREVIA - 6.0)
+            gc.strokeLine(60.0, 6.0, 60.0, ConstructorMenu.medidas.altoPrevia - 6.0)
         }
     }
 
@@ -81,7 +81,7 @@ internal class MenuParedes(
             nombre = tipo.nombre(),
             datos = "grosor ${tipo.grosor().toInt()} px · aguanta ${textoResistencia(tipo)}",
             extra = tipo.textoRompible(),
-            anchoExtra = ConstructorMenu.ANCHO_BOTON_PARED
+            anchoExtra = ConstructorMenu.medidas.anchoBotonPared
         )
     )
 
