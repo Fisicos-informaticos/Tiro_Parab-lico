@@ -1,34 +1,56 @@
 package org.example.fisica
 
 import org.example.modelo.Pared
-import org.example.modelo.Proyectil
+import org.example.modelo.ProyectilVisual
 import org.example.modelo.Vector2D
 
-class DetectorReposo(private var ambiente: Ambiente) : DetectorDeReposo {
-    override fun estaEnReposo(proyectil: Proyectil, paredes: List<Pared>): Boolean =
-        rapidezPracticamenteNula(proyectil.velocidad()) && (tieneApoyo(proyectil, paredes) || !hayGravedad())
+class DetectorReposo(ambiente: Ambiente) : DetectorDeReposo {
+    private val datos = DatosDetectorReposo(ambiente)
 
-    override fun cambiarAmbiente(ambiente: Ambiente) { this.ambiente = ambiente }
+    override fun estaEnReposo(proyectil: ProyectilVisual, paredes: List<Pared>): Boolean =
+        datos.estaEnReposo(proyectil, paredes)
 
-    private fun rapidezPracticamenteNula(velocidad: Vector2D): Boolean = velocidad.magnitud() < UMBRAL_REPOSO
-    private fun hayGravedad(): Boolean = ambiente.gravedad().magnitud() > EPSILON
+    override fun cambiarAmbiente(ambiente: Ambiente) = datos.cambiarAmbiente(ambiente)
 
-    private fun tieneApoyo(proyectil: Proyectil, paredes: List<Pared>): Boolean {
-        val apoyoSuelo = ambiente.sueloY() - proyectil.radio() - TOLERANCIA_APOYO
-        if (proyectil.posicion().y() >= apoyoSuelo) return true
-        return paredes.any { apoyaEnPared(proyectil, it) }
-    }
+    private data class DatosDetectorReposo(
+        var ambiente: Ambiente
+    ) {
+        fun estaEnReposo(proyectil: ProyectilVisual, paredes: List<Pared>): Boolean =
+            rapidezPracticamenteNula(proyectil.velocidad()) && (tieneApoyo(proyectil, paredes) || !hayGravedad())
 
-    private fun apoyaEnPared(proyectil: Proyectil, pared: Pared): Boolean {
-        val delta = proyectil.posicion() - pared.puntoMasCercano(proyectil.posicion())
-        if (delta.y() > -TOLERANCIA_APOYO) return false
-        val alcance = pared.grosor() / 2.0 + proyectil.radio() + TOLERANCIA_APOYO
-        return delta.magnitud() <= alcance
-    }
+        fun cambiarAmbiente(ambiente: Ambiente) {
+            this.ambiente = ambiente
+        }
 
-    companion object {
-        private const val UMBRAL_REPOSO = 1.0
-        private const val TOLERANCIA_APOYO = 2.0
-        private const val EPSILON = 1e-9
+        fun descripcion(): String =
+            "detector(ambiente=${ambiente.javaClass.simpleName}, suelo=${ambiente.sueloY()}, gravedad=${ambiente.gravedad()})"
+
+        fun esValido(): Boolean = ambiente.ancho() > 0 && ambiente.alto() > 0
+
+        fun resumen(): String =
+            "${ambiente.javaClass.simpleName} suelo=${ambiente.sueloY()} gravedad=${ambiente.gravedad().magnitud()}"
+
+        private fun rapidezPracticamenteNula(velocidad: Vector2D): Boolean = velocidad.magnitud() < UMBRAL_REPOSO
+
+        private fun hayGravedad(): Boolean = ambiente.gravedad().magnitud() > EPSILON
+
+        private fun tieneApoyo(proyectil: ProyectilVisual, paredes: List<Pared>): Boolean {
+            val apoyoSuelo = ambiente.sueloY() - proyectil.radio() - TOLERANCIA_APOYO
+            if (proyectil.posicion().y() >= apoyoSuelo) return true
+            return paredes.any { apoyaEnPared(proyectil, it) }
+        }
+
+        private fun apoyaEnPared(proyectil: ProyectilVisual, pared: Pared): Boolean {
+            val delta = proyectil.posicion() - pared.puntoMasCercano(proyectil.posicion())
+            if (delta.y() > -TOLERANCIA_APOYO) return false
+            val alcance = pared.grosor() / 2.0 + proyectil.radio() + TOLERANCIA_APOYO
+            return delta.magnitud() <= alcance
+        }
+
+        private companion object {
+            const val UMBRAL_REPOSO = 1.0
+            const val TOLERANCIA_APOYO = 2.0
+            const val EPSILON = 1e-9
+        }
     }
 }

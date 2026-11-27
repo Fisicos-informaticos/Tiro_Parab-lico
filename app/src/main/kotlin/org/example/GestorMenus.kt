@@ -1,13 +1,16 @@
 package org.example
 
-import org.example.simulacion.ContextoJuego
+import org.example.simulacion.AccionesEscenarioJuego
+import org.example.simulacion.AccionesPartidaJuego
+import org.example.simulacion.LecturaEstadoJuego
+import org.example.simulacion.NavegacionSesionJuego
 import org.example.ui.MenuJuego
 
 /** Decide que menus estan abiertos y mantiene su visibilidad sincronizada. */
 class GestorMenus(
-    private val simulacion: ContextoJuego,
+    private val simulacion: NavegacionSesionJuego,
     private val menus: MenuJuego
-) : CoordinadorMenus {
+) : CoordinadorMenus, ControladorMenusRoles {
     private var menuPelotasAbierto: Boolean = false
     private var menuParedesAbierto: Boolean = false
     private var menuFinAbierto: Boolean = false

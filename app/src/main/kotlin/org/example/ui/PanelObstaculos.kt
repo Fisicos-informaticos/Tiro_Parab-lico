@@ -4,21 +4,24 @@ import javafx.scene.control.Button
 import javafx.scene.layout.VBox
 
 /** Controles de paredes y superficies de lanzamiento. */
-internal class PanelObstaculos(escucha: UIEventListener) {
+internal class PanelObstaculos(
+    private val acciones: AccionesJuego,
+    private val edicion: EdicionEscenario
+) {
     private val botonAnadirPared = Button().also {
-        ConstructorPanel.prepararBoton(it) { escucha.alternarModoParedes() }
+        ConstructorPanel.prepararBoton(it) { edicion.alternarModoParedes() }
     }
     private val botonTipoPared = Button().also {
-        ConstructorPanel.prepararBoton(it) { escucha.alternarMenuParedes() }
+        ConstructorPanel.prepararBoton(it) { acciones.alternarMenuParedes() }
     }
     private val botonLimpiarParedes = Button("Limpiar paredes").also {
-        ConstructorPanel.prepararBoton(it) { escucha.limpiarParedes() }
+        ConstructorPanel.prepararBoton(it) { edicion.limpiarParedes() }
     }
     private val botonSuperficie = Button().also {
-        ConstructorPanel.prepararBoton(it) { escucha.alternarModoSuperficies() }
+        ConstructorPanel.prepararBoton(it) { edicion.alternarModoSuperficies() }
     }
     private val botonLimpiarSuperficies = Button("Limpiar superficies").also {
-        ConstructorPanel.prepararBoton(it) { escucha.limpiarSuperficiesLanzamiento() }
+        ConstructorPanel.prepararBoton(it) { edicion.limpiarSuperficiesLanzamiento() }
     }
 
     private val seccion: VBox = ConstructorPanel.seccion(

@@ -4,17 +4,23 @@ import javafx.application.Platform
 import javafx.scene.Scene
 import javafx.scene.canvas.Canvas
 import javafx.scene.input.KeyCode
-import org.example.CoordinadorMenus
-import org.example.simulacion.ContextoJuego
+import org.example.ControladorMenusRoles
+import org.example.simulacion.AccionesEscenarioJuego
+import org.example.simulacion.AccionesPartidaJuego
+import org.example.simulacion.EntradaJuego
+import org.example.simulacion.LecturaEstadoJuego
+import org.example.simulacion.LecturaEscenarioJuego
+import org.example.simulacion.ControlEntradaJuego
 import org.example.modelo.Vector2D
 
-interface ControlEventosUI : UIEventListener {
+interface ControlEventosUI : AccionesJuego, ConfiguracionJuego, EdicionEscenario {
     fun actualizarControles()
+    fun cerrarMenusDeSeleccion() = Unit
 }
 
 class ControladorEventosUI(
-    private val simulacion: ContextoJuego,
-    private val menus: CoordinadorMenus,
+    private val simulacion: ControlEntradaJuego,
+    private val menus: ControladorMenusRoles,
     private val escucha: ControlEventosUI
 ) {
     fun enlazar(canvas: Canvas, escena: Scene) {

@@ -1,13 +1,20 @@
 package org.example
 
 import org.example.modelo.Vector2D
-import org.example.simulacion.ContextoJuego
+import org.example.simulacion.ControlVueloJuego
+import org.example.simulacion.EntradaJuego
+import org.example.simulacion.LecturaEstadoJuego
+import org.example.simulacion.LecturaMetricasJuego
+import org.example.simulacion.LecturaConfiguracionJuego
+import org.example.simulacion.LecturaEscenarioJuego
+import org.example.simulacion.LecturaProyectilJuego
+import org.example.simulacion.ControlConsolaJuego
 import org.example.simulacion.Simulacion
 import kotlin.math.cos
 import kotlin.math.sin
 
 class PresentadorConsola(
-    private val simulacion: ContextoJuego
+    private val simulacion: ControlConsolaJuego
 ) {
     fun mostrarEstado() {
         println()

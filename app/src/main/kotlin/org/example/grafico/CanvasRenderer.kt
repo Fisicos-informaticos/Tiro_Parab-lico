@@ -6,63 +6,111 @@ import org.example.modelo.Pared
 import org.example.modelo.Proyectil
 import org.example.modelo.Vector2D
 
+class DibujantesCanvas(
+    val dibujoVectores: DibujoVectoresFisica,
+    val entorno: DibujanteEntorno,
+    val paredes: DibujanteParedes,
+    val pantallaInicio: DibujantePantallaInicio,
+    val flechaDireccion: DibujanteFlechaDireccion,
+    val panelInfo: DibujantePanelInfo,
+    val objetos: DibujanteObjetos
+) {
+    fun componentes(): List<Any> = listOf(
+        dibujoVectores, entorno, paredes, pantallaInicio, flechaDireccion, panelInfo, objetos
+    )
+}
+
 class CanvasRenderer(
-    private val gc: GraphicsContext,
-    private val ancho: Double,
-    private val alto: Double,
-    private val dibujoVectores: DibujoVectoresFisica,
-    private val entorno: DibujanteEntorno,
-    private val paredes: DibujanteParedes,
-    private val pantallaInicio: DibujantePantallaInicio,
-    private val flechaDireccion: DibujanteFlechaDireccion,
-    private val panelInfo: DibujantePanelInfo,
-    private val objetos: DibujanteObjetos
+    gc: GraphicsContext,
+    ancho: Double,
+    alto: Double,
+    dibujantes: DibujantesCanvas
 ) : Renderer {
+    private val datos = DatosCanvasRenderer(gc, ancho, alto, dibujantes)
 
-    private val colorCielo = Color.web("#87CEEB")
-
-    private var camara = Vector2D(0.0, 0.0)
-
-    override fun ancho(): Double = ancho
-    override fun alto(): Double = alto
-    override fun offsetCamara(): Vector2D = camara
-
-    override fun fijarOffsetCamara(nuevo: Vector2D) {
-        camara = nuevo
-    }
-
-    override fun limpiar() {
-        gc.fill = colorCielo
-        gc.fillRect(0.0, 0.0, ancho, alto)
-    }
-
-    override fun dibujarEntorno() = entorno.dibujar(camara)
-
-    override fun dibujarPared(pared: Pared) = paredes.dibujar(pared, camara)
-
-    override fun dibujarSuperficie(pared: Pared) = paredes.dibujarSuperficie(pared, camara)
-
-    override fun dibujarParedTemporal(pared: Pared) = paredes.dibujarTemporal(pared, camara)
-
-    override fun dibujarPantallaInicio(nombrePelota: String?) = pantallaInicio.dibujar(nombrePelota)
-
-    override fun dibujarProyectil(proyectil: Proyectil) = objetos.dibujarProyectil(proyectil, camara)
-
-    override fun dibujarVectoresFisica(centro: Vector2D, velocidad: Vector2D, gravedad: Vector2D) {
-        dibujoVectores.dibujar(centro, velocidad, gravedad)
-    }
-
+    override fun ancho(): Double = datos.ancho
+    override fun alto(): Double = datos.alto
+    override fun offsetCamara(): Vector2D = datos.offsetCamara()
+    override fun fijarOffsetCamara(nuevo: Vector2D) = datos.fijarOffsetCamara(nuevo)
+    override fun limpiar() = datos.limpiar()
+    override fun dibujarEntorno() = datos.dibujarEntorno()
+    override fun dibujarPared(pared: Pared) = datos.dibujarPared(pared)
+    override fun dibujarSuperficie(pared: Pared) = datos.dibujarSuperficie(pared)
+    override fun dibujarParedTemporal(pared: Pared) = datos.dibujarParedTemporal(pared)
+    override fun dibujarPantallaInicio(nombrePelota: String?) = datos.dibujarPantallaInicio(nombrePelota)
+    override fun dibujarProyectil(proyectil: Proyectil) = datos.dibujarProyectil(proyectil)
+    override fun dibujarVectoresFisica(centro: Vector2D, velocidad: Vector2D, gravedad: Vector2D) =
+        datos.dibujarVectoresFisica(centro, velocidad, gravedad)
     override fun dibujarPuntoLanzamiento(posicion: Vector2D, radio: Double) =
-        objetos.dibujarPuntoLanzamiento(posicion, radio)
-
+        datos.dibujarPuntoLanzamiento(posicion, radio)
     override fun dibujarLineaDireccion(inicio: Vector2D, fin: Vector2D) =
-        flechaDireccion.dibujar(inicio, fin)
+        datos.dibujarLineaDireccion(inicio, fin)
+    override fun dibujarLinea(linea: LineaDibujo) = datos.dibujarLinea(linea)
+    override fun dibujarTexto(texto: TextoDibujo) = datos.dibujarTexto(texto)
+    override fun dibujarPanel(lineas: List<String>) = datos.dibujarPanel(lineas)
+    override fun dibujarImagenMundo(imagen: ImagenEnMundo) = datos.dibujarImagenMundo(imagen)
 
-    override fun dibujarLinea(linea: LineaDibujo) = objetos.dibujarLinea(linea)
+    private data class DatosCanvasRenderer(
+        val gc: GraphicsContext,
+        val ancho: Double,
+        val alto: Double,
+        val dibujantes: DibujantesCanvas,
+        val colorCielo: Color = Color.web("#87CEEB"),
+        var camara: Vector2D = Vector2D(0.0, 0.0)
+    ) {
+        fun offsetCamara(): Vector2D = camara
 
-    override fun dibujarTexto(texto: TextoDibujo) = objetos.dibujarTexto(texto)
+        fun fijarOffsetCamara(nuevo: Vector2D) {
+            camara = nuevo
+        }
 
-    override fun dibujarPanel(lineas: List<String>) = panelInfo.dibujar(lineas)
+        fun limpiar() {
+            gc.fill = colorCielo
+            gc.fillRect(0.0, 0.0, ancho, alto)
+        }
 
-    override fun dibujarImagenMundo(imagen: ImagenEnMundo) = objetos.dibujarImagen(imagen, camara)
+        fun dibujarEntorno() = dibujantes.entorno.dibujar(camara)
+
+        fun dibujarPared(pared: Pared) = dibujantes.paredes.dibujar(pared, camara)
+
+        fun dibujarSuperficie(pared: Pared) = dibujantes.paredes.dibujarSuperficie(pared, camara)
+
+        fun dibujarParedTemporal(pared: Pared) = dibujantes.paredes.dibujarTemporal(pared, camara)
+
+        fun dibujarPantallaInicio(nombrePelota: String?) = dibujantes.pantallaInicio.dibujar(nombrePelota)
+
+        fun dibujarProyectil(proyectil: Proyectil) = dibujantes.objetos.dibujarProyectil(proyectil, camara)
+
+        fun dibujarVectoresFisica(centro: Vector2D, velocidad: Vector2D, gravedad: Vector2D) =
+            dibujantes.dibujoVectores.dibujar(centro, velocidad, gravedad)
+
+        fun dibujarPuntoLanzamiento(posicion: Vector2D, radio: Double) =
+            dibujantes.objetos.dibujarPuntoLanzamiento(posicion, radio)
+
+        fun dibujarLineaDireccion(inicio: Vector2D, fin: Vector2D) =
+            dibujantes.flechaDireccion.dibujar(inicio, fin)
+
+        fun dibujarLinea(linea: LineaDibujo) = dibujantes.objetos.dibujarLinea(linea)
+
+        fun dibujarTexto(texto: TextoDibujo) = dibujantes.objetos.dibujarTexto(texto)
+
+        fun dibujarPanel(lineas: List<String>) = dibujantes.panelInfo.dibujar(lineas)
+
+        fun dibujarImagenMundo(imagen: ImagenEnMundo) = dibujantes.objetos.dibujarImagen(imagen, camara)
+
+        fun descripcion(): String =
+            "renderer(${ancho}x${alto}, camara=$camara, cielo=$colorCielo, gc=${gc.javaClass.simpleName}, dibujantes=${dibujantes.componentes().size})"
+
+        fun esValido(): Boolean =
+            ancho > 0 && alto > 0 && gc.javaClass !== dibujantes.objetos.javaClass &&
+                dibujantes.entorno.javaClass !== dibujantes.paredes.javaClass &&
+                dibujantes.pantallaInicio.javaClass !== dibujantes.flechaDireccion.javaClass &&
+                dibujantes.panelInfo.javaClass !== dibujantes.objetos.javaClass &&
+                dibujantes.dibujoVectores.javaClass !== dibujantes.entorno.javaClass
+
+        fun resumen(): String =
+            "${ancho}x${alto} camara=${camara.x()},${camara.y()} cielo=$colorCielo ${dibujantes.componentes().size} dibujantes"
+
+        fun componentes(): List<Any> = listOf(gc, ancho, alto, dibujantes, colorCielo, camara)
+    }
 }

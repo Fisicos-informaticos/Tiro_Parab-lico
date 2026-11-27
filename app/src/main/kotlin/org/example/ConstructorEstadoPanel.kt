@@ -1,12 +1,16 @@
 package org.example
 
-import org.example.simulacion.ContextoJuego
+import org.example.simulacion.LecturaConfiguracionJuego
+import org.example.simulacion.LecturaEscenarioJuego
+import org.example.simulacion.LecturaEstadoJuego
+import org.example.simulacion.LecturaPanelJuego
 import org.example.ui.EstadoPanel
+import org.example.EstadoMenus
 
 /** Traduce la simulacion y los menus a la instantanea que consume el panel. */
 class ConstructorEstadoPanel(
-    private val simulacion: ContextoJuego,
-    private val menus: CoordinadorMenus
+    private val simulacion: LecturaPanelJuego,
+    private val menus: EstadoMenus
 ) {
     fun crear(): EstadoPanel = EstadoPanel(
         pausado = simulacion.pausado(),

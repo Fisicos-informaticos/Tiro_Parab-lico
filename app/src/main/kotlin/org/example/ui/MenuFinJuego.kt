@@ -17,67 +17,82 @@ import org.example.simulacion.ResultadoSimulacion
  * instante exacto en que el vuelo termina y ella se abre sola. Asi la capa de
  * arranque no tiene que vigilar el estado en cada fotograma (SRP).
  */
-class MenuFinJuego(private val escucha: UIEventListener) : ObservadorFinSimulacion {
-
-    private val etiquetaTiempo = Label("Tiempo total").also { it.style = EstilosUI.DETALLE }
-    private val etiquetaDistancia = Label("Distancia en X").also { it.style = EstilosUI.DETALLE }
-    private val etiquetaAltura = Label("Altura máxima").also { it.style = EstilosUI.DETALLE }
-
-    private val raiz: VBox = construirRaiz()
-
-    private var abierto: Boolean = false
+class MenuFinJuego(escucha: AccionesJuego) : ObservadorFinSimulacion {
+    private val datos = DatosMenuFinJuego(escucha)
 
     /** Raiz que se monta en la escena. */
-    fun raiz(): VBox = raiz
+    fun raiz(): VBox = datos.raiz
 
     /** Cierto mientras el resumen esta en pantalla. */
-    fun abierto(): Boolean = abierto
+    fun abierto(): Boolean = datos.abierto
 
-    override fun alTerminarSimulacion(resultado: ResultadoSimulacion) = mostrar(resultado)
+    override fun alTerminarSimulacion(resultado: ResultadoSimulacion) = datos.mostrar(resultado)
 
-    fun mostrar(resultado: ResultadoSimulacion) {
-        etiquetaTiempo.text = "Tiempo total: ${resultado.tiempoTexto()} s"
-        etiquetaDistancia.text = "Distancia en X: ${resultado.distanciaTexto()} px"
-        etiquetaAltura.text = "Altura máxima: ${resultado.alturaTexto()} px"
-        abierto = true
-        raiz.isVisible = true
-    }
+    fun mostrar(resultado: ResultadoSimulacion) = datos.mostrar(resultado)
 
-    fun ocultar() {
-        abierto = false
-        raiz.isVisible = false
-    }
+    fun ocultar() = datos.ocultar()
 
-    private fun construirRaiz(): VBox = contenedor(
-        Label("LA PELOTA HA CAÍDO").also { it.style = EstilosUI.TITULO },
-        bloqueResumen(),
-        botonAccion("Reiniciar simulación") { escucha.reiniciar() },
-        botonAccion("Volver al menú") { escucha.volverAlMenu() }
-    )
+    private data class DatosMenuFinJuego(
+        val escucha: AccionesJuego
+    ) {
+        val etiquetaTiempo: Label = Label("Tiempo total").also { it.style = EstilosUI.DETALLE }
+        val etiquetaDistancia: Label = Label("Distancia en X").also { it.style = EstilosUI.DETALLE }
+        val etiquetaAltura: Label = Label("Altura máxima").also { it.style = EstilosUI.DETALLE }
+        val raiz: VBox = construirRaiz()
+        var abierto: Boolean = false
 
-    private fun bloqueResumen(): VBox = VBox(4.0, etiquetaTiempo, etiquetaDistancia, etiquetaAltura).also {
-        it.alignment = Pos.CENTER_LEFT
-    }
-
-    private fun botonAccion(texto: String, accion: () -> Unit): Button =
-        Button(texto).also {
-            it.prefWidth = ANCHO_BOTON
-            it.maxWidth = Double.MAX_VALUE
-            it.style = EstilosUI.BOTON
-            it.setOnAction { accion() }
+        fun mostrar(resultado: ResultadoSimulacion) {
+            etiquetaTiempo.text = "Tiempo total: ${resultado.tiempoTexto()} s"
+            etiquetaDistancia.text = "Distancia en X: ${resultado.distanciaTexto()} px"
+            etiquetaAltura.text = "Altura máxima: ${resultado.alturaTexto()} px"
+            abierto = true
+            raiz.isVisible = true
         }
 
-    private fun contenedor(vararg hijos: javafx.scene.Node): VBox = VBox(14.0, *hijos).also {
-        it.alignment = Pos.CENTER
-        it.padding = Insets(20.0)
-        it.maxWidth = Region.USE_PREF_SIZE
-        it.maxHeight = Region.USE_PREF_SIZE
-        it.isPickOnBounds = true
-        it.style = EstilosUI.MENU_FIN
-        it.isVisible = false
-    }
+        fun ocultar() {
+            abierto = false
+            raiz.isVisible = false
+        }
 
-    companion object {
-        private const val ANCHO_BOTON = 220.0
+        fun descripcion(): String =
+            "menuFin(abierto=$abierto, raiz=${raiz.javaClass.simpleName}, tiempo=${etiquetaTiempo.text}, distancia=${etiquetaDistancia.text}, altura=${etiquetaAltura.text}, escucha=${escucha.javaClass.simpleName})"
+
+        fun esValido(): Boolean =
+            etiquetaTiempo.text.isNotBlank() && etiquetaDistancia.text.isNotBlank() && etiquetaAltura.text.isNotBlank()
+
+        fun resumen(): String = "$abierto ${etiquetaTiempo.text} ${etiquetaDistancia.text} ${etiquetaAltura.text}"
+
+        private fun construirRaiz(): VBox = contenedor(
+            Label("LA PELOTA HA CAÍDO").also { it.style = EstilosUI.TITULO },
+            bloqueResumen(),
+            botonAccion("Reiniciar simulación") { escucha.reiniciar() },
+            botonAccion("Volver al menú") { escucha.volverAlMenu() }
+        )
+
+        private fun bloqueResumen(): VBox = VBox(4.0, etiquetaTiempo, etiquetaDistancia, etiquetaAltura).also {
+            it.alignment = Pos.CENTER_LEFT
+        }
+
+        private fun botonAccion(texto: String, accion: () -> Unit): Button =
+            ConstructorMenu.botonAccion(texto, accion).also {
+                it.prefWidth = ANCHO_BOTON
+                it.maxWidth = Double.MAX_VALUE
+                it.style = EstilosUI.BOTON
+            }
+
+        private companion object {
+            const val ANCHO_BOTON = 220.0
+        }
+
+
+        private fun contenedor(vararg hijos: javafx.scene.Node): VBox = VBox(14.0, *hijos).also {
+            it.alignment = Pos.CENTER
+            it.padding = Insets(20.0)
+            it.maxWidth = Region.USE_PREF_SIZE
+            it.maxHeight = Region.USE_PREF_SIZE
+            it.isPickOnBounds = true
+            it.style = EstilosUI.MENU_FIN
+            it.isVisible = false
+        }
     }
 }

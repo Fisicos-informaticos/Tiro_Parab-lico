@@ -7,8 +7,13 @@ import org.example.modelo.Vector2D
 import org.example.modos.ModoArrastrable
 
 /** Reglas de colocacion, apuntado, lanzamiento y vuelo de la pelota. */
+interface MecanicaSesionJuego :
+    ConfiguracionSesionJuego,
+    ProyectilSesionJuego,
+    EstadoSesionJuego
+
 class MecanicaTiro(
-    private val sesion: SesionJuego,
+    private val sesion: MecanicaSesionJuego,
     private val entrada: InputHandler,
     private val metricas: Metricas,
     private val integrador: Integrador,

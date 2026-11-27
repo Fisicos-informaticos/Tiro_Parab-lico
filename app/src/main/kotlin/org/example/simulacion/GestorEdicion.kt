@@ -1,6 +1,6 @@
 package org.example.simulacion
 
-import org.example.fisica.PhysicsEngine
+import org.example.fisica.GestionParedesFisicas
 import org.example.herramientas.HerramientaParedes
 import org.example.modelo.Pared
 import org.example.modelo.Vector2D
@@ -11,7 +11,7 @@ import org.example.modelo.Vector2D
  */
 class GestorEdicion(
     private val herramienta: HerramientaParedes,
-    private val motor: PhysicsEngine,
+    private val motor: GestionParedesFisicas,
     private val superficies: SuperficiesApoyo
 ) : EditorEscenario {
 
@@ -32,12 +32,7 @@ class GestorEdicion(
     override fun alternarParedes(): Boolean {
         modoParedes = !modoParedes
         modoSuperficies = false
-        if (modoParedes) {
-            herramienta.activar()
-        } else {
-            herramienta.desactivar()
-            herramienta.cancelar()
-        }
+        configurarHerramienta(modoParedes)
         return modoParedes
     }
 
@@ -45,12 +40,7 @@ class GestorEdicion(
     override fun alternarSuperficies(): Boolean {
         modoSuperficies = !modoSuperficies
         modoParedes = false
-        if (modoSuperficies) {
-            herramienta.activar()
-        } else {
-            herramienta.desactivar()
-            herramienta.cancelar()
-        }
+        configurarHerramienta(modoSuperficies)
         return modoSuperficies
     }
 
@@ -88,5 +78,14 @@ class GestorEdicion(
         val nueva = paredes.lastOrNull() ?: return
         motor.quitarPared(nueva)
         superficies.agregar(nueva)
+    }
+
+    private fun configurarHerramienta(activa: Boolean) {
+        if (activa) {
+            herramienta.activar()
+        } else {
+            herramienta.desactivar()
+            herramienta.cancelar()
+        }
     }
 }

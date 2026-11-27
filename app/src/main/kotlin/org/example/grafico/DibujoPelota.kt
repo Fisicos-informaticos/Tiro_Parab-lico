@@ -5,28 +5,50 @@ import javafx.scene.paint.Color
 import javafx.scene.paint.CycleMethod
 import javafx.scene.paint.RadialGradient
 import javafx.scene.paint.Stop
-import org.example.modelo.Proyectil
+import org.example.modelo.ProyectilVisual
 import org.example.modelo.TipoPelota
 import org.example.modelo.Vector2D
 import org.example.modelo.colision.FormaColision
 
 class VistaPelota(
-    private val tipo: TipoPelota,
-    private val forma: FormaColision,
-    private val angulo: Double,
-    private val centro: Vector2D,
-    private val escala: Double = 1.0
+    tipo: TipoPelota,
+    forma: FormaColision,
+    angulo: Double,
+    centro: Vector2D,
+    escala: Double = 1.0
 ) {
-    fun tipo(): TipoPelota = tipo
-    fun forma(): FormaColision = forma
-    fun angulo(): Double = angulo
-    fun centro(): Vector2D = centro
-    fun escala(): Double = escala
+    private val datos = DatosVistaPelota(tipo, forma, angulo, centro, escala)
+
+    fun tipo(): TipoPelota = datos.tipo
+    fun forma(): FormaColision = datos.forma
+    fun angulo(): Double = datos.angulo
+    fun centro(): Vector2D = datos.centro
+    fun escala(): Double = datos.escala
     fun dibujar(gc: GraphicsContext) = DibujoPelota.dibujar(gc, this)
-    fun esVisibleEn(ancho: Double, alto: Double): Boolean = centro.x() >= -100 && centro.x() <= ancho + 100 && centro.y() >= -100 && centro.y() <= alto + 100
+    fun esVisibleEn(ancho: Double, alto: Double): Boolean = datos.esVisibleEn(ancho, alto)
+
+    private data class DatosVistaPelota(
+        val tipo: TipoPelota,
+        val forma: FormaColision,
+        val angulo: Double,
+        val centro: Vector2D,
+        val escala: Double
+    ) {
+        fun esVisibleEn(ancho: Double, alto: Double): Boolean =
+            centro.x() >= -100 && centro.x() <= ancho + 100 && centro.y() >= -100 && centro.y() <= alto + 100
+
+        fun descripcion(): String =
+            "vista(tipo=$tipo, forma=${forma.javaClass.simpleName}, angulo=$angulo, centro=$centro, escala=$escala)"
+
+        fun esValida(): Boolean =
+            escala > 0 && forma.radioEnvoltura() > 0 && angulo.isFinite() && centro.x().isFinite()
+
+        fun resumen(): String =
+            "$tipo en ${centro.x()},${centro.y()} angulo=$angulo escala=$escala forma=${forma.javaClass.simpleName}"
+    }
 
     companion object {
-        fun desde(proyectil: Proyectil, camara: Vector2D): VistaPelota = VistaPelota(
+        fun desde(proyectil: ProyectilVisual, camara: Vector2D): VistaPelota = VistaPelota(
             tipo = proyectil.tipo(),
             forma = proyectil.forma(),
             angulo = proyectil.angulo(),

@@ -1,6 +1,7 @@
 package org.example.simulacion
 
-import org.example.fisica.PhysicsEngine
+import org.example.fisica.CicloFisico
+import org.example.simulacion.AvanceMetricas
 import org.example.modelo.Proyectil
 import org.example.modelo.Vector2D
 import kotlin.math.min
@@ -10,7 +11,7 @@ import kotlin.math.min
  * roturas. Devuelve true cuando el tiro debe cerrarse.
  */
 class IntegradorVuelo(
-    private val motor: PhysicsEngine,
+    private val motor: CicloFisico,
     private val metricas: Metricas,
     private val efectos: Efectos
 ) : Integrador {
@@ -43,7 +44,7 @@ private class PasoIntegracion(
     private val deltaTime: Double,
     private val posicionAnterior: Vector2D
 ) {
-    fun aplicar(motor: PhysicsEngine, metricas: Metricas, efectos: Efectos) {
+    fun aplicar(motor: CicloFisico, metricas: AvanceMetricas, efectos: Efectos) {
         val pelota = contexto.proyectil()
         val paredesRotas = motor.simularPaso(pelota, deltaTime)
         metricas.registrarRoturas(paredesRotas.size)

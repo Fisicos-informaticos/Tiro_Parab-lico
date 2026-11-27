@@ -10,54 +10,158 @@ class SesionPartida(
     alto: Double,
     tipoPelotaInicial: TipoPelota,
     modoInicial: ModoSimulacion,
-    private val fabricaProyectiles: FabricaProyectiles
+    fabricaProyectiles: FabricaProyectiles
 ) : SesionJuego {
-    private val puntoInicial: Vector2D = Vector2D(50.0, alto - 60.0)
-    private var estadoActual: EstadoSimulacion = EstadoSimulacion.PantallaInicio
-    private var enPausa: Boolean = false
-    private var tipoPelotaActual: TipoPelota = tipoPelotaInicial
-    private var factorGravedadActual: Double = Gravedades.factorPorDefecto()
-    private var modoActual: ModoSimulacion = modoInicial
-    private var proyectil: Proyectil = fabricaProyectiles.crear(puntoInicial, tipoPelotaInicial)
-    private var origen: Vector2D = puntoInicial
+    private val datos = DatosSesionPartida(alto, tipoPelotaInicial, modoInicial, fabricaProyectiles)
 
-    override fun estado(): EstadoSimulacion = estadoActual
-    override fun cambiarEstado(nuevo: EstadoSimulacion) { estadoActual = nuevo }
-    override fun pausado(): Boolean = enPausa
-    override fun pausar() { enPausa = true }
-    override fun reanudar() { enPausa = false }
-    override fun alternarPausa(): Boolean { enPausa = !enPausa; return enPausa }
-    override fun tipoPelota(): TipoPelota = tipoPelotaActual
-    override fun factorGravedad(): Double = factorGravedadActual
-    override fun modo(): ModoSimulacion = modoActual
-    override fun pelota(): Proyectil = proyectil
-    override fun posicionInicial(): Vector2D = puntoInicial
-    override fun posicionOrigen(): Vector2D = origen
+    override fun estado(): EstadoSimulacion = datos.estado()
 
-    private fun recrearProyectilEnOrigen() {
-        proyectil = fabricaProyectiles.crear(origen, tipoPelotaActual)
-    }
+    override fun cambiarEstado(nuevo: EstadoSimulacion) = datos.cambiarEstado(nuevo)
 
-    override fun cambiarTipoPelota(tipo: TipoPelota) {
-        tipoPelotaActual = tipo
-        recrearProyectilEnOrigen()
-    }
-    override fun cambiarModo(nuevo: ModoSimulacion) { modoActual = nuevo }
-    override fun cambiarGravedad(nuevoFactor: Double) { factorGravedadActual = nuevoFactor }
+    override fun pausado(): Boolean = datos.pausado()
 
-    override fun colocarPelota(posicion: Vector2D) {
-        origen = posicion
-        recrearProyectilEnOrigen()
-    }
+    override fun pausar() = datos.pausar()
 
-    override fun reubicarPelota(posicion: Vector2D) {
-        origen = posicion
-        proyectil.fijarPosicion(posicion)
-    }
+    override fun reanudar() = datos.reanudar()
 
-    override fun detenerPelota() {
-        proyectil.fijarVelocidad(Vector2D(0.0, 0.0))
-        proyectil.fijarAngulo(0.0)
-        proyectil.fijarVelocidadAngular(0.0)
+    override fun alternarPausa(): Boolean = datos.alternarPausa()
+
+    override fun tipoPelota(): TipoPelota = datos.tipoPelota()
+
+    override fun factorGravedad(): Double = datos.factorGravedad()
+
+    override fun modo(): ModoSimulacion = datos.modo()
+
+    override fun pelota(): Proyectil = datos.pelota()
+
+    override fun posicionInicial(): Vector2D = datos.posicionInicial()
+
+    override fun posicionOrigen(): Vector2D = datos.posicionOrigen()
+
+    override fun cambiarTipoPelota(tipo: TipoPelota) = datos.cambiarTipoPelota(tipo)
+
+    override fun cambiarModo(nuevo: ModoSimulacion) = datos.cambiarModo(nuevo)
+
+    override fun cambiarGravedad(nuevoFactor: Double) = datos.cambiarGravedad(nuevoFactor)
+
+    override fun colocarPelota(posicion: Vector2D) = datos.colocarPelota(posicion)
+
+    override fun reubicarPelota(posicion: Vector2D) = datos.reubicarPelota(posicion)
+
+    override fun detenerPelota() = datos.detenerPelota()
+
+    private data class DatosSesionPartida(
+        val fabricaProyectiles: FabricaProyectiles,
+        val puntoInicial: Vector2D,
+        var estadoActual: EstadoSimulacion,
+        var enPausa: Boolean,
+        var tipoPelotaActual: TipoPelota,
+        var factorGravedadActual: Double,
+        var modoActual: ModoSimulacion,
+        var proyectil: Proyectil,
+        var origen: Vector2D
+    ) {
+        constructor(
+            alto: Double,
+            tipoPelotaInicial: TipoPelota,
+            modoInicial: ModoSimulacion,
+            fabricaProyectiles: FabricaProyectiles
+        ) : this(
+            fabricaProyectiles,
+            Vector2D(50.0, alto - 60.0),
+            EstadoSimulacion.PantallaInicio,
+            false,
+            tipoPelotaInicial,
+            Gravedades.factorPorDefecto(),
+            modoInicial,
+            fabricaProyectiles.crear(Vector2D(50.0, alto - 60.0), tipoPelotaInicial),
+            Vector2D(50.0, alto - 60.0)
+        )
+
+        fun estado(): EstadoSimulacion = estadoActual
+
+        fun cambiarEstado(nuevo: EstadoSimulacion) {
+            estadoActual = nuevo
+        }
+
+        fun pausado(): Boolean = enPausa
+
+        fun pausar() {
+            enPausa = true
+        }
+
+        fun reanudar() {
+            enPausa = false
+        }
+
+        fun alternarPausa(): Boolean {
+            enPausa = !enPausa
+            return enPausa
+        }
+
+        fun tipoPelota(): TipoPelota = tipoPelotaActual
+
+        fun factorGravedad(): Double = factorGravedadActual
+
+        fun modo(): ModoSimulacion = modoActual
+
+        fun pelota(): Proyectil = proyectil
+
+        fun posicionInicial(): Vector2D = puntoInicial
+
+        fun posicionOrigen(): Vector2D = origen
+
+        fun cambiarTipoPelota(tipo: TipoPelota) {
+            tipoPelotaActual = tipo
+            recrearProyectilEnOrigen()
+        }
+
+        fun cambiarModo(nuevo: ModoSimulacion) {
+            modoActual = nuevo
+        }
+
+        fun cambiarGravedad(nuevoFactor: Double) {
+            factorGravedadActual = nuevoFactor
+        }
+
+        fun colocarPelota(posicion: Vector2D) {
+            origen = posicion
+            recrearProyectilEnOrigen()
+        }
+
+        fun reubicarPelota(posicion: Vector2D) {
+            origen = posicion
+            proyectil.fijarPosicion(posicion)
+        }
+
+        fun detenerPelota() {
+            proyectil.fijarVelocidad(Vector2D(0.0, 0.0))
+            proyectil.fijarAngulo(0.0)
+            proyectil.fijarVelocidadAngular(0.0)
+        }
+
+        fun descripcion(): String =
+            "sesion(estado=$estadoActual, pausa=$enPausa, pelota=$tipoPelotaActual, gravedad=$factorGravedadActual, modo=$modoActual, origen=$origen, inicial=$puntoInicial, proyectil=${proyectil.javaClass.simpleName})"
+
+        fun esValida(): Boolean =
+            factorGravedadActual > 0 && origen !== puntoInicial && tipoPelotaActual.javaClass !== modoActual.javaClass
+
+        fun resumen(): String =
+            "$estadoActual | $tipoPelotaActual | $modoActual | g=$factorGravedadActual | pausa=$enPausa | origen=$origen"
+
+        fun estadoCompleto(): List<Any> = listOf(
+            estadoActual,
+            enPausa,
+            tipoPelotaActual,
+            factorGravedadActual,
+            modoActual,
+            proyectil,
+            origen,
+            puntoInicial
+        )
+
+        private fun recrearProyectilEnOrigen() {
+            proyectil = fabricaProyectiles.crear(origen, tipoPelotaActual)
+        }
     }
 }
