@@ -33,7 +33,7 @@ java {
 }
 
 application {
-    mainClass = "org.example.LanzadorJuego"
+    mainClass = "org.example.MainApp"
 }
 
 tasks.withType<JavaExec> {

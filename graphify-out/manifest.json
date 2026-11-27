@@ -14,10 +14,10 @@
     "ast_empty": true
   },
   "app/build.gradle.kts": {
-    "mtime": 1792148490.3064032,
-    "seen": 1793619798.0693622,
-    "ast_hash": "9989311d601f8f8fb1bb89e6bb78af22",
-    "semantic_hash": "9989311d601f8f8fb1bb89e6bb78af22"
+    "mtime": 1795785601.6695626,
+    "seen": 1795785636.0807867,
+    "ast_hash": "20ff3a46b78076cbf97e84b4cf239165",
+    "semantic_hash": ""
   },
   "app/src/main/kotlin/org/example/App.kt": {
     "mtime": 1793620726.3251443,
@@ -26,9 +26,9 @@
     "semantic_hash": ""
   },
   "app/src/main/kotlin/org/example/MainApp.kt": {
-    "mtime": 1795779813.3193614,
-    "seen": 1795780379.3976588,
-    "ast_hash": "75a83c30ec9bdf333eb48e3ff3a01b26",
+    "mtime": 1795785600.9665475,
+    "seen": 1795785636.0808208,
+    "ast_hash": "6a7dcaaaea5eb7e013fd026722289cb9",
     "semantic_hash": ""
   },
   "app/src/main/kotlin/org/example/coordenadas/Camara.kt": {

@@ -10,6 +10,11 @@ class MainApp : Application(), ControlEventosUI {
     companion object {
         const val ANCHO_VENTANA = 1000.0
         const val ALTO_VENTANA = 650.0
+
+        @JvmStatic
+        fun main(args: Array<String>) {
+            Application.launch(MainApp::class.java, *args)
+        }
     }
 
     private val arquitectura = ArquitecturaAplicacion(this, ANCHO_VENTANA, ALTO_VENTANA)

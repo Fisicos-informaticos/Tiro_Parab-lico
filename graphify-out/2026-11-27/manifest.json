@@ -824,9 +824,9 @@
     "semantic_hash": ""
   },
   "app/src/main/kotlin/org/example/MainAppSupport.kt": {
-    "mtime": 1795780823.7286146,
-    "seen": 1795780890.1473324,
-    "ast_hash": "ef92d9930ebbe973b3a41c35b7edde94",
+    "mtime": 1795784531.2813597,
+    "seen": 1795784546.6121044,
+    "ast_hash": "8fcaeb9ee05fb777836c13b74cfc8d4f",
     "semantic_hash": ""
   },
   "app/src/main/kotlin/org/example/grafico/DibujadorFlecha.kt": {
